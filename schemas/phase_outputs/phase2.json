@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase2.json",
+  "title": "Phase 2 Output — Data Identification, Collection & Extraction",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "data_source_map",
+    "schema_reconnaissance",
+    "extraction_plan",
+    "governance_flags",
+    "completeness_assessment",
+    "data_dictionary",
+    "phase_3_handoff_notes"
+  ],
+  "properties": {
+    "phase": { "const": 2 },
+    "phase_name": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "NEEDS_RETRY", "BLOCKED"]
+    },
+    "blocker": { "type": ["string", "null"] },
+
+    "data_source_map": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "sub_question_id",
+          "sources_needed",
+          "availability",
+          "reasoning"
+        ],
+        "properties": {
+          "sub_question_id": { "type": "string", "pattern": "^SQ\\d+$" },
+          "sources_needed": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "availability": {
+            "type": "string",
+            "enum": ["CONFIRMED", "ASSUMED", "MISSING", "REQUIRES_ACCESS"]
+          },
+          "join_logic": { "type": "string" },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "schema_reconnaissance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_name",
+          "source_type",
+          "schema_status",
+          "columns"
+        ],
+        "properties": {
+          "source_name": { "type": "string", "minLength": 1 },
+          "source_type": {
+            "type": "string",
+            "enum": ["SQL_TABLE", "CSV", "API", "SPREADSHEET"]
+          },
+          "schema_status": {
+            "type": "string",
+            "enum": ["CONFIRMED", "INFERRED"]
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "data_type"],
+              "properties": {
+                "name": { "type": "string", "minLength": 1 },
+                "data_type": { "type": "string", "minLength": 1 },
+                "example_values": { "type": "array" },
+                "is_pii": { "type": "boolean" },
+                "notes": { "type": "string" }
+              }
+            }
+          },
+          "estimated_rows": { "type": "string" },
+          "date_range": { "type": "string" },
+          "primary_key": { "type": "string" },
+          "foreign_keys": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "extraction_plan": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "sub_question_id",
+          "extraction_type",
+          "query_or_steps",
+          "reasoning"
+        ],
+        "properties": {
+          "sub_question_id": { "type": "string", "pattern": "^SQ\\d+$" },
+          "extraction_type": {
+            "type": "string",
+            "enum": ["SQL", "PYTHON", "MANUAL"]
+          },
+          "query_or_steps": { "type": "string", "minLength": 1 },
+          "volume_estimate": { "type": "string" },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "governance_flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["column", "flag_type", "mitigation"],
+        "properties": {
+          "column": { "type": "string", "minLength": 1 },
+          "flag_type": {
+            "type": "string",
+            "enum": ["PII", "RETENTION", "ACCESS_CONTROL"]
+          },
+          "mitigation": { "type": "string" }
+        }
+      }
+    },
+
+    "completeness_assessment": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["kpi", "coverage", "reasoning"],
+        "properties": {
+          "kpi": { "type": "string", "minLength": 1 },
+          "coverage": {
+            "type": "string",
+            "enum": ["FULLY_COVERABLE", "PARTIALLY_COVERABLE", "NOT_COVERABLE"]
+          },
+          "proxy_metric": { "type": "string" },
+          "impact_if_missing": { "type": "string" },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "data_dictionary": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "column_name",
+          "business_definition",
+          "data_type"
+        ],
+        "properties": {
+          "column_name": { "type": "string", "minLength": 1 },
+          "business_definition": { "type": "string", "minLength": 1 },
+          "data_type": { "type": "string", "minLength": 1 },
+          "value_range_or_enum": { "type": "string" },
+          "known_quality_issues": { "type": "string" }
+        }
+      }
+    },
+
+    "phase_3_handoff_notes": { "type": "string" }
+  },
+  "additionalProperties": true
+}
