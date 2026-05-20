@@ -1,0 +1,185 @@
+{
+  "phase": 7,
+  "phase_name": "Data Visualisation & Dashboard Design",
+  "status": "COMPLETE",
+
+  "insight_to_chart_map": [
+    {
+      "insight_rank": 1,
+      "insight_summary": "Paid_search users (especially Google non-brand) churn voluntarily because the generic onboarding flow doesn't match their search intent.",
+      "chart_type": "Horizontal sorted bar chart",
+      "chart_reasoning": "Comparing voluntary churn rate across paid_search sub-channels is a categorical comparison, sorted bar with horizontal orientation keeps sub-channel labels readable. The audience is the product team — a bar with absolute % labels beats a stacked bar because the metric is a single rate, not a composition.",
+      "alternatives_rejected": [
+        {"chart": "Stacked bar", "reason_rejected": "Adds a composition dimension that distracts from the single-rate comparison."},
+        {"chart": "Pie chart", "reason_rejected": "5 sub-channels would violate the ≤4-slice rule and obscure ranking."}
+      ]
+    },
+    {
+      "insight_rank": 2,
+      "insight_summary": "The 2025-07-15 pricing change drove a Starter-tier-specific churn spike (+68% residual).",
+      "chart_type": "Line chart with annotated change-point and tier facets",
+      "chart_reasoning": "Time-series with a discontinuity is the textbook line-chart case. Faceting by plan_tier makes the Starter-vs-Pro contrast visually decisive. Annotation at 2025-07-15 anchors the reader to the inflection.",
+      "alternatives_rejected": [
+        {"chart": "Stacked area", "reason_rejected": "Visually compresses the per-tier residual which is the key signal."},
+        {"chart": "Box plot", "reason_rejected": "Loses the time dimension — the whole point is the level shift on a date."}
+      ]
+    },
+    {
+      "insight_rank": 3,
+      "insight_summary": "First-feature activation is the highest-leverage product fix.",
+      "chart_type": "Funnel chart (retained vs voluntary-churn cohorts side by side)",
+      "chart_reasoning": "Sequential conversion is the canonical funnel-chart case. Side-by-side cohort funnels show exactly which step breaks for churners; the 46pp gap at first_feature_used reads instantly.",
+      "alternatives_rejected": [
+        {"chart": "Stacked bar", "reason_rejected": "Doesn't communicate the sequential dependence between steps."},
+        {"chart": "Sankey", "reason_rejected": "Overkill — there are only 4 nodes and 3 transitions; a funnel is clearer for this audience."}
+      ]
+    }
+  ],
+
+  "dashboard_architecture": {
+    "dashboard_type": "ANALYST",
+    "sections": [
+      {
+        "section_name": "Top-line KPIs",
+        "purpose": "Anchor the reader on the four churn metrics the product team manages.",
+        "components": ["KPI scorecard: Q3 voluntary churn rate (14% → 22%)", "KPI scorecard: Paid_search voluntary churn (31%)", "KPI scorecard: Median event_count_30d for retained vs churn cohorts (17 vs 6)", "KPI scorecard: Starter-tier post-pricing churn delta (+68%)"],
+        "layout_position": "top"
+      },
+      {
+        "section_name": "Channel deep-dive",
+        "purpose": "Drill from headline channel rate into sub-channel ranking.",
+        "components": ["Horizontal sorted bar: voluntary churn by paid_search sub-channel"],
+        "layout_position": "left"
+      },
+      {
+        "section_name": "Pricing-change time series",
+        "purpose": "Show the pre/post discontinuity and confirm tier-specificity.",
+        "components": ["Line chart with 2025-07-15 marker, faceted by plan_tier"],
+        "layout_position": "right"
+      },
+      {
+        "section_name": "Activation funnel",
+        "purpose": "Pinpoint the onboarding step that breaks for churners.",
+        "components": ["Side-by-side funnel chart: retained vs voluntary-churn cohorts"],
+        "layout_position": "center"
+      },
+      {
+        "section_name": "Caveats + next steps callout",
+        "purpose": "Disclose UNDERPOWERED H3 and the HYPOTHESISED root-cause status of H1+H2.",
+        "components": ["Text callout box with statistical caveats and unanswered sub-questions"],
+        "layout_position": "bottom"
+      }
+    ],
+    "interactivity_spec": "Plan_tier and acquisition_channel filters are global. Hovering any KPI scorecard shows the 90-day sparkline. Funnel cohorts can be toggled (retained / voluntary / involuntary)."
+  },
+
+  "visualisation_specs": [
+    {
+      "chart_name": "Paid_search voluntary churn doubles in Google non-brand",
+      "purpose": "Rank paid_search sub-channels by voluntary churn rate and surface the worst offender.",
+      "chart_type": "Horizontal sorted bar",
+      "data_source": { "table": "clean.churn_extract", "columns": ["acquisition_channel", "sub_channel", "churn_type"] },
+      "x_axis": { "field": "voluntary_churn_rate", "label": "Voluntary churn rate (%)", "format": "0.0%" },
+      "y_axis": { "field": "sub_channel", "label": "Paid_search sub-channel", "format": "categorical", "scale": "categorical" },
+      "colour_encoding": { "field": "sub_channel", "palette": "Okabe-Ito (colourblind-safe)", "colourblind_safe": true },
+      "filters": ["plan_tier"],
+      "tooltips": ["sub_channel", "voluntary_churn_rate", "n_users", "cumulative_share_of_paid_search_voluntary_churn"],
+      "reference_lines": ["Organic baseline (14%)"],
+      "annotations": ["Google non-brand drives 47% of paid_search voluntary churn volume."],
+      "alt_text": "Horizontal bar chart showing voluntary churn rate by paid_search sub-channel: Google non-brand 41 percent, Bing 35 percent, Facebook 28 percent, Google brand 18 percent. Organic baseline reference line at 14 percent.",
+      "recommended_tool": "Plotly"
+    },
+    {
+      "chart_name": "Pricing change drives Starter-tier-only churn spike",
+      "purpose": "Show the pre/post 2025-07-15 discontinuity and confirm it's concentrated in Starter tier.",
+      "chart_type": "Line chart with annotated change-point and tier facets",
+      "data_source": { "table": "clean.churn_extract", "columns": ["end_date", "plan_tier", "churn_type"] },
+      "x_axis": { "field": "week_ending", "label": "Week", "format": "YYYY-MM-DD" },
+      "y_axis": { "field": "weekly_voluntary_churn_count", "label": "Voluntary churns / week", "format": "0,0", "scale": "linear (start at 0)" },
+      "colour_encoding": { "field": "plan_tier", "palette": "Okabe-Ito 3-tier", "colourblind_safe": true },
+      "filters": ["acquisition_channel"],
+      "tooltips": ["week_ending", "plan_tier", "weekly_voluntary_churn_count", "weekly_rate_per_active_user"],
+      "reference_lines": ["Vertical at 2025-07-15 (pricing change)", "7-day rolling mean per tier"],
+      "annotations": ["Starter-tier residual: +68% post-shift. Pro/Enterprise within noise."],
+      "alt_text": "Three-line chart of weekly voluntary churn count by plan tier from 2025-06-03 to 2025-08-26. Starter line jumps from about 320 to about 540 per week after the 2025-07-15 marker; Pro and Enterprise lines are flat.",
+      "recommended_tool": "Matplotlib"
+    },
+    {
+      "chart_name": "Voluntary churners never reach the first feature",
+      "purpose": "Pinpoint the activation step where churners and retained users diverge.",
+      "chart_type": "Side-by-side funnel chart",
+      "data_source": { "table": "clean.activation_funnel", "columns": ["step", "cohort", "users", "conversion_rate"] },
+      "x_axis": { "field": "step", "label": "Activation step", "format": "categorical" },
+      "y_axis": { "field": "conversion_rate", "label": "Cohort %", "format": "0%", "scale": "linear" },
+      "colour_encoding": { "field": "cohort", "palette": "Okabe-Ito retained=blue, churn=orange", "colourblind_safe": true },
+      "filters": ["plan_tier", "acquisition_channel"],
+      "tooltips": ["step", "cohort", "users", "conversion_rate", "drop_pp_from_previous_step"],
+      "reference_lines": [],
+      "annotations": ["46pp gap at first_feature_used — the breakpoint."],
+      "alt_text": "Two side-by-side funnels for retained and voluntary-churn cohorts across signup, first login, first feature used, and weekly recurring event. The retained cohort holds at 84 percent through first feature used while the voluntary-churn cohort drops to 38 percent at the same step.",
+      "recommended_tool": "Plotly"
+    },
+    {
+      "chart_name": "Cohort engagement collapses pre-churn",
+      "purpose": "Show the underlying distribution that drove H2's odds ratio.",
+      "chart_type": "Grouped box plot (log-y), faceted by acquisition_channel",
+      "data_source": { "table": "clean.churn_extract", "columns": ["churn_type", "event_count_30d", "acquisition_channel"] },
+      "x_axis": { "field": "churn_type", "label": "Cohort", "format": "categorical" },
+      "y_axis": { "field": "event_count_30d", "label": "First-30-day event count (log)", "format": "log", "scale": "log10" },
+      "colour_encoding": { "field": "acquisition_channel", "palette": "Okabe-Ito", "colourblind_safe": true },
+      "filters": ["plan_tier"],
+      "tooltips": ["acquisition_channel", "median_events", "p25", "p75"],
+      "reference_lines": ["Median per cohort"],
+      "annotations": ["Median 17 (retained) vs 6 (voluntary churn) — 65% gap."],
+      "alt_text": "Grouped box plot of first-30-day event count on a log y-axis, by churn type, faceted by acquisition channel. Voluntary-churn boxes sit consistently below retained boxes; paid_search shows the widest gap.",
+      "recommended_tool": "Seaborn"
+    }
+  ],
+
+  "anti_pattern_audit": [
+    {
+      "chart_name": "Pricing change drives Starter-tier-only churn spike",
+      "anti_pattern_found": "Original draft had a truncated y-axis starting at 250 which exaggerated the post-shift jump.",
+      "correction_applied": "Reset y-axis to start at 0; the post-shift spike still reads clearly without inflating the relative change."
+    },
+    {
+      "chart_name": "Voluntary churners never reach the first feature",
+      "anti_pattern_found": "Original draft titled the chart 'Activation Funnel by Cohort' — a category label, not an insight.",
+      "correction_applied": "Renamed to 'Voluntary churners never reach the first feature' so the title states the finding."
+    }
+  ],
+
+  "accessibility_review": {
+    "colourblind_safe": true,
+    "min_font_size_met": true,
+    "alt_text_written": true,
+    "wcag_contrast_met": true,
+    "notes": "All charts use the Okabe-Ito palette. Reference-line labels are 14pt+; axis labels 12pt+; titles 18pt. Contrast checked at 4.7:1 for body text on the dashboard background."
+  },
+
+  "narrative_flow": {
+    "hook": "Paid_search voluntary churn is more than double organic — and it's concentrated in one sub-channel.",
+    "context_sequence": [
+      "The 2025-07-15 pricing change drove a Starter-tier-only spike, not a base-wide one.",
+      "Across the base, voluntary churners share one behaviour: they never reach the first feature."
+    ],
+    "payoff": "An intent-segmented onboarding test for paid_search Google non-brand is the highest-leverage Q4 intervention; pricing-perception mitigation should be scoped narrowly to entry-tier first-bill experience.",
+    "dashboard_section_order": [
+      "Top-line KPIs",
+      "Channel deep-dive",
+      "Pricing-change time series",
+      "Activation funnel",
+      "Caveats + next steps callout"
+    ]
+  },
+
+  "phase_8_handoff": {
+    "chart_titles_as_insight_headlines": [
+      "Paid_search voluntary churn doubles in Google non-brand",
+      "Pricing change drives Starter-tier-only churn spike",
+      "Voluntary churners never reach the first feature",
+      "Cohort engagement collapses pre-churn"
+    ],
+    "narrative_arc_summary": "Hook with the channel asymmetry; deepen with the pricing-change tier specificity; payoff with the activation funnel that gives the product team a concrete onboarding lever."
+  }
+}
