@@ -1,0 +1,261 @@
+{
+  "dataset": "IBM Telco Customer Churn",
+  "n_rows": 7043,
+  "n_cols": 21,
+  "overall_churn_rate": 0.2653698707936959,
+  "business_question": "What are the top drivers of customer churn in our telecom subscriber base, and which two or three interventions would most cost-effectively reduce it?",
+  "stakeholder": "Customer Retention / Marketing leadership (medium technical tolerance)",
+  "columns": [
+    {
+      "name": "customerID",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 7043,
+      "sample_values": [
+        "3186-AJIEK",
+        "7590-VHVEG",
+        "5575-GNVDE",
+        "4501-VCPFK",
+        "6075-SLNIL",
+        "9347-AERRL",
+        "0093-XWZFY",
+        "2274-XUATA"
+      ],
+      "description": "high-cardinality text [7043 distinct] (e.g. identifier)"
+    },
+    {
+      "name": "gender",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 2,
+      "sample_values": [
+        "Male",
+        "Female"
+      ],
+      "description": "categorical [2]: 'Male':3555, 'Female':3488"
+    },
+    {
+      "name": "SeniorCitizen",
+      "raw_dtype": "int64",
+      "explicit_nulls": 0,
+      "distinct": 2,
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.1621468124378816,
+      "description": "numeric: min=0, max=1, mean=0.16, median=0.0"
+    },
+    {
+      "name": "Partner",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 2,
+      "sample_values": [
+        "No",
+        "Yes"
+      ],
+      "description": "categorical [2]: 'No':3641, 'Yes':3402"
+    },
+    {
+      "name": "Dependents",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 2,
+      "sample_values": [
+        "No",
+        "Yes"
+      ],
+      "description": "categorical [2]: 'No':4933, 'Yes':2110"
+    },
+    {
+      "name": "tenure",
+      "raw_dtype": "int64",
+      "explicit_nulls": 0,
+      "distinct": 73,
+      "min": 0.0,
+      "max": 72.0,
+      "mean": 32.37114865824223,
+      "description": "numeric: min=0, max=72, mean=32.37, median=29.0"
+    },
+    {
+      "name": "PhoneService",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 2,
+      "sample_values": [
+        "Yes",
+        "No"
+      ],
+      "description": "categorical [2]: 'Yes':6361, 'No':682"
+    },
+    {
+      "name": "MultipleLines",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 3,
+      "sample_values": [
+        "No",
+        "Yes",
+        "No phone service"
+      ],
+      "description": "categorical [3]: 'No':3390, 'Yes':2971, 'No phone service':682"
+    },
+    {
+      "name": "InternetService",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 3,
+      "sample_values": [
+        "Fiber optic",
+        "DSL",
+        "No"
+      ],
+      "description": "categorical [3]: 'Fiber optic':3096, 'DSL':2421, 'No':1526"
+    },
+    {
+      "name": "OnlineSecurity",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 3,
+      "sample_values": [
+        "No",
+        "Yes",
+        "No internet service"
+      ],
+      "description": "categorical [3]: 'No':3498, 'Yes':2019, 'No internet service':1526"
+    },
+    {
+      "name": "OnlineBackup",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 3,
+      "sample_values": [
+        "No",
+        "Yes",
+        "No internet service"
+      ],
+      "description": "categorical [3]: 'No':3088, 'Yes':2429, 'No internet service':1526"
+    },
+    {
+      "name": "DeviceProtection",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 3,
+      "sample_values": [
+        "No",
+        "Yes",
+        "No internet service"
+      ],
+      "description": "categorical [3]: 'No':3095, 'Yes':2422, 'No internet service':1526"
+    },
+    {
+      "name": "TechSupport",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 3,
+      "sample_values": [
+        "No",
+        "Yes",
+        "No internet service"
+      ],
+      "description": "categorical [3]: 'No':3473, 'Yes':2044, 'No internet service':1526"
+    },
+    {
+      "name": "StreamingTV",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 3,
+      "sample_values": [
+        "No",
+        "Yes",
+        "No internet service"
+      ],
+      "description": "categorical [3]: 'No':2810, 'Yes':2707, 'No internet service':1526"
+    },
+    {
+      "name": "StreamingMovies",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 3,
+      "sample_values": [
+        "No",
+        "Yes",
+        "No internet service"
+      ],
+      "description": "categorical [3]: 'No':2785, 'Yes':2732, 'No internet service':1526"
+    },
+    {
+      "name": "Contract",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 3,
+      "sample_values": [
+        "Month-to-month",
+        "Two year",
+        "One year"
+      ],
+      "description": "categorical [3]: 'Month-to-month':3875, 'Two year':1695, 'One year':1473"
+    },
+    {
+      "name": "PaperlessBilling",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 2,
+      "sample_values": [
+        "Yes",
+        "No"
+      ],
+      "description": "categorical [2]: 'Yes':4171, 'No':2872"
+    },
+    {
+      "name": "PaymentMethod",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 4,
+      "sample_values": [
+        "Electronic check",
+        "Mailed check",
+        "Bank transfer (automatic)",
+        "Credit card (automatic)"
+      ],
+      "description": "categorical [4]: 'Electronic check':2365, 'Mailed check':1612, 'Bank transfer (automatic)':1544, 'Credit card (automatic)':1522"
+    },
+    {
+      "name": "MonthlyCharges",
+      "raw_dtype": "float64",
+      "explicit_nulls": 0,
+      "distinct": 1585,
+      "min": 18.25,
+      "max": 118.75,
+      "mean": 64.76169246059918,
+      "description": "numeric: min=18.25, max=118.75, mean=64.76, median=70.35"
+    },
+    {
+      "name": "TotalCharges",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 6531,
+      "sample_values": [
+        " ",
+        "20.2",
+        "19.75",
+        "20.05",
+        "19.9",
+        "19.65",
+        "19.55",
+        "45.3"
+      ],
+      "description": "high-cardinality text [6531 distinct] (e.g. identifier)"
+    },
+    {
+      "name": "Churn",
+      "raw_dtype": "object",
+      "explicit_nulls": 0,
+      "distinct": 2,
+      "sample_values": [
+        "No",
+        "Yes"
+      ],
+      "description": "categorical [2]: 'No':5174, 'Yes':1869"
+    }
+  ]
+}
