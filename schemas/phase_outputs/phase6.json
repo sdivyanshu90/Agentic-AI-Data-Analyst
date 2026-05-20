@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase6.json",
+  "title": "Phase 6 Output — Advanced Analysis & Root Cause Investigation",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "analyses",
+    "root_cause_chains",
+    "segment_deep_dives",
+    "impact_quantification",
+    "insight_ranking",
+    "unanswered_subquestions",
+    "phase_7_top_insights_for_visualisation"
+  ],
+  "properties": {
+    "phase": { "const": 6 },
+    "phase_name": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "NEEDS_RETRY", "PARTIAL"]
+    },
+
+    "analyses": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "subquestion_id",
+          "method_selected",
+          "method_reasoning",
+          "execution_steps",
+          "results"
+        ],
+        "properties": {
+          "subquestion_id": { "type": "string", "pattern": "^SQ\\d+$" },
+          "method_selected": { "type": "string", "minLength": 1 },
+          "method_reasoning": { "type": "string", "minLength": 1 },
+          "execution_steps": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "minItems": 1
+          },
+          "results": {
+            "type": "object",
+            "required": ["key_metric", "value", "business_interpretation"],
+            "properties": {
+              "key_metric": { "type": "string", "minLength": 1 },
+              "value": {},
+              "baseline_comparison": { "type": "string" },
+              "business_interpretation": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+
+    "root_cause_chains": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "finding_ref",
+          "symptom",
+          "proximate_cause",
+          "root_cause"
+        ],
+        "properties": {
+          "finding_ref": { "type": "string", "minLength": 1 },
+          "symptom": { "type": "string", "minLength": 1 },
+          "proximate_cause": {
+            "type": "object",
+            "required": ["description", "evidence"],
+            "properties": {
+              "description": { "type": "string", "minLength": 1 },
+              "evidence": { "type": "string", "minLength": 1 }
+            }
+          },
+          "contributing_factor": {
+            "type": "object",
+            "properties": {
+              "description": { "type": "string" },
+              "evidence": { "type": "string" }
+            }
+          },
+          "root_cause": {
+            "type": "object",
+            "required": ["description", "evidence", "status"],
+            "properties": {
+              "description": { "type": "string", "minLength": 1 },
+              "evidence": { "type": "string", "minLength": 1 },
+              "status": {
+                "type": "string",
+                "enum": ["CONFIRMED", "HYPOTHESISED"]
+              },
+              "data_needed_to_confirm": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "segment_deep_dives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["finding_ref", "segments_analysed", "simpsons_paradox_detected"],
+        "properties": {
+          "finding_ref": { "type": "string", "minLength": 1 },
+          "segments_analysed": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "finding_holds_across_segments": { "type": "boolean" },
+          "highest_impact_segment": { "type": "string" },
+          "magnitude_in_segment": { "type": "string" },
+          "simpsons_paradox_detected": { "type": "boolean" },
+          "simpsons_paradox_description": { "type": "string" }
+        }
+      }
+    },
+
+    "impact_quantification": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["finding", "current_state", "confidence"],
+        "properties": {
+          "finding": { "type": "string", "minLength": 1 },
+          "current_state": { "type": "string", "minLength": 1 },
+          "opportunity_estimate": { "type": "string" },
+          "confidence": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+          "key_assumption": { "type": "string" }
+        }
+      }
+    },
+
+    "insight_ranking": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["rank", "insight", "impact", "actionability", "confidence"],
+        "properties": {
+          "rank": { "type": "integer", "minimum": 1 },
+          "insight": { "type": "string", "minLength": 1 },
+          "impact": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+          "actionability": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+          "confidence": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] }
+        }
+      }
+    },
+
+    "unanswered_subquestions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["subquestion_id", "reason", "status"],
+        "properties": {
+          "subquestion_id": { "type": "string", "pattern": "^SQ\\d+$" },
+          "reason": { "type": "string", "minLength": 1 },
+          "status": {
+            "type": "string",
+            "enum": ["DEFERRED", "REQUIRES_NEW_DATA", "DESCOPED"]
+          },
+          "path_to_answer": { "type": "string" }
+        }
+      }
+    },
+
+    "phase_7_top_insights_for_visualisation": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "additionalProperties": true
+}
