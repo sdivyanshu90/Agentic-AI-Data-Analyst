@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase4.json",
+  "title": "Phase 4 Output — Exploratory Data Analysis",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "univariate_analysis",
+    "bivariate_analysis",
+    "multivariate_patterns",
+    "anomaly_catalogue",
+    "hypotheses",
+    "eda_visualisation_spec",
+    "phase_5_handoff"
+  ],
+  "properties": {
+    "phase": { "const": 4 },
+    "phase_name": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "NEEDS_RETRY", "PARTIAL"]
+    },
+
+    "univariate_analysis": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["column", "key_observation", "recommended_viz"],
+        "properties": {
+          "column": { "type": "string", "minLength": 1 },
+          "distribution_shape": { "type": "string" },
+          "central_tendency": {
+            "type": "object",
+            "properties": {
+              "mean": {},
+              "median": {}
+            }
+          },
+          "spread": {
+            "type": "object",
+            "properties": {
+              "std_dev": {},
+              "iqr": {}
+            }
+          },
+          "outlier_count": { "type": "integer", "minimum": 0 },
+          "key_observation": { "type": "string", "minLength": 1 },
+          "recommended_viz": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "bivariate_analysis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "variable_a",
+          "variable_b",
+          "relationship_type",
+          "strength",
+          "key_finding",
+          "reasoning"
+        ],
+        "properties": {
+          "variable_a": { "type": "string", "minLength": 1 },
+          "variable_b": { "type": "string", "minLength": 1 },
+          "relationship_type": {
+            "type": "string",
+            "enum": [
+              "Numeric-Numeric",
+              "Numeric-Categorical",
+              "Categorical-Categorical",
+              "Date-Numeric"
+            ]
+          },
+          "strength": {
+            "type": "string",
+            "enum": ["STRONG", "MODERATE", "WEAK", "NONE"]
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["POSITIVE", "NEGATIVE", "NON-LINEAR", "N/A"]
+          },
+          "key_finding": { "type": "string", "minLength": 1 },
+          "statistic": { "type": "string" },
+          "recommended_viz": { "type": "string" },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "multivariate_patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["variables_involved", "pattern_observed"],
+        "properties": {
+          "variables_involved": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "pattern_observed": { "type": "string", "minLength": 1 },
+          "business_interpretation": { "type": "string" },
+          "recommended_followup": { "type": "string" }
+        }
+      }
+    },
+
+    "anomaly_catalogue": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["anomaly_description", "possible_explanations"],
+        "properties": {
+          "anomaly_description": { "type": "string", "minLength": 1 },
+          "possible_explanations": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          },
+          "investigate_in_phase_6": { "type": "boolean" }
+        }
+      }
+    },
+
+    "hypotheses": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "source",
+          "expected_test_type",
+          "reasoning"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^H\\d+$" },
+          "statement": { "type": "string", "minLength": 1 },
+          "variables": { "type": "array", "items": { "type": "string" } },
+          "source": {
+            "type": "string",
+            "enum": ["GENERATED_FROM_SUBQUESTION", "EMERGENT"]
+          },
+          "subquestion_id": { "type": ["string", "null"] },
+          "expected_test_type": { "type": "string", "minLength": 1 },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "eda_visualisation_spec": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "finding_ref",
+          "chart_type",
+          "x_axis",
+          "insight_in_one_sentence",
+          "reasoning"
+        ],
+        "properties": {
+          "finding_ref": { "type": "string", "minLength": 1 },
+          "chart_type": { "type": "string", "minLength": 1 },
+          "x_axis": { "type": "string", "minLength": 1 },
+          "y_axis": { "type": "string" },
+          "colour_facet": { "type": "string" },
+          "tool": { "type": "string" },
+          "insight_in_one_sentence": { "type": "string", "minLength": 1 },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "phase_5_handoff": {
+      "type": "object",
+      "required": ["hypotheses_to_test"],
+      "properties": {
+        "hypotheses_to_test": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^H\\d+$" }
+        },
+        "priority_order": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": true
+}
