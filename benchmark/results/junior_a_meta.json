@@ -1,0 +1,12 @@
+{
+  "baseline": "JUNIOR-A (single-shot LLM)",
+  "model": "gemini-2.5-pro",
+  "llm_calls": 1,
+  "elapsed_seconds": 38.9,
+  "usage": {
+    "prompt_token_count": 1222,
+    "candidates_token_count": 1573,
+    "thoughts_token_count": 2435,
+    "total_token_count": 5230
+  }
+}
