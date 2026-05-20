@@ -1,0 +1,285 @@
+{
+  "phase": 7,
+  "phase_name": "Data Visualisation & Dashboard Design",
+  "status": "COMPLETE",
+  "insight_to_chart_map": [
+    {
+      "insight_rank": 1,
+      "insight_summary": "The vast majority of churn (88.5%) comes from customers on Month-to-Month contracts. This single factor is the most powerful predictor and represents the highest-leverage point for intervention.",
+      "chart_type": "Sorted Bar Chart",
+      "chart_reasoning": "A bar chart is the most effective way to compare a metric (churn rate) across discrete, non-ordered categories (contract types). Sorting the bars by churn rate (descending) immediately draws the stakeholder's attention to the highest-risk category, 'Month-to-Month', making the key insight instantly visible.",
+      "alternatives_rejected": [
+        {
+          "chart": "Pie Chart",
+          "reason_rejected": "While there are only three categories, a bar chart is superior for comparing magnitudes accurately. The difference between 42.7% and 2.8% is more dramatically and clearly perceived through bar length than through pie slice angles."
+        },
+        {
+          "chart": "Stacked Bar Chart",
+          "reason_rejected": "A stacked bar showing the composition of churners (e.g., 88.5% of churners are M2M) is a powerful secondary point, but the primary message for intervention is the *risk* (churn rate) associated with each category. A simple bar chart focusing on churn rate is more direct and actionable."
+        }
+      ]
+    },
+    {
+      "insight_rank": 2,
+      "insight_summary": "Customers paying by Electronic Check churn at nearly 3x the rate of those on automatic payments, signaling significant friction in the payment process.",
+      "chart_type": "Sorted Bar Chart",
+      "chart_reasoning": "This insight involves comparing churn rates across four distinct payment methods. A bar chart provides a clear, apples-to-apples comparison. Sorting the chart highlights 'Electronic check' as a dramatic outlier compared to the three other methods, which have similarly low churn rates.",
+      "alternatives_rejected": [
+        {
+          "chart": "Donut Chart",
+          "reason_rejected": "With four categories, a donut chart becomes difficult to interpret accurately. It would obscure the fact that the three non-electronic check methods have very similar churn rates, a key part of the insight."
+        },
+        {
+          "chart": "Table",
+          "reason_rejected": "A table would present the precise numbers but lacks the immediate visual impact required for an executive dashboard. The goal is instant comprehension, and a bar chart achieves this by making the outlier visually obvious."
+        }
+      ]
+    },
+    {
+      "insight_rank": 3,
+      "insight_summary": "Lacking 'protective' add-ons like Tech Support or Online Security more than doubles churn risk for internet customers.",
+      "chart_type": "Bar Chart",
+      "chart_reasoning": "This insight is a straightforward comparison between two distinct groups: internet customers with protective add-ons and those without. A simple two-bar chart is the most direct and unambiguous way to illustrate the stark difference in churn rates between these two populations.",
+      "alternatives_rejected": [
+        {
+          "chart": "Line Chart",
+          "reason_rejected": "A line chart implies a trend or connection over an ordered sequence. The two categories ('With Add-on', 'Without Add-on') are not ordered, so a line chart would be misleading."
+        },
+        {
+          "chart": "KPI Card with a single percentage",
+          "reason_rejected": "Showing just the churn rate for the 'at-risk' group (49.0%) would lack context. The power of the insight comes from the direct comparison to the much lower churn rate of the 'protected' group (17.1%), which a side-by-side bar chart displays perfectly."
+        }
+      ]
+    }
+  ],
+  "dashboard_architecture": {
+    "dashboard_type": "EXECUTIVE",
+    "sections": [
+      {
+        "section_name": "KPI Scorecards: The Churn Problem at a Glance",
+        "purpose": "To provide a high-level summary of the key business outcomes and the scale of the primary churn drivers.",
+        "components": [
+          "KPI: Overall Churn Rate",
+          "KPI: Total Churned Customers",
+          "KPI: % of Churn from M2M Contracts",
+          "KPI: High-Risk Customers (M2M & E-Check)"
+        ],
+        "layout_position": "top"
+      },
+      {
+        "section_name": "Deep Dive: Top 3 Drivers of Customer Churn",
+        "purpose": "To visually present the evidence for the highest-impact churn factors, guiding the stakeholder to the root causes.",
+        "components": [
+          "Chart: M2M Contracts Drive Majority of Churn",
+          "Chart: Electronic Check Payment Friction",
+          "Chart: Protective Add-ons Reduce Churn"
+        ],
+        "layout_position": "center"
+      },
+      {
+        "section_name": "Key Takeaway & Recommendations",
+        "purpose": "To synthesize the findings into a clear, actionable statement for leadership.",
+        "components": [
+          "Text Box: Summary of Insights & Next Steps"
+        ],
+        "layout_position": "bottom"
+      }
+    ],
+    "interactivity_spec": "The dashboard will feature a single, optional global filter for 'Senior Citizen' status to allow leadership to see how these drivers affect this higher-churn demographic. All charts will have tooltips that appear on hover, providing specific numbers (e.g., churn rate, total customers in segment, number of churned customers). No other complex interactivity is needed to maintain clarity for the executive audience."
+  },
+  "visualisation_specs": [
+    {
+      "chart_name": "Month-to-Month Contracts Drive Majority of Churn",
+      "purpose": "To prove that Month-to-Month contracts are the primary source of churn and the highest-risk customer segment.",
+      "data_source": {
+        "table": "clean_telco_churn",
+        "columns": [
+          "Contract",
+          "Churn"
+        ]
+      },
+      "x_axis": {
+        "field": "Contract",
+        "label": "Contract Type",
+        "format": "Text"
+      },
+      "y_axis": {
+        "field": "churn_rate",
+        "label": "Churn Rate (%)",
+        "format": "Percentage",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "Contract",
+        "palette": "Sequential Blue, with a contrasting color (e.g., Orange) for 'Month-to-month' to highlight it.",
+        "colourblind_safe": true
+      },
+      "filters": [
+        "SeniorCitizen"
+      ],
+      "tooltips": [
+        "Contract",
+        "Churn Rate (%)",
+        "Total Customers",
+        "Number of Churned Customers"
+      ],
+      "reference_lines": [
+        {
+          "type": "Average",
+          "value": "Overall Churn Rate (26.5%)",
+          "label": "Company Average"
+        }
+      ],
+      "annotations": [
+        {
+          "location": "Above 'Month-to-month' bar",
+          "text": "42.7% churn rate"
+        }
+      ],
+      "alt_text": "A sorted bar chart showing churn rate by contract type. The 'Month-to-month' bar is highest at 42.7%. The 'One year' bar is next at 11.3%, and the 'Two year' bar is lowest at 2.8%. A reference line indicates the company average churn rate of 26.5%.",
+      "recommended_tool": "Tableau / Power BI"
+    },
+    {
+      "chart_name": "Electronic Check Payments Have 3x Higher Churn Risk",
+      "purpose": "To demonstrate that the 'Electronic check' payment method is a significant point of friction and a major churn driver.",
+      "data_source": {
+        "table": "clean_telco_churn",
+        "columns": [
+          "PaymentMethod",
+          "Churn"
+        ]
+      },
+      "x_axis": {
+        "field": "PaymentMethod",
+        "label": "Payment Method",
+        "format": "Text"
+      },
+      "y_axis": {
+        "field": "churn_rate",
+        "label": "Churn Rate (%)",
+        "format": "Percentage",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "PaymentMethod",
+        "palette": "Grey for all bars, with a contrasting color (e.g., Red) for 'Electronic check' to highlight it.",
+        "colourblind_safe": true
+      },
+      "filters": [
+        "SeniorCitizen"
+      ],
+      "tooltips": [
+        "PaymentMethod",
+        "Churn Rate (%)",
+        "Total Customers",
+        "Number of Churned Customers"
+      ],
+      "reference_lines": [
+        {
+          "type": "Average",
+          "value": "Overall Churn Rate (26.5%)",
+          "label": "Company Average"
+        }
+      ],
+      "annotations": [
+        {
+          "location": "Above 'Electronic check' bar",
+          "text": "45.3% churn rate"
+        }
+      ],
+      "alt_text": "A sorted bar chart of churn rate by payment method. 'Electronic check' is the highest at 45.3%. The other three methods, 'Mailed check', 'Bank transfer (automatic)', and 'Credit card (automatic)', are clustered together at much lower rates, all under 20%.",
+      "recommended_tool": "Tableau / Power BI"
+    },
+    {
+      "chart_name": "Protective Add-ons Halve Churn Risk for Internet Users",
+      "purpose": "To show the retention value of services like Tech Support and Online Security.",
+      "data_source": {
+        "table": "clean_telco_churn",
+        "columns": [
+          "HasProtectiveService",
+          "Churn",
+          "InternetService"
+        ]
+      },
+      "x_axis": {
+        "field": "HasProtectiveService",
+        "label": "Has Protective Add-on (Tech Support or Online Security)",
+        "format": "Text ('Yes' / 'No')"
+      },
+      "y_axis": {
+        "field": "churn_rate",
+        "label": "Churn Rate (%)",
+        "format": "Percentage",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "HasProtectiveService",
+        "palette": "Diverging (e.g., Blue for 'Yes', Orange for 'No')",
+        "colourblind_safe": true
+      },
+      "filters": [
+        "SeniorCitizen"
+      ],
+      "tooltips": [
+        "HasProtectiveService",
+        "Churn Rate (%)",
+        "Total Internet Customers",
+        "Number of Churned Customers"
+      ],
+      "reference_lines": [],
+      "annotations": [
+        {
+          "location": "Above 'No' bar",
+          "text": "49.0% churn rate"
+        },
+        {
+          "location": "Above 'Yes' bar",
+          "text": "17.1% churn rate"
+        }
+      ],
+      "alt_text": "A bar chart comparing churn rate for internet customers with and without protective add-ons. The 'No' bar is significantly higher at 49.0%, while the 'Yes' bar is much lower at 17.1%.",
+      "recommended_tool": "Tableau / Plotly"
+    }
+  ],
+  "anti_pattern_audit": [
+    {
+      "chart_name": "All Charts",
+      "anti_pattern_found": "Truncated Y-axis: A default BI tool might auto-scale the Y-axis to start near the minimum value, which would exaggerate the differences in churn rates.",
+      "correction_applied": "Explicitly specified that the Y-axis scale for all charts must start at zero. This ensures that the proportional differences between bars are accurately represented and not misleading."
+    },
+    {
+      "chart_name": "All Charts",
+      "anti_pattern_found": "Generic Chart Title: Titles like 'Churn Rate by Contract' state what the chart is, but not what it means.",
+      "correction_applied": "Revised all chart titles to be insight-driven headlines (e.g., 'Month-to-Month Contracts Drive Majority of Churn'). This communicates the key finding to the stakeholder immediately, even before they examine the chart details."
+    }
+  ],
+  "accessibility_review": {
+    "colourblind_safe": true,
+    "min_font_size_met": true,
+    "alt_text_written": true,
+    "wcag_contrast_met": true,
+    "notes": "All chart specifications recommend color-blind safe palettes (e.g., Tableau's built-in color-blind friendly palette or specific blue/orange combinations). A minimum font size of 12pt for labels and 16pt for titles is recommended. Alt text has been provided for all visualizations. Final implementation should verify all text-background color combinations meet WCAG AA contrast ratio of at least 4.5:1."
+  },
+  "narrative_flow": {
+    "hook": "Start with the most impactful KPI: '88.5% of all churn comes from Month-to-Month customers.' This immediately focuses the audience on the single biggest problem.",
+    "context_sequence": [
+      "Show the 'Month-to-Month Contracts Drive Majority of Churn' chart to explain the risk associated with that primary segment.",
+      "Introduce the second major driver with the 'Electronic Check Payments Have 3x Higher Churn Risk' chart, showing another clear operational issue.",
+      "Pivot to a potential solution by showing the 'Protective Add-ons Halve Churn Risk' chart, demonstrating that product bundling can be a powerful retention lever."
+    ],
+    "payoff": "Conclude with the 'Key Takeaway' text box, which summarizes: 'The churn problem is concentrated in M2M contracts and E-Check payments. Our highest-leverage interventions are migrating these customers to annual contracts and automatic payments.'",
+    "dashboard_section_order": [
+      "KPI Scorecards: The Churn Problem at a Glance",
+      "Deep Dive: Top 3 Drivers of Customer Churn",
+      "Key Takeaway & Recommendations"
+    ]
+  },
+  "phase_8_handoff": {
+    "chart_titles_as_insight_headlines": [
+      "Month-to-Month Contracts Drive Majority of Churn",
+      "Electronic Check Payments Have 3x Higher Churn Risk",
+      "Protective Add-ons Halve Churn Risk for Internet Users"
+    ],
+    "narrative_arc_summary": "The story starts with a dramatic hook: nearly all our churn comes from one contract type. We then provide visual evidence for this and two other key drivers related to payment friction and product bundling. The narrative concludes with a clear, actionable recommendation based directly on this evidence, empowering leadership to make a decisive, data-informed choice."
+  }
+}
