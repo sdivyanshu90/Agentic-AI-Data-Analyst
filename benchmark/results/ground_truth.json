@@ -1,0 +1,455 @@
+{
+  "dataset": "IBM Telco Customer Churn",
+  "source": "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv",
+  "business_question": "What are the top drivers of customer churn, and which interventions would most reduce it?",
+  "data_quality": {
+    "n_rows": 7043,
+    "n_cols": 21,
+    "duplicate_customerID": 0,
+    "explicit_nulls_by_col": {
+      "TotalCharges": 11
+    },
+    "TotalCharges_blank_strings": 11,
+    "TotalCharges_blanks_all_have_tenure_0": true,
+    "TotalCharges_stored_as": "object/string (needs coercion to numeric)",
+    "SeniorCitizen_encoded_as": "int 0/1 (not Yes/No like other binaries)"
+  },
+  "overall_churn_rate": 0.2654,
+  "churn_count": 1869,
+  "class_balance": {
+    "Yes": 1869,
+    "No": 5174
+  },
+  "ranked_drivers": [
+    {
+      "driver": "tenure",
+      "type": "numeric",
+      "effect_size_metric": "cohens_d",
+      "effect_size": 0.8522,
+      "strength": "large"
+    },
+    {
+      "driver": "TotalCharges",
+      "type": "numeric",
+      "effect_size_metric": "cohens_d",
+      "effect_size": 0.4608,
+      "strength": "small"
+    },
+    {
+      "driver": "MonthlyCharges",
+      "type": "numeric",
+      "effect_size_metric": "cohens_d",
+      "effect_size": 0.4463,
+      "strength": "small"
+    },
+    {
+      "driver": "Contract",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.4098,
+      "strength": "large"
+    },
+    {
+      "driver": "OnlineSecurity",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.347,
+      "strength": "medium"
+    },
+    {
+      "driver": "TechSupport",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.3425,
+      "strength": "medium"
+    },
+    {
+      "driver": "InternetService",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.322,
+      "strength": "medium"
+    },
+    {
+      "driver": "PaymentMethod",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.3027,
+      "strength": "medium"
+    },
+    {
+      "driver": "OnlineBackup",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.2919,
+      "strength": "medium"
+    },
+    {
+      "driver": "DeviceProtection",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.2811,
+      "strength": "medium"
+    },
+    {
+      "driver": "StreamingMovies",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.2304,
+      "strength": "medium"
+    },
+    {
+      "driver": "StreamingTV",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.2299,
+      "strength": "medium"
+    },
+    {
+      "driver": "PaperlessBilling",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.1911,
+      "strength": "small"
+    },
+    {
+      "driver": "Dependents",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.1634,
+      "strength": "small"
+    },
+    {
+      "driver": "SeniorCitizen",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.15,
+      "strength": "small"
+    },
+    {
+      "driver": "Partner",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.1497,
+      "strength": "small"
+    },
+    {
+      "driver": "MultipleLines",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.0364,
+      "strength": "negligible"
+    },
+    {
+      "driver": "gender",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.0,
+      "strength": "negligible"
+    },
+    {
+      "driver": "PhoneService",
+      "type": "categorical",
+      "effect_size_metric": "cramers_v",
+      "effect_size": 0.0,
+      "strength": "negligible"
+    }
+  ],
+  "top_drivers_summary": [
+    "tenure",
+    "TotalCharges",
+    "MonthlyCharges",
+    "Contract",
+    "OnlineSecurity",
+    "TechSupport",
+    "InternetService",
+    "PaymentMethod"
+  ],
+  "categorical_analysis": [
+    {
+      "variable": "Contract",
+      "chi2": 1184.6,
+      "p_value": 5.863038300673391e-258,
+      "cramers_v": 0.4098,
+      "effect_size": "large",
+      "churn_rate_by_level": {
+        "Month-to-month": 0.4271,
+        "One year": 0.1127,
+        "Two year": 0.0283
+      },
+      "max_min_spread": 0.3988,
+      "highest_risk_level": "Month-to-month",
+      "highest_risk_rate": 0.4271
+    },
+    {
+      "variable": "OnlineSecurity",
+      "chi2": 850.0,
+      "p_value": 2.661149635176552e-185,
+      "cramers_v": 0.347,
+      "effect_size": "medium",
+      "churn_rate_by_level": {
+        "No": 0.4177,
+        "Yes": 0.1461,
+        "No internet service": 0.074
+      },
+      "max_min_spread": 0.3436,
+      "highest_risk_level": "No",
+      "highest_risk_rate": 0.4177
+    },
+    {
+      "variable": "TechSupport",
+      "chi2": 828.2,
+      "p_value": 1.4430840279998987e-180,
+      "cramers_v": 0.3425,
+      "effect_size": "medium",
+      "churn_rate_by_level": {
+        "No": 0.4164,
+        "Yes": 0.1517,
+        "No internet service": 0.074
+      },
+      "max_min_spread": 0.3423,
+      "highest_risk_level": "No",
+      "highest_risk_rate": 0.4164
+    },
+    {
+      "variable": "InternetService",
+      "chi2": 732.31,
+      "p_value": 9.571788222840544e-160,
+      "cramers_v": 0.322,
+      "effect_size": "medium",
+      "churn_rate_by_level": {
+        "Fiber optic": 0.4189,
+        "DSL": 0.1896,
+        "No": 0.074
+      },
+      "max_min_spread": 0.3449,
+      "highest_risk_level": "Fiber optic",
+      "highest_risk_rate": 0.4189
+    },
+    {
+      "variable": "PaymentMethod",
+      "chi2": 648.14,
+      "p_value": 3.6823546520097993e-140,
+      "cramers_v": 0.3027,
+      "effect_size": "medium",
+      "churn_rate_by_level": {
+        "Electronic check": 0.4529,
+        "Mailed check": 0.1911,
+        "Bank transfer (automatic)": 0.1671,
+        "Credit card (automatic)": 0.1524
+      },
+      "max_min_spread": 0.3004,
+      "highest_risk_level": "Electronic check",
+      "highest_risk_rate": 0.4529
+    },
+    {
+      "variable": "OnlineBackup",
+      "chi2": 601.81,
+      "p_value": 2.0797592160864276e-131,
+      "cramers_v": 0.2919,
+      "effect_size": "medium",
+      "churn_rate_by_level": {
+        "No": 0.3993,
+        "Yes": 0.2153,
+        "No internet service": 0.074
+      },
+      "max_min_spread": 0.3252,
+      "highest_risk_level": "No",
+      "highest_risk_rate": 0.3993
+    },
+    {
+      "variable": "DeviceProtection",
+      "chi2": 558.42,
+      "p_value": 5.505219496457244e-122,
+      "cramers_v": 0.2811,
+      "effect_size": "medium",
+      "churn_rate_by_level": {
+        "No": 0.3913,
+        "Yes": 0.225,
+        "No internet service": 0.074
+      },
+      "max_min_spread": 0.3172,
+      "highest_risk_level": "No",
+      "highest_risk_rate": 0.3913
+    },
+    {
+      "variable": "StreamingMovies",
+      "chi2": 375.66,
+      "p_value": 2.667756755723681e-82,
+      "cramers_v": 0.2304,
+      "effect_size": "medium",
+      "churn_rate_by_level": {
+        "No": 0.3368,
+        "Yes": 0.2994,
+        "No internet service": 0.074
+      },
+      "max_min_spread": 0.2628,
+      "highest_risk_level": "No",
+      "highest_risk_rate": 0.3368
+    },
+    {
+      "variable": "StreamingTV",
+      "chi2": 374.2,
+      "p_value": 5.528994485739183e-82,
+      "cramers_v": 0.2299,
+      "effect_size": "medium",
+      "churn_rate_by_level": {
+        "No": 0.3352,
+        "Yes": 0.3007,
+        "No internet service": 0.074
+      },
+      "max_min_spread": 0.2612,
+      "highest_risk_level": "No",
+      "highest_risk_rate": 0.3352
+    },
+    {
+      "variable": "PaperlessBilling",
+      "chi2": 258.28,
+      "p_value": 4.073354668665985e-58,
+      "cramers_v": 0.1911,
+      "effect_size": "small",
+      "churn_rate_by_level": {
+        "Yes": 0.3357,
+        "No": 0.1633
+      },
+      "max_min_spread": 0.1724,
+      "highest_risk_level": "Yes",
+      "highest_risk_rate": 0.3357
+    },
+    {
+      "variable": "Dependents",
+      "chi2": 189.13,
+      "p_value": 4.9249216612154196e-43,
+      "cramers_v": 0.1634,
+      "effect_size": "small",
+      "churn_rate_by_level": {
+        "No": 0.3128,
+        "Yes": 0.1545
+      },
+      "max_min_spread": 0.1583,
+      "highest_risk_level": "No",
+      "highest_risk_rate": 0.3128
+    },
+    {
+      "variable": "SeniorCitizen",
+      "chi2": 159.43,
+      "p_value": 1.510066805092378e-36,
+      "cramers_v": 0.15,
+      "effect_size": "small",
+      "churn_rate_by_level": {
+        "1": 0.4168,
+        "0": 0.2361
+      },
+      "max_min_spread": 0.1808,
+      "highest_risk_level": "1",
+      "highest_risk_rate": 0.4168
+    },
+    {
+      "variable": "Partner",
+      "chi2": 158.73,
+      "p_value": 2.1399113440759935e-36,
+      "cramers_v": 0.1497,
+      "effect_size": "small",
+      "churn_rate_by_level": {
+        "No": 0.3296,
+        "Yes": 0.1966
+      },
+      "max_min_spread": 0.1329,
+      "highest_risk_level": "No",
+      "highest_risk_rate": 0.3296
+    },
+    {
+      "variable": "MultipleLines",
+      "chi2": 11.33,
+      "p_value": 0.0034643829548773,
+      "cramers_v": 0.0364,
+      "effect_size": "negligible",
+      "churn_rate_by_level": {
+        "Yes": 0.2861,
+        "No": 0.2504,
+        "No phone service": 0.2493
+      },
+      "max_min_spread": 0.0368,
+      "highest_risk_level": "Yes",
+      "highest_risk_rate": 0.2861
+    },
+    {
+      "variable": "gender",
+      "chi2": 0.48,
+      "p_value": 0.48657873605618596,
+      "cramers_v": 0.0,
+      "effect_size": "negligible",
+      "churn_rate_by_level": {
+        "Female": 0.2692,
+        "Male": 0.2616
+      },
+      "max_min_spread": 0.0076,
+      "highest_risk_level": "Female",
+      "highest_risk_rate": 0.2692
+    },
+    {
+      "variable": "PhoneService",
+      "chi2": 0.92,
+      "p_value": 0.3387825358066928,
+      "cramers_v": 0.0,
+      "effect_size": "negligible",
+      "churn_rate_by_level": {
+        "Yes": 0.2671,
+        "No": 0.2493
+      },
+      "max_min_spread": 0.0178,
+      "highest_risk_level": "Yes",
+      "highest_risk_rate": 0.2671
+    }
+  ],
+  "numeric_analysis": [
+    {
+      "variable": "tenure",
+      "mean_churned": 17.98,
+      "mean_retained": 37.57,
+      "welch_t": -34.82,
+      "p_value": 1.1954945472607151e-232,
+      "cohens_d": -0.8522,
+      "point_biserial_r": -0.3522,
+      "direction": "higher value -> less churn"
+    },
+    {
+      "variable": "TotalCharges",
+      "mean_churned": 1531.8,
+      "mean_retained": 2555.34,
+      "welch_t": -18.8,
+      "p_value": 1.1524944112838114e-75,
+      "cohens_d": -0.4608,
+      "point_biserial_r": -0.1995,
+      "direction": "higher value -> less churn"
+    },
+    {
+      "variable": "MonthlyCharges",
+      "mean_churned": 74.44,
+      "mean_retained": 61.27,
+      "welch_t": 18.41,
+      "p_value": 8.59244933154705e-73,
+      "cohens_d": 0.4463,
+      "point_biserial_r": 0.1934,
+      "direction": "higher value -> more churn"
+    }
+  ],
+  "tenure_band_churn_rate": {
+    "0-6": 0.5294,
+    "7-12": 0.3589,
+    "13-24": 0.2871,
+    "25-48": 0.2039,
+    "49-72": 0.0951
+  },
+  "key_facts_for_scoring": [
+    "Overall churn rate is 26.5%.",
+    "Contract type is the single strongest categorical driver (Cramer's V=0.4098).",
+    "Month-to-month contracts churn at ~43%; two-year contracts at ~3%.",
+    "Tenure is the strongest numeric driver \u2014 short-tenure customers churn far more (0-6 months: 0.5294).",
+    "Fiber-optic internet customers churn much more than DSL or no-internet.",
+    "Electronic-check payment has the highest churn of any payment method.",
+    "Lack of OnlineSecurity and TechSupport are strongly associated with churn.",
+    "TotalCharges has 11 blank-string values (all tenure=0 new customers) and is stored as text \u2014 a real data-quality trap.",
+    "gender has negligible effect on churn and is a distractor variable."
+  ]
+}
