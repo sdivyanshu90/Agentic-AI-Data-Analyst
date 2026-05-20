@@ -1,0 +1,6 @@
+Scoring AGENTIC-v2 (8-phase pipeline + code execution) (11208 chars)...
+  numbers verified: 7/8
+  executed 4 code block(s) across phases [3, 4, 5, 6]
+  judged in 27.3s — overall 7.71
+
+Wrote /home/somu/Agentic-AI-Data-Analyst/benchmark/results/scores_v2.json
