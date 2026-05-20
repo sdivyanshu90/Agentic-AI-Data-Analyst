@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase8.json",
+  "title": "Phase 8 Output — Insight Storytelling, Reporting & Stakeholder Handoff",
+  "description": "Phase 8 is the only phase whose deliverable is a Markdown report (final_report) plus a machine-readable JSON summary (phase_8_summary). The agents.phase8_reporting.run() function splits the model response into these two fields.",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "final_report",
+    "phase_8_summary"
+  ],
+  "properties": {
+    "phase": { "const": 8 },
+    "phase_name": { "type": "string" },
+    "status": { "type": "string", "enum": ["COMPLETE", "NEEDS_RETRY"] },
+
+    "final_report": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The full stakeholder report in Markdown — the actual deliverable."
+    },
+
+    "phase_8_summary": {
+      "type": "object",
+      "required": [
+        "status",
+        "sub_questions_answered",
+        "sub_questions_unanswered",
+        "top_3_insights",
+        "recommendation_count",
+        "confidence_distribution",
+        "quality_gate_checks_passed",
+        "quality_gate_checks_failed"
+      ],
+      "properties": {
+        "status": { "type": "string", "enum": ["COMPLETE", "NEEDS_RETRY"] },
+        "sub_questions_answered": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "IDs of Phase 1 sub-questions addressed in Key Findings."
+        },
+        "sub_questions_unanswered": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "top_3_insights": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "recommendation_count": { "type": "integer", "minimum": 0 },
+        "confidence_distribution": {
+          "type": "object",
+          "required": ["high", "medium", "low"],
+          "properties": {
+            "high": { "type": "integer", "minimum": 0 },
+            "medium": { "type": "integer", "minimum": 0 },
+            "low": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "quality_gate_checks_passed": { "type": "integer", "minimum": 0 },
+        "quality_gate_checks_failed": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
