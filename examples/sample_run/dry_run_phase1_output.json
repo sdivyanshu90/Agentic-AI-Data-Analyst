@@ -1,0 +1,116 @@
+{
+  "phase": 1,
+  "phase_name": "Stakeholder Requirement Gathering",
+  "status": "COMPLETE",
+  "clarification_needed": null,
+
+  "stakeholder_decoding": {
+    "stated_problem": "The product team wants to understand Q3 churn.",
+    "implied_business_problem": "Customers are leaving faster than expected and the team needs to know which segments and behaviours drive it so they can intervene before Q4 renewals.",
+    "root_question": "Which user segments and product behaviours best predict churn within the first 90 days of subscription, and what is the size of each effect?",
+    "gap_analysis": "Stated request is descriptive ('what happened') but the underlying decision requires diagnostic insight ('why it happened') so the team can prioritise retention investments.",
+    "reasoning": "The objective references Q3 (a backwards-looking window) but the consumers are product managers who own intervention design — therefore the analysis must surface diagnostic levers, not just churn rate trends."
+  },
+
+  "analysis_classification": {
+    "types": ["Descriptive", "Diagnostic"],
+    "reasoning": "Q3 churn rate by segment is descriptive; isolating which behaviours / cohorts drive higher churn is diagnostic. Predictive modelling is out of scope without a data scientist."
+  },
+
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "question": "What was the overall Q3 churn rate, segmented by acquisition channel and plan tier?",
+      "priority": "P1",
+      "reasoning": "Establishes the descriptive baseline against which all diagnostic findings are compared."
+    },
+    {
+      "id": "SQ2",
+      "question": "Which product-usage behaviours in the first 30 days are most strongly associated with 90-day churn?",
+      "priority": "P1",
+      "reasoning": "Directly informs which behavioural interventions the product team can ship."
+    },
+    {
+      "id": "SQ3",
+      "question": "Is there a measurable change in churn associated with the Q3 pricing update on 2025-07-15?",
+      "priority": "P1",
+      "reasoning": "If pricing is a driver, the team's intervention pivots from product to commercial."
+    },
+    {
+      "id": "SQ4",
+      "question": "How does Q3 churn compare to Q1 and Q2 for the same cohorts?",
+      "priority": "P2",
+      "reasoning": "Context: distinguishes a Q3-specific spike from a chronic trend."
+    },
+    {
+      "id": "SQ5",
+      "question": "Which support-ticket categories precede churn at the highest rates?",
+      "priority": "P3",
+      "reasoning": "Nice-to-have signal; may not be feasible if ticket data is unstructured."
+    }
+  ],
+
+  "kpis": [
+    {
+      "sub_question_id": "SQ1",
+      "metric_name": "Q3 churn rate by segment",
+      "calculation_logic": "count(distinct user_id where subscription.end_date in Q3) / count(distinct user_id with active subscription at Q3 start), grouped by acquisition_channel and plan_tier",
+      "time_window": "2025-07-01 to 2025-09-30",
+      "comparison_baseline": "Q2 2025 same-segment churn rate"
+    },
+    {
+      "sub_question_id": "SQ2",
+      "metric_name": "Behaviour–churn association strength",
+      "calculation_logic": "For each behaviour event count in first 30 days, compute log-odds of 90-day churn vs. non-churn cohort.",
+      "time_window": "Trailing 30 days from each user's signup",
+      "comparison_baseline": "Average user behaviour across the full active base"
+    },
+    {
+      "sub_question_id": "SQ3",
+      "metric_name": "Pre/post pricing-change churn rate delta",
+      "calculation_logic": "Compare weekly churn rate for 6 weeks before and 6 weeks after 2025-07-15.",
+      "time_window": "2025-06-03 to 2025-08-26",
+      "comparison_baseline": "Pre-change weekly rate"
+    }
+  ],
+
+  "stakeholder_profile": {
+    "primary_audience": "product team",
+    "technical_tolerance": "Medium",
+    "output_format": "Markdown report with embedded charts + Slack-friendly TL;DR",
+    "decision_to_be_made": "Which 1-2 retention interventions to ship in Q4."
+  },
+
+  "scope_flags": [
+    {
+      "flag": "Predictive churn modelling requested in passing — model build is out of scope without DS.",
+      "type": "NEEDS_DATA_SCIENTIST",
+      "decision": "DESCOPE",
+      "reasoning": "A junior analyst can surface drivers via diagnostic analysis; calibrated probability scores require model risk review the analyst team does not own."
+    },
+    {
+      "flag": "PII in users.email and users.full_name",
+      "type": "PRIVACY",
+      "decision": "PROCEED_WITH_CAVEAT",
+      "reasoning": "Per constraints, PII must be anonymised before any extract leaves the warehouse; Phase 3 will hash these fields."
+    }
+  ],
+
+  "success_definition": "This analysis is successful when the product team can name the top 3 measurable drivers of Q3 churn (with effect sizes) and pick at least one retention intervention to ship in Q4.",
+
+  "assumptions_log": [
+    { "id": "A1", "assumption": "Q3 = 2025-07-01 through 2025-09-30 inclusive." },
+    { "id": "A2", "assumption": "Voluntary cancellations and involuntary (payment failure) churn should be analysed separately." },
+    { "id": "A3", "assumption": "The pricing update referenced in SQ3 happened on 2025-07-15; will confirm with PM in Phase 2." }
+  ],
+
+  "downstream_phase_goals": {
+    "phase_2_goal": "Extract Q3 user, subscription, and event data; confirm pricing-change date with PM.",
+    "phase_3_goal": "Anonymise PII columns and validate that voluntary vs. involuntary churn flags are reliable.",
+    "phase_4_goal": "Profile churn rate by segment and surface candidate behavioural correlates of churn.",
+    "phase_5_goal": "Test pre/post-pricing churn shift and behaviour–churn associations with appropriate statistical tests.",
+    "phase_6_goal": "Trace each significant driver to a proximate cause and a recommended intervention lever.",
+    "phase_7_goal": "Build a 5-chart dashboard prioritising the 3 strongest drivers, colourblind-safe.",
+    "phase_8_goal": "Deliver Markdown report + Slack TL;DR naming top 3 drivers and recommending one Q4 intervention."
+  }
+}
