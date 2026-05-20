@@ -1,0 +1,663 @@
+{
+  "phase": 3,
+  "phase_name": "Data Quality Assessment & Cleaning",
+  "status": "COMPLETE",
+  "data_profile": [
+    {
+      "column": "gender",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "Male",
+          "count": 3555
+        },
+        {
+          "value": "Female",
+          "count": 3488
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "SeniorCitizen",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": "0",
+      "max": "1",
+      "mean": "0.1621",
+      "median": "0.0",
+      "top_values": [
+        {
+          "value": 0,
+          "count": 5901
+        },
+        {
+          "value": 1,
+          "count": 1142
+        }
+      ],
+      "anomalies_detected": [
+        "Inconsistent data type (integer) compared to other binary categorical columns (string 'Yes'/'No')."
+      ]
+    },
+    {
+      "column": "Partner",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "No",
+          "count": 3641
+        },
+        {
+          "value": "Yes",
+          "count": 3402
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "Dependents",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "No",
+          "count": 4933
+        },
+        {
+          "value": "Yes",
+          "count": 2110
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "tenure",
+      "null_pct": 0.0,
+      "distinct_count": 73,
+      "min": "0",
+      "max": "72",
+      "mean": "32.3711",
+      "median": "29.0",
+      "top_values": [],
+      "anomalies_detected": [
+        "tenure=0 exists for 11 customers, which is a valid business case for new customers."
+      ]
+    },
+    {
+      "column": "PhoneService",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "Yes",
+          "count": 6361
+        },
+        {
+          "value": "No",
+          "count": 682
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "MultipleLines",
+      "null_pct": 0.0,
+      "distinct_count": 3,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "No",
+          "count": 3390
+        },
+        {
+          "value": "Yes",
+          "count": 2971
+        },
+        {
+          "value": "No phone service",
+          "count": 682
+        }
+      ],
+      "anomalies_detected": [
+        "Redundant category 'No phone service' which can be inferred from 'PhoneService' column."
+      ]
+    },
+    {
+      "column": "InternetService",
+      "null_pct": 0.0,
+      "distinct_count": 3,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "Fiber optic",
+          "count": 3096
+        },
+        {
+          "value": "DSL",
+          "count": 2421
+        },
+        {
+          "value": "No",
+          "count": 1526
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "OnlineSecurity",
+      "null_pct": 0.0,
+      "distinct_count": 3,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "No",
+          "count": 3498
+        },
+        {
+          "value": "Yes",
+          "count": 2019
+        },
+        {
+          "value": "No internet service",
+          "count": 1526
+        }
+      ],
+      "anomalies_detected": [
+        "Redundant category 'No internet service' which can be inferred from 'InternetService' column."
+      ]
+    },
+    {
+      "column": "Contract",
+      "null_pct": 0.0,
+      "distinct_count": 3,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "Month-to-month",
+          "count": 3875
+        },
+        {
+          "value": "Two year",
+          "count": 1695
+        },
+        {
+          "value": "One year",
+          "count": 1473
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "MonthlyCharges",
+      "null_pct": 0.0,
+      "distinct_count": 1585,
+      "min": "18.25",
+      "max": "118.75",
+      "mean": "64.7617",
+      "median": "70.35",
+      "top_values": [],
+      "anomalies_detected": []
+    },
+    {
+      "column": "TotalCharges",
+      "null_pct": 0.156,
+      "distinct_count": 6531,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": [
+        "Incorrect data type 'object' (string).",
+        "Contains 11 nulls after coercion to numeric."
+      ]
+    },
+    {
+      "column": "Churn",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "No",
+          "count": 5174
+        },
+        {
+          "value": "Yes",
+          "count": 1869
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "Entire Dataset",
+      "null_pct": 0.0,
+      "distinct_count": null,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": [
+        "22 duplicate rows detected."
+      ]
+    }
+  ],
+  "anomaly_taxonomy": [
+    {
+      "column": "TotalCharges",
+      "issue": "Incorrect data type 'object' instead of numeric.",
+      "type": "STRUCTURAL",
+      "severity": "CRITICAL"
+    },
+    {
+      "column": "TotalCharges",
+      "issue": "11 rows have null values after coercing to numeric.",
+      "type": "COMPLETENESS",
+      "severity": "CRITICAL"
+    },
+    {
+      "column": "Entire Dataset",
+      "issue": "22 exact duplicate rows found.",
+      "type": "DUPLICATION",
+      "severity": "WARNING"
+    },
+    {
+      "column": "SeniorCitizen",
+      "issue": "Data stored as integer (0/1) while other binary columns use string ('Yes'/'No').",
+      "type": "CONSISTENCY",
+      "severity": "NOTE"
+    },
+    {
+      "column": "MultipleLines",
+      "issue": "Contains 'No phone service' which is redundant with the 'PhoneService' column.",
+      "type": "CONSISTENCY",
+      "severity": "NOTE"
+    },
+    {
+      "column": "OnlineSecurity",
+      "issue": "Contains 'No internet service' which is redundant with the 'InternetService' column.",
+      "type": "CONSISTENCY",
+      "severity": "NOTE"
+    },
+    {
+      "column": "OnlineBackup",
+      "issue": "Contains 'No internet service' which is redundant with the 'InternetService' column.",
+      "type": "CONSISTENCY",
+      "severity": "NOTE"
+    },
+    {
+      "column": "DeviceProtection",
+      "issue": "Contains 'No internet service' which is redundant with the 'InternetService' column.",
+      "type": "CONSISTENCY",
+      "severity": "NOTE"
+    },
+    {
+      "column": "TechSupport",
+      "issue": "Contains 'No internet service' which is redundant with the 'InternetService' column.",
+      "type": "CONSISTENCY",
+      "severity": "NOTE"
+    },
+    {
+      "column": "StreamingTV",
+      "issue": "Contains 'No internet service' which is redundant with the 'InternetService' column.",
+      "type": "CONSISTENCY",
+      "severity": "NOTE"
+    },
+    {
+      "column": "StreamingMovies",
+      "issue": "Contains 'No internet service' which is redundant with the 'InternetService' column.",
+      "type": "CONSISTENCY",
+      "severity": "NOTE"
+    }
+  ],
+  "cleaning_decisions": [
+    {
+      "column": "customerID",
+      "issue": "Identifier, not an analytical feature. Flagged for PII.",
+      "action": "DROP_COLUMN",
+      "method": "df.drop(columns=['customerID'])",
+      "business_logic_check": "customerID is a unique key and has no predictive power for churn behavior.",
+      "reasoning": "Dropping unique identifiers is standard practice to prevent data leakage in modeling and to remove non-analytical columns."
+    },
+    {
+      "column": "TotalCharges",
+      "issue": "Incorrect data type 'object' instead of numeric.",
+      "action": "FIX",
+      "method": "pandas.to_numeric(df['TotalCharges'], errors='coerce')",
+      "business_logic_check": "Total charges are a monetary value and must be numeric for any calculations or modeling.",
+      "reasoning": "This is a necessary type conversion. 'errors=coerce' is the correct parameter to handle values that cannot be converted, turning them into NaN for subsequent cleaning."
+    },
+    {
+      "column": "TotalCharges",
+      "issue": "11 rows have null values after coercing to numeric.",
+      "action": "IMPUTE",
+      "method": "Impute with constant value: 0",
+      "business_logic_check": "The computed evidence confirms that all 11 nulls occur for customers with tenure = 0. A new customer has logically accumulated zero total charges. This is a business rule-based imputation.",
+      "reasoning": "Imputing with 0 is the most accurate and logical choice, reflecting the real-world scenario for new customers. Using mean or median would falsely attribute a charge history to customers who have none and would distort the data."
+    },
+    {
+      "column": "Entire Dataset",
+      "issue": "22 exact duplicate rows found.",
+      "action": "DROP_ROWS",
+      "method": "df.drop_duplicates(keep='first')",
+      "business_logic_check": "There is no business reason to maintain multiple identical records for what appears to be the same customer profile. These are likely data entry or system errors.",
+      "reasoning": "Dropping exact duplicates prevents over-representation of certain profiles in the analysis. The number of rows is small (22/7043 = 0.31%), so the impact on the overall dataset distribution is minimal."
+    },
+    {
+      "column": "MultipleLines, OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, StreamingMovies",
+      "issue": "Redundant categories like 'No phone service' and 'No internet service'.",
+      "action": "STANDARDISE",
+      "method": "Replace 'No phone service' and 'No internet service' with 'No'.",
+      "business_logic_check": "If a customer has no phone service, they cannot have multiple lines. If they have no internet, they cannot have online security. Consolidating these values into 'No' simplifies the feature without losing information.",
+      "reasoning": "This standardization reduces the cardinality of these categorical features, which is beneficial for modeling. It creates a more consistent and interpretable feature set where 'No' uniformly means the absence of that specific service."
+    }
+  ],
+  "feature_engineering": [
+    {
+      "feature_name": "tenure_bucket",
+      "formula": "pd.cut(df['tenure'], bins=[0, 12, 24, 48, 60, 72], labels=['0-12 Mos', '13-24 Mos', '25-48 Mos', '49-60 Mos', '61-72 Mos'], right=True, include_lowest=True)",
+      "derived_from": [
+        "tenure"
+      ],
+      "rationale": "To analyze churn rate across different stages of the customer lifecycle, addressing sub-question SQ3. Grouping tenure into buckets makes the relationship with churn easier to visualize and interpret.",
+      "output_type": "Categorical",
+      "validation_check": "Check that the number of customers in all buckets sums to the total row count. Spot-check a few rows to ensure tenure values are assigned to the correct bucket labels."
+    },
+    {
+      "feature_name": "Churn_numeric",
+      "formula": "df['Churn'].apply(lambda x: 1 if x == 'Yes' else 0)",
+      "derived_from": [
+        "Churn"
+      ],
+      "rationale": "Convert the target variable to a numeric format (0/1) to enable direct use in statistical models (like logistic regression) and to simplify the calculation of churn rates (by taking the mean).",
+      "output_type": "Integer",
+      "validation_check": "Verify that the mean of 'Churn_numeric' matches the known overall churn rate (approx 26.5%). Ensure all 'Yes' values map to 1 and 'No' values map to 0."
+    },
+    {
+      "feature_name": "addon_count",
+      "formula": "Sum of 'Yes' values across ['OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies'] for each row.",
+      "derived_from": [
+        "OnlineSecurity",
+        "OnlineBackup",
+        "DeviceProtection",
+        "TechSupport",
+        "StreamingTV",
+        "StreamingMovies"
+      ],
+      "rationale": "To investigate the hypothesis that customers with more add-on services (a larger service bundle) are less likely to churn. This directly addresses sub-question SQ5 about service combinations.",
+      "output_type": "Integer",
+      "validation_check": "Check that the minimum value is 0 and the maximum is 6. Spot-check rows to manually count 'Yes' values and confirm the computed count is correct."
+    }
+  ],
+  "change_log": [
+    {
+      "column": "customerID",
+      "transformation": "Dropped column from the dataset.",
+      "rows_affected": 7043,
+      "original_sample": [
+        "7590-VHVEG",
+        "5575-GNVDE"
+      ],
+      "new_sample": [],
+      "reason": "Column is a unique identifier and not an analytical feature."
+    },
+    {
+      "column": "TotalCharges",
+      "transformation": "Coerced data type from object to float64. Values that could not be converted were set to NaN.",
+      "rows_affected": 7043,
+      "original_sample": [
+        "29.85",
+        "1889.5",
+        " "
+      ],
+      "new_sample": [
+        29.85,
+        1889.5,
+        null
+      ],
+      "reason": "Data type was incorrect for a numeric column, blocking calculations."
+    },
+    {
+      "column": "TotalCharges",
+      "transformation": "Imputed 11 NaN values with the constant 0.",
+      "rows_affected": 11,
+      "original_sample": [
+        null
+      ],
+      "new_sample": [
+        0.0
+      ],
+      "reason": "All NaNs corresponded to customers with tenure=0, for whom total charges are logically zero."
+    },
+    {
+      "column": "Entire Dataset",
+      "transformation": "Dropped 22 duplicate rows.",
+      "rows_affected": 22,
+      "original_sample": [],
+      "new_sample": [],
+      "reason": "Exact duplicates can skew analysis and modeling results."
+    },
+    {
+      "column": "MultipleLines",
+      "transformation": "Replaced 'No phone service' with 'No'.",
+      "rows_affected": 682,
+      "original_sample": [
+        "No phone service"
+      ],
+      "new_sample": [
+        "No"
+      ],
+      "reason": "Standardizing redundant categorical values for consistency and simpler modeling."
+    },
+    {
+      "column": "OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, StreamingMovies",
+      "transformation": "Replaced 'No internet service' with 'No'.",
+      "rows_affected": 1526,
+      "original_sample": [
+        "No internet service"
+      ],
+      "new_sample": [
+        "No"
+      ],
+      "reason": "Standardizing redundant categorical values for consistency and simpler modeling."
+    }
+  ],
+  "validation_suite": {
+    "null_check": "PASSED",
+    "range_check": "PASSED",
+    "date_check": "PASSED",
+    "enum_check": "PASSED",
+    "row_count_check": "PASSED",
+    "row_count_original": 7043,
+    "row_count_clean": 7021,
+    "row_loss_pct": 0.312367,
+    "join_integrity_check": "PASSED",
+    "notes": "Critical column 'TotalCharges' has zero nulls after cleaning. Numeric ranges are consistent with original data. Categorical enums have been standardized. Row count loss is minimal (0.31%) and well below the 20% warning threshold. No joins were performed, so integrity check is trivially passed."
+  },
+  "bias_audit": {
+    "risks_found": [
+      {
+        "risk": "Minority subgroup removal via deduplication.",
+        "details": "Dropping 22 duplicate rows could disproportionately affect a small subgroup if the duplicates were not randomly distributed. However, given the very small number of rows, this risk is minimal."
+      }
+    ],
+    "severity": "LOW",
+    "mitigation": "The number of dropped rows is too small to warrant a complex mitigation. The decision to drop is justified by the need for data integrity. The analysis should proceed, acknowledging this minor data reduction."
+  },
+  "clean_schema": [
+    {
+      "column_name": "gender",
+      "data_type": "String",
+      "business_definition": "The customer's gender.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "SeniorCitizen",
+      "data_type": "Integer",
+      "business_definition": "Indicates if the customer is a senior citizen (1=Yes, 0=No).",
+      "is_engineered": false
+    },
+    {
+      "column_name": "Partner",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has a partner ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "Dependents",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has dependents ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "tenure",
+      "data_type": "Integer",
+      "business_definition": "The number of months the customer has been with the company.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "PhoneService",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has phone service ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "MultipleLines",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has multiple phone lines ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "InternetService",
+      "data_type": "String",
+      "business_definition": "The type of internet service the customer has ('DSL', 'Fiber optic', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "OnlineSecurity",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has the online security add-on ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "OnlineBackup",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has the online backup add-on ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "DeviceProtection",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has the device protection add-on ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "TechSupport",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has the tech support add-on ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "StreamingTV",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has the streaming TV add-on ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "StreamingMovies",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has the streaming movies add-on ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "Contract",
+      "data_type": "String",
+      "business_definition": "The customer's contract term ('Month-to-month', 'One year', 'Two year').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "PaperlessBilling",
+      "data_type": "String",
+      "business_definition": "Indicates if the customer has paperless billing ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "PaymentMethod",
+      "data_type": "String",
+      "business_definition": "The customer's payment method.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "MonthlyCharges",
+      "data_type": "Float",
+      "business_definition": "The customer's current monthly charge.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "TotalCharges",
+      "data_type": "Float",
+      "business_definition": "The total charges accumulated by the customer over their lifetime.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "Churn",
+      "data_type": "String",
+      "business_definition": "The target variable indicating if the customer has churned ('Yes', 'No').",
+      "is_engineered": false
+    },
+    {
+      "column_name": "tenure_bucket",
+      "data_type": "Categorical",
+      "business_definition": "Customer tenure grouped into analytical buckets (e.g., '0-12 Mos').",
+      "is_engineered": true
+    },
+    {
+      "column_name": "Churn_numeric",
+      "data_type": "Integer",
+      "business_definition": "Numeric representation of the Churn variable (1=Yes, 0=No).",
+      "is_engineered": true
+    },
+    {
+      "column_name": "addon_count",
+      "data_type": "Integer",
+      "business_definition": "The total number of internet-based add-on services a customer subscribes to.",
+      "is_engineered": true
+    }
+  ],
+  "phase_4_readiness_notes": "The data is now clean, trustworthy, and ready for exploratory data analysis (EDA) and modeling. Key issues like incorrect data types, nulls, and duplicates have been resolved. Categorical features have been standardized. New features have been engineered to directly support the sub-questions and KPI calculations defined in Phase 1. The clean schema is declared and can be used as the basis for all downstream work."
+}
