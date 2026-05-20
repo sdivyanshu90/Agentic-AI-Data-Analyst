@@ -1,0 +1,179 @@
+{
+  "phase": 5,
+  "phase_name": "Hypothesis Testing & Statistical Validation",
+  "status": "COMPLETE",
+
+  "tests_conducted": [
+    {
+      "hypothesis_id": "H1",
+      "hypothesis_statement": "There is a statistically significant difference in voluntary 90-day churn rate between paid_search and organic acquisition channels, with paid_search higher, in the Q3 cohort.",
+      "null_hypothesis": "Voluntary 90-day churn rate is equal between paid_search and organic acquisition channels.",
+      "alternative_hypothesis": "Voluntary 90-day churn rate is higher for paid_search than for organic acquisition channels.",
+      "test_selected": "Two-proportion z-test (one-sided), with Cramér's V for effect size from the full 5×3 contingency table",
+      "test_selection_reasoning": "Outcome is binary (churned/retained) and the predictor is a discrete channel; the channel cohorts are independent samples. n is large (paid_search ~12k, organic ~17k) so the normal approximation is valid. Cramér's V from χ² gives a channel-level effect size that scales with the multi-channel comparison Phase 4 visualised.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small-medium (h = 0.2)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z = 27.4",
+      "degrees_of_freedom": null,
+      "p_value": 0.000001,
+      "effect_size": { "metric": "Cramér's V", "value": 0.182 },
+      "confidence_interval": { "lower": 0.158, "upper": 0.195, "level": "95%" },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "A 17-percentage-point absolute gap in voluntary churn between paid_search (31%) and organic (14%) is well above any plausible measurement noise and large enough to justify a channel-specific retention intervention.",
+      "linked_subquestion": "SQ1"
+    },
+    {
+      "hypothesis_id": "H2",
+      "hypothesis_statement": "There is a statistically significant negative association between event_count_30d and 90-day voluntary churn among users acquired in Q2 2025.",
+      "null_hypothesis": "log(event_count_30d) is not associated with the log-odds of voluntary 90-day churn.",
+      "alternative_hypothesis": "log(event_count_30d) is negatively associated with the log-odds of voluntary 90-day churn.",
+      "test_selected": "Logistic regression on log(event_count_30d + 1); Mann-Whitney U as non-parametric confirmation",
+      "test_selection_reasoning": "Outcome is binary, predictor is heavily right-skewed (Phase 4 univariate showed median 12 / mean 47), so a log transform plus logistic regression is the standard approach. Mann-Whitney U adds a distribution-free check that the medians differ.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Large (Cliff's δ ≥ 0.4)",
+        "estimated_power": 0.97,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "β = -0.42 (logistic); Mann-Whitney U = 8.2e9",
+      "degrees_of_freedom": 28412,
+      "p_value": 0.0000005,
+      "effect_size": { "metric": "Odds ratio per +1 log(events)", "value": 0.66 },
+      "confidence_interval": { "lower": 0.62, "upper": 0.70, "level": "95%" },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "Each ~2.7× increase in first-30-day event count cuts the odds of voluntary churn by 34%. That is a directly actionable lever — even a modest onboarding lift to median engagement would reduce voluntary churn meaningfully.",
+      "linked_subquestion": "SQ2"
+    },
+    {
+      "hypothesis_id": "H3",
+      "hypothesis_statement": "There is a statistically significant increase in weekly voluntary churn rate after 2025-07-15 vs the matching pre-period in the same Q3 cohort.",
+      "null_hypothesis": "The post-2025-07-15 weekly voluntary churn rate equals the pre-period rate after seasonal adjustment.",
+      "alternative_hypothesis": "Post-2025-07-15 weekly voluntary churn rate exceeds the seasonally-adjusted pre-period rate.",
+      "test_selected": "Segmented (interrupted) regression with 2024 Q3 weekly churn as the seasonal control series",
+      "test_selection_reasoning": "Pre/post difference confounded with seasonality — a naive t-test would inflate the effect. Segmented regression with a control series isolates the change-point shift from seasonal drift. We treat 2024 Q3 as the seasonal baseline.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "Tested",
+        "independence": "At-risk",
+        "variance_homogeneity": "Met"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium level shift (≥10% relative change)",
+        "estimated_power": 0.71,
+        "power_flag": "UNDERPOWERED"
+      },
+      "test_statistic": "Level-shift coefficient = +212 churners/week (SE 58)",
+      "degrees_of_freedom": 22,
+      "p_value": 0.0007,
+      "effect_size": { "metric": "Relative weekly-churn increase", "value": 0.44 },
+      "confidence_interval": { "lower": 0.18, "upper": 0.68, "level": "95%" },
+      "result": "SUPPORTED",
+      "practical_significance": "MEDIUM",
+      "practical_significance_reasoning": "A ~44% relative bump in weekly voluntary churn is meaningful but the underpowered series (only 12 weekly post-points) means the magnitude estimate is uncertain. Practical significance is real but the size is calibrated MEDIUM not HIGH until a longer post-window is available.",
+      "linked_subquestion": "SQ3"
+    },
+    {
+      "hypothesis_id": "H4",
+      "hypothesis_statement": "There is a statistically significant interaction between acquisition_channel and event_count_30d in predicting voluntary churn (the engagement→retention slope is steeper for paid_search than for referral).",
+      "null_hypothesis": "The interaction term channel × log(events) has coefficient 0 in a logistic model predicting voluntary churn.",
+      "alternative_hypothesis": "The interaction term is non-zero, with a steeper negative slope for paid_search than for referral.",
+      "test_selected": "Logistic regression with channel × log(events) interaction term",
+      "test_selection_reasoning": "Direct test of the multivariate pattern surfaced in Phase 4. Logistic regression supports both the main-effect estimates and the interaction term with comparable confidence intervals.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Interaction OR contrast ≥ 0.6",
+        "estimated_power": 0.84,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Interaction β = -0.21 (SE 0.05)",
+      "degrees_of_freedom": 28410,
+      "p_value": 0.0001,
+      "effect_size": { "metric": "Slope difference (paid_search − referral)", "value": -0.21 },
+      "confidence_interval": { "lower": -0.31, "upper": -0.11, "level": "95%" },
+      "result": "SUPPORTED",
+      "practical_significance": "MEDIUM",
+      "practical_significance_reasoning": "Channel-targeted onboarding lift would help paid_search more than referral, but the absolute slope-difference is modest. Worth a targeted experiment, not yet a full programme.",
+      "linked_subquestion": null
+    }
+  ],
+
+  "multiple_testing_correction": {
+    "applied": true,
+    "method": "Holm-Bonferroni",
+    "adjusted_alpha": 0.0125,
+    "hypotheses_surviving_correction": ["H1", "H2", "H3", "H4"]
+  },
+
+  "findings_summary": [
+    {
+      "hypothesis_id": "H1",
+      "result": "SUPPORTED",
+      "p_value": 0.000001,
+      "effect_size_value": 0.182,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ1",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H2",
+      "result": "SUPPORTED",
+      "p_value": 0.0000005,
+      "effect_size_value": 0.66,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ2",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H3",
+      "result": "SUPPORTED",
+      "p_value": 0.0007,
+      "effect_size_value": 0.44,
+      "practical_significance": "MEDIUM",
+      "subquestion_answered": "SQ3",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H4",
+      "result": "SUPPORTED",
+      "p_value": 0.0001,
+      "effect_size_value": -0.21,
+      "practical_significance": "MEDIUM",
+      "subquestion_answered": null,
+      "emergent": true
+    }
+  ],
+
+  "statistical_caveats": [
+    "All findings are observational, not experimental — channel-level differences may reflect confounding with user intent rather than channel causation.",
+    "H3 (pricing-change effect) is supported but UNDERPOWERED on the post-window (12 weeks); magnitude estimate is provisional and should be re-tested at the 6-month mark.",
+    "Holm–Bonferroni correction at family-wise α=0.05 across 4 hypotheses; all survive — no Type I inflation concern.",
+    "Phase 3 bias_audit flagged regex-standardisation of cancel_reason; voluntary-churn rates may be slightly inflated. Direction of bias is conservative for H1 (so result holds a fortiori)."
+  ],
+
+  "phase_6_priority_insights": [
+    "H1 + H2 are independently HIGH-significance and combine into the single most actionable finding: low-engagement paid_search users are the dominant churn driver.",
+    "H3's pricing-change effect needs a root-cause look at whether it shows up uniformly across plan tiers or concentrates on starter (which would link it to the 'first-bill cliff' Phase 4 anomaly).",
+    "H4's interaction effect makes onboarding investment channel-targeted — Phase 6 should quantify the expected lift if paid_search engagement is brought to organic's median."
+  ]
+}
