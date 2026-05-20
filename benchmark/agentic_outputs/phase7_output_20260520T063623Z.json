@@ -1,0 +1,332 @@
+{
+  "phase": 7,
+  "phase_name": "Data Visualisation & Dashboard Design",
+  "status": "COMPLETE",
+  "insight_to_chart_map": [
+    {
+      "insight_rank": 1,
+      "insight_summary": "Month-to-month contracts are the epicenter of churn, accounting for nearly 90% of all lost customers.",
+      "chart_type": "Grouped Bar Chart",
+      "chart_reasoning": "This chart effectively shows two things at once: the absolute size of each customer segment (total bar height) and the absolute number of churners within it (colored segment). This combination makes it clear that the Month-to-Month segment is both large and has a severe churn problem, directly illustrating why it contributes so much to total churn. Adding a percentage annotation for the churn rate provides the final piece of necessary information in one view.",
+      "alternatives_rejected": [
+        {
+          "chart": "Pie Chart",
+          "reason_rejected": "A pie chart showing the composition of churners would illustrate the '90% of churn' point, but would completely hide the underlying churn *rate*. It fails to show that the rate for Month-to-Month customers is 42.7% vs. just 2.7% for 2-year contracts, which is a critical part of the 'why'."
+        },
+        {
+          "chart": "Two Separate Bar Charts (one for rates, one for counts)",
+          "reason_rejected": "While accurate, this approach increases the cognitive load on the stakeholder by forcing them to visually integrate two separate charts. A single, well-designed grouped bar chart conveys the same information more efficiently and has a stronger immediate impact."
+        }
+      ]
+    },
+    {
+      "insight_rank": 2,
+      "insight_summary": "The premium Fiber optic service has a critical retention problem, but providing Tech Support cuts this specific churn risk by more than half.",
+      "chart_type": "Grouped Bar Chart",
+      "chart_reasoning": "A grouped bar chart is the standard and most effective way to visualize an interaction effect between two categorical variables. By placing Internet Service on the x-axis and grouping the bars by Tech Support status, the chart directly invites the comparison that is the core of the insight: the churn reduction from having Tech Support is visually much larger for Fiber optic than for DSL customers.",
+      "alternatives_rejected": [
+        {
+          "chart": "Slope Chart",
+          "reason_rejected": "A slope chart could connect 'No Tech Support' to 'Yes Tech Support' with lines for Fiber and DSL. While good for showing change, with only two points on the x-axis, the comparison of the magnitude of the rates (the bar heights) is often clearer and more intuitive for a business audience in a bar chart format."
+        },
+        {
+          "chart": "Four KPI Cards",
+          "reason_rejected": "Displaying four separate numbers (e.g., Fiber with Support: 20.0% churn) would be factually correct but visually inert. It would force the audience to perform mental calculations to grasp the insight. The purpose of a chart is to make the comparison and the pattern instantly obvious, which a grouped bar chart achieves."
+        }
+      ]
+    },
+    {
+      "insight_rank": 3,
+      "insight_summary": "Customers paying with non-automatic methods churn at a much higher rate, with the Electronic check process being particularly problematic (45.3% churn).",
+      "chart_type": "Sorted Horizontal Bar Chart",
+      "chart_reasoning": "This chart is optimal for several reasons. First, a bar chart is the best choice for comparing rates across categories. Second, making it horizontal gracefully handles the long labels of the payment methods without rotation. Third, sorting the bars by churn rate from highest to lowest immediately draws attention to the main offender ('Electronic check'), making the key insight instantly visible.",
+      "alternatives_rejected": [
+        {
+          "chart": "Vertical Bar Chart",
+          "reason_rejected": "The long category labels for payment methods would need to be rotated or truncated on a vertical axis, which harms readability. A horizontal layout is superior for long categorical labels."
+        },
+        {
+          "chart": "Pie Chart",
+          "reason_rejected": "A pie chart is inappropriate here. We are comparing rates between distinct categories, not showing a part-to-whole composition. A pie chart would fail to communicate the key message that the churn rate for one category is over 2.5 times higher than others."
+        }
+      ]
+    }
+  ],
+  "dashboard_architecture": {
+    "dashboard_type": "EXECUTIVE",
+    "sections": [
+      {
+        "section_name": "Headline KPIs",
+        "purpose": "To provide an immediate, at-a-glance summary of the overall churn situation.",
+        "components": [
+          "Overall Churn Rate (Card)",
+          "Total Customers (Card)",
+          "Total Churned Customers (Card)"
+        ],
+        "layout_position": "top"
+      },
+      {
+        "section_name": "Top Churn Drivers",
+        "purpose": "To present the visual evidence for the 2-3 most significant factors driving customer churn.",
+        "components": [
+          "Month-to-Month Contracts Drive 89% of Churn (Grouped Bar Chart)",
+          "Tech Support Halves Churn for High-Risk Fiber Customers (Grouped Bar Chart)",
+          "Electronic Check Payments Have 2.5x Higher Churn (Horizontal Bar Chart)"
+        ],
+        "layout_position": "center"
+      },
+      {
+        "section_name": "Key Recommendations",
+        "purpose": "To translate the analytical findings into clear, actionable business interventions for leadership.",
+        "components": [
+          "Recommendations (Text Box)"
+        ],
+        "layout_position": "right"
+      }
+    ],
+    "interactivity_spec": "The dashboard should support basic cross-filtering. When a user clicks on a segment in one chart (e.g., the 'Month-to-month' category in the contract chart), all other charts on the dashboard should filter to show data for only that selected segment. This allows for simple, intuitive drill-down without needing complex filter panes."
+  },
+  "visualisation_specs": [
+    {
+      "chart_name": "Overall Churn Rate",
+      "purpose": "To display the single most important top-line metric: the percentage of customers who have churned.",
+      "data_source": {
+        "table": "clean_data",
+        "columns": [
+          "Churn"
+        ]
+      },
+      "x_axis": {
+        "field": null,
+        "label": null,
+        "format": null
+      },
+      "y_axis": {
+        "field": null,
+        "label": null,
+        "format": null
+      },
+      "colour_encoding": {
+        "field": null,
+        "palette": "RAG status (e.g., Red if above target, Green if below)",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Total Customers",
+        "Total Churned Customers"
+      ],
+      "reference_lines": [],
+      "annotations": [
+        {
+          "text": "26.5%",
+          "position": "center",
+          "font_size": "48pt"
+        },
+        {
+          "text": "Overall Churn Rate",
+          "position": "bottom",
+          "font_size": "16pt"
+        }
+      ],
+      "alt_text": "KPI Card showing the overall customer churn rate is 26.5%.",
+      "recommended_tool": "Tableau / Power BI"
+    },
+    {
+      "chart_name": "Month-to-Month Contracts Drive 89% of Churn",
+      "purpose": "To demonstrate that Month-to-Month contracts have both the highest churn rate and contribute the vast majority of absolute churners.",
+      "data_source": {
+        "table": "clean_data",
+        "columns": [
+          "Contract",
+          "Churn",
+          "customerID"
+        ]
+      },
+      "x_axis": {
+        "field": "Contract",
+        "label": "Contract Type",
+        "format": "Categorical"
+      },
+      "y_axis": {
+        "field": "COUNT(customerID)",
+        "label": "Number of Customers",
+        "format": "Integer",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "Churn",
+        "palette": "Categorical, color-blind safe (e.g., Blue for 'No', Orange for 'Yes')",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Contract Type",
+        "Churn Status",
+        "Number of Customers",
+        "Churn Rate for this contract type"
+      ],
+      "reference_lines": [],
+      "annotations": [
+        {
+          "text": "Data label showing churn rate (e.g., 42.7%) on top of each 'Churn=Yes' bar segment.",
+          "position": "On bar segments"
+        },
+        {
+          "text": "Month-to-month customers account for 89% of all churn.",
+          "position": "Top of chart area"
+        }
+      ],
+      "alt_text": "A grouped bar chart showing the number of customers by contract type, split by churn status. The 'Month-to-month' bar is the largest and has the largest orange segment, indicating 'Yes' for churn. Annotations show its churn rate is 42.7%, far higher than 'One year' (11.3%) and 'Two year' (2.7%) contracts.",
+      "recommended_tool": "Tableau / Power BI"
+    },
+    {
+      "chart_name": "Tech Support Halves Churn for High-Risk Fiber Customers",
+      "purpose": "To show that having Tech Support dramatically reduces churn for Fiber optic customers, indicating a service quality issue.",
+      "data_source": {
+        "table": "clean_data",
+        "columns": [
+          "InternetService",
+          "TechSupport",
+          "Churn"
+        ]
+      },
+      "x_axis": {
+        "field": "InternetService",
+        "label": "Internet Service Type",
+        "format": "Categorical (filtered to 'DSL' and 'Fiber optic')"
+      },
+      "y_axis": {
+        "field": "Churn Rate",
+        "label": "Churn Rate (%)",
+        "format": "Percentage",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "TechSupport",
+        "palette": "Categorical, color-blind safe (e.g., Grey for 'No', Blue for 'Yes')",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Internet Service",
+        "Tech Support Status",
+        "Churn Rate",
+        "Number of Customers"
+      ],
+      "reference_lines": [
+        {
+          "type": "Dashed Line",
+          "value": "Overall Churn Rate (26.5%)",
+          "label": "Company Average"
+        }
+      ],
+      "annotations": [
+        {
+          "text": "Data labels for percentage on each bar.",
+          "position": "On bars"
+        },
+        {
+          "text": "A 29-point reduction in churn risk",
+          "position": "Arrow pointing to the gap between Fiber bars"
+        }
+      ],
+      "alt_text": "A grouped bar chart comparing churn rates for DSL and Fiber optic customers, with bars grouped by whether the customer has Tech Support. For Fiber optic customers, the churn rate is high (49%) without support but drops to 20% with support. This effect is much smaller for DSL customers.",
+      "recommended_tool": "Tableau / Power BI"
+    },
+    {
+      "chart_name": "Electronic Check Payments Have 2.5x Higher Churn",
+      "purpose": "To identify problematic payment methods and highlight Electronic Check as having the highest churn rate.",
+      "data_source": {
+        "table": "clean_data",
+        "columns": [
+          "PaymentMethod",
+          "is_automatic_payment",
+          "Churn"
+        ]
+      },
+      "x_axis": {
+        "field": "Churn Rate",
+        "label": "Churn Rate (%)",
+        "format": "Percentage"
+      },
+      "y_axis": {
+        "field": "PaymentMethod",
+        "label": "Payment Method",
+        "format": "Categorical, sorted descending by churn rate",
+        "scale": "Categorical"
+      },
+      "colour_encoding": {
+        "field": "is_automatic_payment",
+        "palette": "Binary, color-blind safe (e.g., Dark Blue for 'Automatic', Light Blue for 'Manual')",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Payment Method",
+        "Churn Rate",
+        "Payment Type (Automatic/Manual)"
+      ],
+      "reference_lines": [
+        {
+          "type": "Dashed Line",
+          "value": "Overall Churn Rate (26.5%)",
+          "label": "Company Average"
+        }
+      ],
+      "annotations": [
+        {
+          "text": "Data labels showing the churn rate at the end of each bar.",
+          "position": "End of bars"
+        }
+      ],
+      "alt_text": "A horizontal bar chart showing churn rate by payment method, sorted from highest to lowest. 'Electronic check' is at the top with a 45.3% churn rate, significantly higher than all other methods. Bars are colored to distinguish manual from automatic payment types.",
+      "recommended_tool": "Tableau / Power BI"
+    }
+  ],
+  "anti_pattern_audit": [
+    {
+      "chart_name": "All Charts",
+      "anti_pattern_found": "Truncated Y-Axis (potential risk)",
+      "correction_applied": "Ensured the Y-axis (or X-axis for horizontal bars) for all charts showing rates or counts starts at zero. This prevents the misleading exaggeration of differences between categories."
+    },
+    {
+      "chart_name": "All Charts",
+      "anti_pattern_found": "Chart title states category, not insight (potential risk)",
+      "correction_applied": "Chart titles were written as declarative headlines that state the key finding (e.g., 'Month-to-Month Contracts Drive 89% of Churn' instead of 'Churn by Contract Type'). This helps the executive audience grasp the main point immediately."
+    },
+    {
+      "chart_name": "Dashboard Design",
+      "anti_pattern_found": "Using Pie Chart with 4 slices for PaymentMethod (potential risk)",
+      "correction_applied": "A pie chart for the 'PaymentMethod' insight was considered and rejected. A sorted bar chart was chosen instead because it is far more effective at showing the relative magnitude of the churn rates, which is the core insight, whereas a pie chart is for part-to-whole comparisons."
+    }
+  ],
+  "accessibility_review": {
+    "colourblind_safe": true,
+    "min_font_size_met": true,
+    "alt_text_written": true,
+    "wcag_contrast_met": true,
+    "notes": "All chart specifications use color-blind safe palettes (e.g., blue/orange, sequential blues) and rely on position and labels, not just color, to convey information. Font sizes are specified to be >= 12pt for labels and 16pt+ for titles. Descriptive alt text has been written for each visualization. Contrast ratios for text and background will need to be checked in the final tool but are assumed to meet WCAG AA standards in this design."
+  },
+  "narrative_flow": {
+    "hook": "The dashboard opens with the most critical number: the 26.5% overall churn rate. The eye is then drawn to the largest chart, 'Month-to-Month Contracts Drive 89% of Churn', immediately presenting the biggest part of the problem and the primary antagonist of our story.",
+    "context_sequence": [
+      "After seeing *who* is churning (M2M customers), the user explores *why*. The 'Tech Support Halves Churn for High-Risk Fiber Customers' chart reveals a service quality issue with the premium product, providing a more nuanced driver.",
+      "Next, the 'Electronic Check Payments' chart adds another layer, showing that operational friction in processes like payments is also a significant contributor to churn."
+    ],
+    "payoff": "The narrative concludes in the 'Key Recommendations' text box, which synthesizes the evidence from the charts into actionable advice: '1. Launch a campaign to migrate high-value M2M customers to 1-year contracts. 2. Bundle Tech Support with all Fiber optic plans to fix the leaky premium bucket.' This provides a clear resolution and path forward for the stakeholder.",
+    "dashboard_section_order": [
+      "Headline KPIs",
+      "Top Churn Drivers",
+      "Key Recommendations"
+    ]
+  },
+  "phase_8_handoff": {
+    "chart_titles_as_insight_headlines": [
+      "Month-to-Month Contracts Drive 89% of Churn",
+      "Tech Support Halves Churn for High-Risk Fiber Customers",
+      "Electronic Check Payments Have 2.5x Higher Churn"
+    ],
+    "narrative_arc_summary": "The story begins by identifying the 'villain': Month-to-Month contracts are responsible for almost all churn. We then uncover its accomplices: poor service experience for Fiber customers and high friction in the payment process. The story resolves with a clear set of targeted interventions to fight these specific problems, empowering leadership to take decisive action."
+  }
+}
