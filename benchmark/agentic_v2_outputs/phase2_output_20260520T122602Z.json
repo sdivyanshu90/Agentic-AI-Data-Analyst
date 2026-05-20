@@ -1,0 +1,500 @@
+{
+  "phase": 2,
+  "phase_name": "Data Identification, Collection & Extraction",
+  "status": "COMPLETE",
+  "blocker": null,
+  "data_source_map": [
+    {
+      "sub_question_id": "SQ1",
+      "sources_needed": [
+        "Telco-Customer-Churn.csv"
+      ],
+      "availability": "CONFIRMED",
+      "join_logic": "N/A - Single source",
+      "reasoning": "The single provided CSV file contains all customer attributes and the target 'Churn' variable needed to identify drivers."
+    },
+    {
+      "sub_question_id": "SQ2",
+      "sources_needed": [
+        "Telco-Customer-Churn.csv"
+      ],
+      "availability": "CONFIRMED",
+      "join_logic": "N/A - Single source",
+      "reasoning": "The single provided CSV file contains all demographic, service, and churn data required to calculate churn rates for key segments."
+    },
+    {
+      "sub_question_id": "SQ3",
+      "sources_needed": [
+        "Telco-Customer-Churn.csv"
+      ],
+      "availability": "CONFIRMED",
+      "join_logic": "N/A - Single source",
+      "reasoning": "The single provided CSV file contains the 'tenure' and 'Churn' columns, which are sufficient to analyze churn risk over time."
+    },
+    {
+      "sub_question_id": "SQ4",
+      "sources_needed": [
+        "Telco-Customer-Churn.csv"
+      ],
+      "availability": "CONFIRMED",
+      "join_logic": "N/A - Single source",
+      "reasoning": "The single provided CSV file contains all attributes needed to build a profile of churned vs. loyal customers."
+    },
+    {
+      "sub_question_id": "SQ5",
+      "sources_needed": [
+        "Telco-Customer-Churn.csv"
+      ],
+      "availability": "CONFIRMED",
+      "join_logic": "N/A - Single source",
+      "reasoning": "The single provided CSV file contains all service subscription columns needed to analyze the impact of service bundles on churn."
+    },
+    {
+      "sub_question_id": "SQ6",
+      "sources_needed": [
+        "Telco-Customer-Churn.csv"
+      ],
+      "availability": "CONFIRMED",
+      "join_logic": "N/A - Single source",
+      "reasoning": "The single provided CSV file contains the 'MonthlyCharges' and 'Churn' columns needed to analyze the value of churning customers."
+    }
+  ],
+  "schema_reconnaissance": [
+    {
+      "source_name": "Telco-Customer-Churn.csv",
+      "source_type": "CSV",
+      "schema_status": "CONFIRMED",
+      "columns": [
+        {
+          "name": "customerID",
+          "data_type": "object (string)",
+          "example_values": [
+            "7590-VHVEG",
+            "5575-GNVDE"
+          ],
+          "is_pii": true,
+          "notes": "Unique identifier for each customer."
+        },
+        {
+          "name": "gender",
+          "data_type": "object (string)",
+          "example_values": [
+            "Female",
+            "Male"
+          ],
+          "is_pii": false,
+          "notes": "Customer's gender."
+        },
+        {
+          "name": "SeniorCitizen",
+          "data_type": "int64",
+          "example_values": [
+            0,
+            1
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer is a senior citizen (1) or not (0)."
+        },
+        {
+          "name": "Partner",
+          "data_type": "object (string)",
+          "example_values": [
+            "Yes",
+            "No"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has a partner."
+        },
+        {
+          "name": "Dependents",
+          "data_type": "object (string)",
+          "example_values": [
+            "Yes",
+            "No"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has dependents."
+        },
+        {
+          "name": "tenure",
+          "data_type": "int64",
+          "example_values": [
+            1,
+            34,
+            72
+          ],
+          "is_pii": false,
+          "notes": "Number of months the customer has stayed with the company."
+        },
+        {
+          "name": "PhoneService",
+          "data_type": "object (string)",
+          "example_values": [
+            "Yes",
+            "No"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has phone service."
+        },
+        {
+          "name": "MultipleLines",
+          "data_type": "object (string)",
+          "example_values": [
+            "No",
+            "Yes",
+            "No phone service"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has multiple phone lines."
+        },
+        {
+          "name": "InternetService",
+          "data_type": "object (string)",
+          "example_values": [
+            "DSL",
+            "Fiber optic",
+            "No"
+          ],
+          "is_pii": false,
+          "notes": "Type of internet service."
+        },
+        {
+          "name": "OnlineSecurity",
+          "data_type": "object (string)",
+          "example_values": [
+            "No",
+            "Yes",
+            "No internet service"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has online security service."
+        },
+        {
+          "name": "OnlineBackup",
+          "data_type": "object (string)",
+          "example_values": [
+            "No",
+            "Yes",
+            "No internet service"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has online backup service."
+        },
+        {
+          "name": "DeviceProtection",
+          "data_type": "object (string)",
+          "example_values": [
+            "No",
+            "Yes",
+            "No internet service"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has device protection service."
+        },
+        {
+          "name": "TechSupport",
+          "data_type": "object (string)",
+          "example_values": [
+            "No",
+            "Yes",
+            "No internet service"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has tech support service."
+        },
+        {
+          "name": "StreamingTV",
+          "data_type": "object (string)",
+          "example_values": [
+            "No",
+            "Yes",
+            "No internet service"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has TV streaming service."
+        },
+        {
+          "name": "StreamingMovies",
+          "data_type": "object (string)",
+          "example_values": [
+            "No",
+            "Yes",
+            "No internet service"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer has movie streaming service."
+        },
+        {
+          "name": "Contract",
+          "data_type": "object (string)",
+          "example_values": [
+            "Month-to-month",
+            "One year",
+            "Two year"
+          ],
+          "is_pii": false,
+          "notes": "Customer's contract term."
+        },
+        {
+          "name": "PaperlessBilling",
+          "data_type": "object (string)",
+          "example_values": [
+            "Yes",
+            "No"
+          ],
+          "is_pii": false,
+          "notes": "Whether the customer uses paperless billing."
+        },
+        {
+          "name": "PaymentMethod",
+          "data_type": "object (string)",
+          "example_values": [
+            "Electronic check",
+            "Mailed check"
+          ],
+          "is_pii": false,
+          "notes": "The customer's payment method."
+        },
+        {
+          "name": "MonthlyCharges",
+          "data_type": "float64",
+          "example_values": [
+            29.85,
+            56.95,
+            104.8
+          ],
+          "is_pii": false,
+          "notes": "The amount charged to the customer monthly."
+        },
+        {
+          "name": "TotalCharges",
+          "data_type": "object (string)",
+          "example_values": [
+            "29.85",
+            "1889.5",
+            " "
+          ],
+          "is_pii": false,
+          "notes": "Total charges over customer lifetime. Data type is incorrect in source; requires coercion to numeric. Contains empty strings."
+        },
+        {
+          "name": "Churn",
+          "data_type": "object (string)",
+          "example_values": [
+            "Yes",
+            "No"
+          ],
+          "is_pii": false,
+          "notes": "Target variable: whether the customer churned."
+        }
+      ],
+      "estimated_rows": "7043",
+      "date_range": "N/A - This is a static, cross-sectional dataset.",
+      "primary_key": "customerID",
+      "foreign_keys": []
+    }
+  ],
+  "extraction_plan": [
+    {
+      "sub_question_id": "SQ1",
+      "extraction_type": "PYTHON",
+      "query_or_steps": "/*\nGoal: Load the dataset into a pandas DataFrame and perform initial cleaning.\n1. Use pandas.read_csv() to load the file from the provided path.\n2. Use pandas.to_numeric() on the 'TotalCharges' column, setting errors='coerce' to turn non-numeric values (like empty strings) into NaN.\n3. Drop the 'customerID' column as it is not an analytical feature.\n4. Perform a basic check for nulls and data types.\n*/\n\nimport pandas as pd\n\nfilepath = '/home/somu/Agentic-AI-Data-Analyst/benchmark/data/Telco-Customer-Churn.csv'\ndf = pd.read_csv(filepath)\n\ndf['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')\ndf_clean = df.drop(columns=['customerID'])\n\n# The resulting 'df_clean' is the extracted, usable dataset.",
+      "volume_estimate": "7043 rows x 21 columns",
+      "reasoning": "This plan loads the entire dataset, which is small enough to fit in memory. It includes the critical cleaning step for 'TotalCharges' identified in the project brief, making the data suitable for all subsequent analysis for all sub-questions."
+    },
+    {
+      "sub_question_id": "SQ2",
+      "extraction_type": "PYTHON",
+      "query_or_steps": "The extraction plan is identical to SQ1. The same cleaned DataFrame will be used for all analyses.",
+      "volume_estimate": "7043 rows x 21 columns",
+      "reasoning": "All data resides in a single source. A single extraction and cleaning process serves all analytical questions."
+    },
+    {
+      "sub_question_id": "SQ3",
+      "extraction_type": "PYTHON",
+      "query_or_steps": "The extraction plan is identical to SQ1. The same cleaned DataFrame will be used for all analyses.",
+      "volume_estimate": "7043 rows x 21 columns",
+      "reasoning": "All data resides in a single source. A single extraction and cleaning process serves all analytical questions."
+    }
+  ],
+  "governance_flags": [
+    {
+      "column": "customerID",
+      "flag_type": "PII",
+      "mitigation": "The column should not be used as an analytical feature. It should be used only to confirm the uniqueness of records upon initial load and then dropped before any analysis or modeling is performed. The project brief describes it as 'opaque', suggesting low risk, but standard practice is to remove unique identifiers."
+    }
+  ],
+  "completeness_assessment": [
+    {
+      "kpi": "Feature Importance Score / Correlation Coefficient",
+      "coverage": "FULLY_COVERABLE",
+      "proxy_metric": null,
+      "impact_if_missing": null,
+      "reasoning": "The dataset contains the 'Churn' target variable and a rich set of features (customer attributes, service details). All data required to calculate correlations or train a model for feature importance is present."
+    },
+    {
+      "kpi": "Segment Churn Rate",
+      "coverage": "FULLY_COVERABLE",
+      "proxy_metric": null,
+      "impact_if_missing": null,
+      "reasoning": "The dataset contains the 'Churn' column and all the necessary categorical columns for segmentation (e.g., 'SeniorCitizen', 'Partner', 'Dependents', 'InternetService', 'Contract'). Grouping by these columns to calculate churn rate is straightforward."
+    },
+    {
+      "kpi": "Churn Rate by Tenure Bucket",
+      "coverage": "FULLY_COVERABLE",
+      "proxy_metric": null,
+      "impact_if_missing": null,
+      "reasoning": "The dataset contains the 'tenure' (in months) and 'Churn' columns, which are the only two pieces of information needed to perform this calculation."
+    }
+  ],
+  "data_dictionary": [
+    {
+      "column_name": "customerID",
+      "business_definition": "A unique identifier assigned to each customer.",
+      "data_type": "String",
+      "value_range_or_enum": "High-cardinality text (7043 unique values)",
+      "known_quality_issues": "Not an analytical feature. Flagged as PII."
+    },
+    {
+      "column_name": "gender",
+      "business_definition": "The customer's gender.",
+      "data_type": "String",
+      "value_range_or_enum": "['Male', 'Female']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "SeniorCitizen",
+      "business_definition": "Indicates if the customer is a senior citizen.",
+      "data_type": "Integer (Boolean)",
+      "value_range_or_enum": "[0, 1] (0 = No, 1 = Yes)",
+      "known_quality_issues": "Encoded as an integer, unlike other binary categorical features which are 'Yes'/'No' strings."
+    },
+    {
+      "column_name": "Partner",
+      "business_definition": "Indicates if the customer has a partner.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "Dependents",
+      "business_definition": "Indicates if the customer has dependents.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "tenure",
+      "business_definition": "The number of months the customer has been with the company.",
+      "data_type": "Integer",
+      "value_range_or_enum": "[0 - 72]",
+      "known_quality_issues": "A value of 0 likely indicates a new customer, which correlates with empty 'TotalCharges'."
+    },
+    {
+      "column_name": "PhoneService",
+      "business_definition": "Indicates if the customer has phone service.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "MultipleLines",
+      "business_definition": "Indicates if the customer has multiple phone lines.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No', 'No phone service']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "InternetService",
+      "business_definition": "The type of internet service the customer has.",
+      "data_type": "String",
+      "value_range_or_enum": "['DSL', 'Fiber optic', 'No']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "OnlineSecurity",
+      "business_definition": "Indicates if the customer has the online security add-on.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No', 'No internet service']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "OnlineBackup",
+      "business_definition": "Indicates if the customer has the online backup add-on.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No', 'No internet service']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "DeviceProtection",
+      "business_definition": "Indicates if the customer has the device protection add-on.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No', 'No internet service']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "TechSupport",
+      "business_definition": "Indicates if the customer has the tech support add-on.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No', 'No internet service']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "StreamingTV",
+      "business_definition": "Indicates if the customer has the streaming TV add-on.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No', 'No internet service']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "StreamingMovies",
+      "business_definition": "Indicates if the customer has the streaming movies add-on.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No', 'No internet service']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "Contract",
+      "business_definition": "The customer's contract term.",
+      "data_type": "String",
+      "value_range_or_enum": "['Month-to-month', 'One year', 'Two year']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "PaperlessBilling",
+      "business_definition": "Indicates if the customer has paperless billing.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "PaymentMethod",
+      "business_definition": "The customer's payment method.",
+      "data_type": "String",
+      "value_range_or_enum": "['Electronic check', 'Mailed check', 'Bank transfer (automatic)', 'Credit card (automatic)']",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "MonthlyCharges",
+      "business_definition": "The customer's current monthly charge.",
+      "data_type": "Float",
+      "value_range_or_enum": "[18.25 - 118.75]",
+      "known_quality_issues": null
+    },
+    {
+      "column_name": "TotalCharges",
+      "business_definition": "The total charges accumulated by the customer over their lifetime.",
+      "data_type": "Object (String) in source, requires coercion to Float.",
+      "value_range_or_enum": "Numeric values (e.g., '29.85', '1889.5').",
+      "known_quality_issues": "Stored as a string in the source CSV. Contains empty strings (' ') for 11 customers, which will become NaN when coerced to numeric. These NaNs need to be handled, likely by imputing with 0 or the median/mean."
+    },
+    {
+      "column_name": "Churn",
+      "business_definition": "The target variable indicating if the customer has churned.",
+      "data_type": "String",
+      "value_range_or_enum": "['Yes', 'No']",
+      "known_quality_issues": null
+    }
+  ],
+  "phase_3_handoff_notes": "Data extraction is straightforward from the single provided CSV. The primary action for Phase 3 is to prepare the data for exploratory analysis. This involves: 1) Executing the provided Python code to load the data and coerce 'TotalCharges' to a numeric type. 2) Addressing the 11 NaN values created in 'TotalCharges' from the coercion (imputing with 0 is a reasonable starting point, as these correspond to customers with 0 tenure). 3) Converting binary categorical columns ('Yes'/'No') and the target 'Churn' variable to numeric (0/1) format for modeling. 4) Ensuring all data types are correct before proceeding with EDA."
+}
