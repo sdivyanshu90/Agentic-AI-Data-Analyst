@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase3.json",
+  "title": "Phase 3 Output — Data Quality Assessment & Cleaning",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "data_profile",
+    "anomaly_taxonomy",
+    "cleaning_decisions",
+    "feature_engineering",
+    "change_log",
+    "validation_suite",
+    "bias_audit",
+    "clean_schema",
+    "phase_4_readiness_notes"
+  ],
+  "properties": {
+    "phase": { "const": 3 },
+    "phase_name": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "NEEDS_RETRY"]
+    },
+
+    "data_profile": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["column", "null_pct", "distinct_count"],
+        "properties": {
+          "column": { "type": "string", "minLength": 1 },
+          "null_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+          "distinct_count": { "type": "integer", "minimum": 0 },
+          "min": {},
+          "max": {},
+          "mean": {},
+          "median": {},
+          "top_values": { "type": "array" },
+          "anomalies_detected": { "type": "array" }
+        }
+      }
+    },
+
+    "anomaly_taxonomy": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["column", "issue", "type", "severity"],
+        "properties": {
+          "column": { "type": "string", "minLength": 1 },
+          "issue": { "type": "string", "minLength": 1 },
+          "type": {
+            "type": "string",
+            "enum": [
+              "STRUCTURAL",
+              "CONTENT",
+              "COMPLETENESS",
+              "CONSISTENCY",
+              "DUPLICATION",
+              "REFERENTIAL"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["CRITICAL", "WARNING", "NOTE"]
+          }
+        }
+      }
+    },
+
+    "cleaning_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["column", "issue", "action", "reasoning"],
+        "properties": {
+          "column": { "type": "string", "minLength": 1 },
+          "issue": { "type": "string", "minLength": 1 },
+          "action": {
+            "type": "string",
+            "enum": [
+              "FIX",
+              "IMPUTE",
+              "DROP_ROWS",
+              "DROP_COLUMN",
+              "STANDARDISE",
+              "ACCEPT_AS_IS",
+              "ESCALATE"
+            ]
+          },
+          "method": { "type": "string" },
+          "business_logic_check": { "type": "string" },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "feature_engineering": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature_name", "formula", "rationale", "output_type"],
+        "properties": {
+          "feature_name": { "type": "string", "minLength": 1 },
+          "formula": { "type": "string", "minLength": 1 },
+          "derived_from": { "type": "array", "items": { "type": "string" } },
+          "rationale": { "type": "string", "minLength": 1 },
+          "output_type": { "type": "string", "minLength": 1 },
+          "validation_check": { "type": "string" }
+        }
+      }
+    },
+
+    "change_log": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["column", "transformation", "rows_affected", "reason"],
+        "properties": {
+          "column": { "type": "string", "minLength": 1 },
+          "transformation": { "type": "string", "minLength": 1 },
+          "rows_affected": { "type": "integer", "minimum": 0 },
+          "original_sample": { "type": "array" },
+          "new_sample": { "type": "array" },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "validation_suite": {
+      "type": "object",
+      "required": [
+        "null_check",
+        "range_check",
+        "date_check",
+        "enum_check",
+        "row_count_check",
+        "row_count_original",
+        "row_count_clean",
+        "row_loss_pct",
+        "join_integrity_check"
+      ],
+      "properties": {
+        "null_check": { "type": "string", "enum": ["PASSED", "FAILED"] },
+        "range_check": { "type": "string", "enum": ["PASSED", "FAILED"] },
+        "date_check": { "type": "string", "enum": ["PASSED", "FAILED"] },
+        "enum_check": { "type": "string", "enum": ["PASSED", "FAILED"] },
+        "row_count_check": { "type": "string", "enum": ["PASSED", "FAILED"] },
+        "row_count_original": { "type": "integer", "minimum": 0 },
+        "row_count_clean": { "type": "integer", "minimum": 0 },
+        "row_loss_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "join_integrity_check": { "type": "string", "enum": ["PASSED", "FAILED"] },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "bias_audit": {
+      "type": "object",
+      "required": ["risks_found", "severity"],
+      "properties": {
+        "risks_found": { "type": "array" },
+        "severity": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "mitigation": { "type": "string" }
+      }
+    },
+
+    "clean_schema": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["column_name", "data_type", "business_definition"],
+        "properties": {
+          "column_name": { "type": "string", "minLength": 1 },
+          "data_type": { "type": "string", "minLength": 1 },
+          "business_definition": { "type": "string", "minLength": 1 },
+          "is_engineered": { "type": "boolean" }
+        }
+      }
+    },
+
+    "phase_4_readiness_notes": { "type": "string" }
+  },
+  "additionalProperties": true
+}
