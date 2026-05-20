@@ -1,0 +1,156 @@
+{
+  "pipeline_state": {
+    "mission_brief": {
+      "objective": "Identify the top drivers of customer churn in our telecom subscriber base and recommend the two or three highest-leverage, cost-effective interventions to reduce it.",
+      "business_domain": "telecom / subscription services",
+      "stakeholder_type": "Customer Retention / Marketing leadership",
+      "data_source_description": "DATASET: IBM Telco Customer Churn (real, public dataset).\nSOURCE: github.com/IBM/telco-customer-churn-on-icp4d  (Telco-Customer-Churn.csv)\nSHAPE: 7043 rows x 21 columns. One row per telecom customer.\nTARGET: 'Churn' (Yes/No) \u2014 overall churn rate in the file is 26.5%.\n\nCOLUMN DICTIONARY (univariate profile only \u2014 raw CSV dtypes):\n  - customerID (object, nulls=0): high-cardinality text [7043 distinct] (e.g. identifier)\n  - gender (object, nulls=0): categorical [2]: 'Male':3555, 'Female':3488\n  - SeniorCitizen (int64, nulls=0): numeric: min=0, max=1, mean=0.16, median=0.0\n  - Partner (object, nulls=0): categorical [2]: 'No':3641, 'Yes':3402\n  - Dependents (object, nulls=0): categorical [2]: 'No':4933, 'Yes':2110\n  - tenure (int64, nulls=0): numeric: min=0, max=72, mean=32.37, median=29.0\n  - PhoneService (object, nulls=0): categorical [2]: 'Yes':6361, 'No':682\n  - MultipleLines (object, nulls=0): categorical [3]: 'No':3390, 'Yes':2971, 'No phone service':682\n  - InternetService (object, nulls=0): categorical [3]: 'Fiber optic':3096, 'DSL':2421, 'No':1526\n  - OnlineSecurity (object, nulls=0): categorical [3]: 'No':3498, 'Yes':2019, 'No internet service':1526\n  - OnlineBackup (object, nulls=0): categorical [3]: 'No':3088, 'Yes':2429, 'No internet service':1526\n  - DeviceProtection (object, nulls=0): categorical [3]: 'No':3095, 'Yes':2422, 'No internet service':1526\n  - TechSupport (object, nulls=0): categorical [3]: 'No':3473, 'Yes':2044, 'No internet service':1526\n  - StreamingTV (object, nulls=0): categorical [3]: 'No':2810, 'Yes':2707, 'No internet service':1526\n  - StreamingMovies (object, nulls=0): categorical [3]: 'No':2785, 'Yes':2732, 'No internet service':1526\n  - Contract (object, nulls=0): categorical [3]: 'Month-to-month':3875, 'Two year':1695, 'One year':1473\n  - PaperlessBilling (object, nulls=0): categorical [2]: 'Yes':4171, 'No':2872\n  - PaymentMethod (object, nulls=0): categorical [4]: 'Electronic check':2365, 'Mailed check':1612, 'Bank transfer (automatic)':1544, 'Credit card (automatic)':1522\n  - MonthlyCharges (float64, nulls=0): numeric: min=18.25, max=118.75, mean=64.76, median=70.35\n  - TotalCharges (object, nulls=0): high-cardinality text [6531 distinct] (e.g. identifier)\n  - Churn (object, nulls=0): categorical [2]: 'No':5174, 'Yes':1869\n\nNOTES KNOWN AT HANDOFF (from basic profiling, no analysis done yet):\n  - 'SeniorCitizen' is encoded as integer 0/1, unlike the other Yes/No binaries.\n  - 'TotalCharges' is stored as a TEXT column in the raw CSV, not numeric \u2014 it must be coerced before any numeric work.\n  - 'customerID' is a unique identifier and is not an analytical feature.\n  - No analysis of what drives churn has been done yet. That is the task.\n\nBUSINESS QUESTION: What are the top drivers of customer churn in our telecom subscriber base, and which two or three interventions would most cost-effectively reduce it?\nSTAKEHOLDER: Customer Retention / Marketing leadership (medium technical tolerance)\nCONSTRAINTS: Python + pandas available; dataset fits in memory; no PII beyond the opaque customerID; deliver within one analysis cycle.",
+      "constraints": {
+        "time": "one analysis cycle",
+        "tools": "Python + pandas",
+        "privacy": "no PII beyond an opaque customerID"
+      },
+      "success_looks_like": "Retention leadership can name the top 2-3 measurable drivers of churn and commit to at least two concrete interventions.",
+      "assumptions": []
+    },
+    "current_phase": 8,
+    "overall_status": "COMPLETE",
+    "phases": [
+      {
+        "phase_number": 1,
+        "phase_name": "Stakeholder Requirement Gathering",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Classified analysis as: Descriptive, Diagnostic, Prescriptive",
+          "Identified 3 P1 sub-question(s) (of 6 total)",
+          "Raised 2 scope flag(s): PROCEED_WITH_CAVEAT, PROCEED_WITH_CAVEAT"
+        ],
+        "reasoning_summary": "The user's request was deconstructed into what they literally asked for versus the underlying business need. The gap analysis highlights the boundary between what the data can provide (correlation, impact sizing) and what it cannot (cost of business actions), setting realistic expectations for the analysis.",
+        "output_summary": "6 sub-questions produced. Success definition: This analysis is successful when the Customer Retention leadership can confidently identify the top 3 customer segments or service configura\u2026",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-05-20T06:23:44.319724+00:00"
+      },
+      {
+        "phase_number": 2,
+        "phase_name": "Data Identification & Extraction",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Mapped 6 sub-question/source pair(s); 6 CONFIRMED",
+          "Reconnoitred 1 schema(s); 0 INFERRED",
+          "Raised 1 governance flag(s) (1 PII)",
+          "KPI coverage: 3 assessed, 0 partial, 0 not coverable"
+        ],
+        "reasoning_summary": "Data has been mapped and sourced from the single provided CSV file. The extraction plan is defined, focusing on loading the data into a pandas DataFrame and correcting the 'TotalCharges' column data type. This column will contain a small number of null values after coercion, corresponding to new customers (tenure=0), which must be handled (e.g., imputed with 0) before numerical analysis. The 'customerID' is flagged as PII and should be excluded from analytical modeling. The dataset is now prepared and ready for Phase 3: Exploratory Data Analysis.",
+        "output_summary": "6 source(s) mapped, 3 extraction step(s), 21 column(s) in data dictionary.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-05-20T06:24:47.288610+00:00"
+      },
+      {
+        "phase_number": 3,
+        "phase_name": "Data Quality & Cleaning",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Catalogued 10 anomaly(ies): 3 CRITICAL, 1 WARNING",
+          "Cleaning actions: 1\u00d7FIX, 1\u00d7IMPUTE, 2\u00d7STANDARDISE, 1\u00d7DROP_COLUMN",
+          "Validation row-loss: 0.0% (7043 \u2192 7043)",
+          "Engineered 2 derived feature(s)"
+        ],
+        "reasoning_summary": "The data is now clean, consistent, and enriched with two new features relevant to the analysis. All known data quality issues have been addressed without data loss. The schema is finalized. The dataset is ready for Phase 4: Exploratory Data Analysis and Visualization.",
+        "output_summary": "5 cleaning decision(s), 7 change log entry(ies), clean schema of 22 column(s). Validation: null=PASSED, range=PASSED, row-loss=0.0%.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-05-20T06:26:06.628845+00:00"
+      },
+      {
+        "phase_number": 4,
+        "phase_name": "Exploratory Data Analysis",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Profiled 6 variable(s) univariate, 7 pair(s) bivariate",
+          "6 STRONG bivariate relationship(s) found",
+          "Catalogued 2 surprise(s); 2 flagged for Phase 6",
+          "Formed 5 hypothesis(es) (1 EMERGENT from EDA)"
+        ],
+        "reasoning_summary": "The strongest signals in the data relate to contractual and behavioral factors (Contract, Tenure, Payment Method) rather than demographic ones. The emergent findings about Fiber optic service quality (H3, H4) and payment friction are particularly interesting and could lead to highly actionable recommendations. Phase 5 should focus on statistically confirming these strong correlations and interaction effects.",
+        "output_summary": "6 univariate, 7 bivariate, 5 hypothesis(es), 4 viz spec(s) ready for Phase 7.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-05-20T06:28:00.622070+00:00"
+      },
+      {
+        "phase_number": 5,
+        "phase_name": "Hypothesis Testing & Validation",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Ran 5 test(s): 5 SUPPORTED, 0 REJECTED, 0 INCONCLUSIVE",
+          "5 finding(s) rated HIGH practical significance",
+          "Multiple-testing correction (Bonferroni) applied: 5/5 survive"
+        ],
+        "reasoning_summary": "H1 Finding: The massive churn difference by Contract type is the single most important finding. Interventions should focus on migrating Month-to-month customers to longer contracts.",
+        "output_summary": "5 test(s) executed, 5 finding(s) summarised, 4 caveat(s) for Phase 8, 2 priority insight(s) for Phase 6.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-05-20T06:29:27.146780+00:00"
+      },
+      {
+        "phase_number": 6,
+        "phase_name": "Advanced Analysis & Root Cause",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Ran 3 analysis(es): PARETO ANALYSIS, ROOT CAUSE ANALYSIS, SEGMENTATION / COHORT ANALYSIS",
+          "Traced 3 root cause chain(s): 0 CONFIRMED, 3 HYPOTHESISED",
+          "2 segment deep-dive(s); 0 Simpson's paradox finding(s)",
+          "Ranked 3 insight(s); 2 HIGH-impact",
+          "1 sub-question(s) left unanswered"
+        ],
+        "reasoning_summary": "The vast majority (89%) of churn comes from the 55% of customers on Month-to-Month contracts.",
+        "output_summary": "3 analysis(es), 3 root cause chain(s), 3 insight(s) ranked, 1 unanswered.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-05-20T06:33:58.730945+00:00"
+      },
+      {
+        "phase_number": 7,
+        "phase_name": "Visualisation & Dashboard Design",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Specced 4 chart(s)",
+          "Dashboard type: EXECUTIVE (3 sections)",
+          "Caught and corrected 3 anti-pattern(s)",
+          "Accessibility: colourblind=\u2713 WCAG=\u2713 alt-text=\u2713"
+        ],
+        "reasoning_summary": "The story begins by identifying the 'villain': Month-to-Month contracts are responsible for almost all churn. We then uncover its accomplices: poor service experience for Fiber customers and high friction in the payment process. The story resolves with a clear set of targeted interventions to fight these specific problems, empowering leadership to take decisive action.",
+        "output_summary": "4 chart spec(s), 3 insight\u2192chart mapping(s), 3 anti-pattern correction(s), 3 insight headline(s) handed to Phase 8.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-05-20T06:35:01.747825+00:00"
+      },
+      {
+        "phase_number": 8,
+        "phase_name": "Storytelling, Reporting & Handoff",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Addressed 6 sub-question(s) in Key Findings; 1 left open for follow-up",
+          "Produced 2 SMART recommendation(s)",
+          "Confidence mix: 3 high / 0 medium / 0 low",
+          "9-point self-check: 9 passed / 0 failed"
+        ],
+        "reasoning_summary": "Final stakeholder report delivered. Lead insight: Month-to-month contracts are the epicenter of churn, accounting for nearly 90% of all lost customers.",
+        "output_summary": "Final Markdown report (1664 words) + JSON summary. 2 recommendation(s), 3 top insight(s), 6 sub-question(s) answered.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-05-20T06:36:23.634367+00:00"
+      }
+    ]
+  }
+}
