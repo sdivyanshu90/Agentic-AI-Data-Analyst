@@ -1,0 +1,223 @@
+{
+  "phase": 4,
+  "phase_name": "Exploratory Data Analysis",
+  "status": "COMPLETE",
+
+  "univariate_analysis": [
+    {
+      "column": "tenure_days",
+      "distribution_shape": "right-skewed",
+      "central_tendency": { "mean": "412", "median": "284" },
+      "spread": { "std_dev": "318", "iqr": "165–598" },
+      "outlier_count": 412,
+      "key_observation": "Right-skew driven by long-tenure enterprise users; median is the more representative central measure for churn modelling.",
+      "recommended_viz": "histogram with log-x or violin plot, split by plan_tier"
+    },
+    {
+      "column": "acquisition_channel",
+      "distribution_shape": "categorical-imbalanced",
+      "central_tendency": { "mean": "n/a", "median": "n/a" },
+      "spread": { "std_dev": "n/a", "iqr": "n/a" },
+      "outlier_count": 0,
+      "key_observation": "organic (38.4%) and paid_search (27.1%) dominate; 'unknown_legacy' is the 5th-largest bucket — non-trivial.",
+      "recommended_viz": "bar chart, percentage labels, ordered descending"
+    },
+    {
+      "column": "churn_type",
+      "distribution_shape": "categorical-binary-skewed",
+      "central_tendency": { "mean": "n/a", "median": "n/a" },
+      "spread": { "std_dev": "n/a", "iqr": "n/a" },
+      "outlier_count": 0,
+      "key_observation": "65% active / 22% voluntary / 13% involuntary — matches Phase 3's expected distribution.",
+      "recommended_viz": "stacked bar by acquisition_channel"
+    },
+    {
+      "column": "event_count_30d",
+      "distribution_shape": "heavily right-skewed (long-tail power-law)",
+      "central_tendency": { "mean": "47", "median": "12" },
+      "spread": { "std_dev": "118", "iqr": "4–38" },
+      "outlier_count": 982,
+      "key_observation": "Median user generates 12 events in their first 30 days; top 1% generate >500. Use median in Phase 5 group comparisons.",
+      "recommended_viz": "log-scale histogram or box plot capped at p99"
+    }
+  ],
+
+  "bivariate_analysis": [
+    {
+      "variable_a": "acquisition_channel",
+      "variable_b": "churn_type",
+      "relationship_type": "Categorical-Categorical",
+      "strength": "STRONG",
+      "direction": "N/A",
+      "key_finding": "paid_search users churn voluntarily at 31% vs organic at 14% — more than 2× difference; involuntary churn rate is similar across channels (~12–14%).",
+      "statistic": "χ² = 248.6, df = 8, p < 0.001",
+      "recommended_viz": "stacked bar chart with annotated voluntary churn rate per channel",
+      "reasoning": "χ² statistic is large and the effect is concentrated in voluntary (not involuntary) churn, suggesting a product-fit or expectations-mismatch problem rather than payment friction. This is the single strongest segment-level signal in the data."
+    },
+    {
+      "variable_a": "event_count_30d",
+      "variable_b": "churn_type",
+      "relationship_type": "Numeric-Categorical",
+      "strength": "STRONG",
+      "direction": "NEGATIVE",
+      "key_finding": "Users who churn voluntarily have a median of 6 events in their first 30 days vs 17 for retained users — a 65% gap.",
+      "statistic": "Mann-Whitney U = 8.2e9, p < 0.001; Cliff's δ = -0.42 (large effect)",
+      "recommended_viz": "grouped box plot, log-y, faceted by acquisition_channel",
+      "reasoning": "Both the median gap and Cliff's δ indicate this is a large effect, not just a statistically significant one. Effect size matters here because event-count is heavily right-skewed."
+    },
+    {
+      "variable_a": "tenure_days",
+      "variable_b": "churn_type",
+      "relationship_type": "Numeric-Categorical",
+      "strength": "MODERATE",
+      "direction": "NEGATIVE",
+      "key_finding": "Voluntary churners have median tenure 91 days vs 412 for retained users; involuntary churn skews even earlier (median 47 days).",
+      "statistic": "Kruskal-Wallis H = 1812, p < 0.001",
+      "recommended_viz": "violin plot by churn_type, capped at p95",
+      "reasoning": "Confirms the classic 'churn happens early' pattern but the 47-day involuntary cluster suggests a separate payment-failure signal worth investigating in Phase 6."
+    },
+    {
+      "variable_a": "end_date_week",
+      "variable_b": "churn_count",
+      "relationship_type": "Date-Numeric",
+      "strength": "MODERATE",
+      "direction": "POSITIVE",
+      "key_finding": "Weekly churn count is ~480/week before 2025-07-15 and ~720/week in the four weeks after — a ~50% jump that does not appear in seasonal trends from 2024.",
+      "statistic": "Pre/post mean delta = +240/week (Welch's t, p < 0.001 against the pre-period)",
+      "recommended_viz": "line chart, marker at 2025-07-15, 7-day rolling average overlay",
+      "reasoning": "The discontinuity aligns with the pricing change (SQ3). Phase 5 should formally test this with an interrupted-time-series design rather than a simple t-test."
+    }
+  ],
+
+  "multivariate_patterns": [
+    {
+      "variables_involved": ["acquisition_channel", "event_count_30d", "churn_type"],
+      "pattern_observed": "The negative event_count_30d ↔ voluntary churn relationship is sharpest for paid_search users (Cliff's δ = -0.55) and weakest for referral users (Cliff's δ = -0.18).",
+      "business_interpretation": "Paid_search users who never engage churn fast; referral users seem to give the product more benefit of the doubt regardless of engagement.",
+      "recommended_followup": "Phase 6 should investigate whether onboarding interventions targeted at low-engagement paid_search users could close the gap."
+    },
+    {
+      "variables_involved": ["plan_tier", "tenure_days", "churn_type"],
+      "pattern_observed": "Starter-tier voluntary churn concentrates at days 28–35 (a 'first-bill' cliff); Pro tier shows no such cluster.",
+      "business_interpretation": "Starter users likely re-evaluate after their first credit-card statement; Pro users have already committed budget.",
+      "recommended_followup": "Phase 6 root cause: is this a pricing-perception issue or an unmet-value issue at day-28?"
+    }
+  ],
+
+  "anomaly_catalogue": [
+    {
+      "anomaly_description": "A single acquisition_channel value 'partner' has 4× the involuntary-churn rate of every other channel (47% vs 11–14%).",
+      "possible_explanations": [
+        "Partner channel sends users with weaker payment instruments (e.g., regional prepaid cards).",
+        "A specific partner relationship was sunset in 2025-Q2 and existing users were not migrated, causing failed renewals."
+      ],
+      "investigate_in_phase_6": true
+    },
+    {
+      "anomaly_description": "Users with tenure_days < 7 and event_count_30d = 0 are 1.8% of the base but account for 9% of voluntary churn.",
+      "possible_explanations": [
+        "Signups that never activated (likely test accounts or onboarding failures).",
+        "Misclassified involuntary churn that did not get a cancel_reason tag."
+      ],
+      "investigate_in_phase_6": true
+    }
+  ],
+
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "There is a statistically significant difference in voluntary 90-day churn rate between paid_search and organic acquisition channels, with paid_search higher, in the Q3 cohort.",
+      "variables": ["acquisition_channel", "churn_type"],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ1",
+      "expected_test_type": "Two-proportion z-test (or χ² with effect size)",
+      "reasoning": "Bivariate analysis showed a large χ² effect concentrated in voluntary churn; this is the lead segment-level driver Phase 6 will need to trace to a root cause."
+    },
+    {
+      "id": "H2",
+      "statement": "There is a statistically significant negative association between event_count_30d and 90-day voluntary churn among users acquired in Q2 2025.",
+      "variables": ["event_count_30d", "churn_type"],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ2",
+      "expected_test_type": "Logistic regression with log(event_count) as predictor; Mann-Whitney U as the non-parametric confirmation",
+      "reasoning": "Cliff's δ of -0.42 indicates a large effect; logistic regression will let Phase 5 estimate a per-event odds ratio for downstream intervention sizing."
+    },
+    {
+      "id": "H3",
+      "statement": "There is a statistically significant increase in weekly voluntary churn rate after 2025-07-15 vs the matching pre-period in the same Q3 cohort.",
+      "variables": ["end_date_week", "churn_type"],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ3",
+      "expected_test_type": "Interrupted-time-series with seasonal control (segmented regression)",
+      "reasoning": "Pre/post means differ but seasonal confounders cannot be ruled out by a naive t-test; segmented regression with a seasonal control isolates the pricing-change effect."
+    },
+    {
+      "id": "H4",
+      "statement": "There is a statistically significant interaction between acquisition_channel and event_count_30d in predicting voluntary churn (the engagement→retention slope is steeper for paid_search than for referral).",
+      "variables": ["acquisition_channel", "event_count_30d", "churn_type"],
+      "source": "EMERGENT",
+      "subquestion_id": null,
+      "expected_test_type": "Logistic regression with channel × log(events) interaction term",
+      "reasoning": "Multivariate analysis revealed channel-dependent slope differences (δ = -0.55 vs -0.18). Testing the interaction formally tells Phase 6 whether onboarding intervention should be channel-targeted."
+    }
+  ],
+
+  "eda_visualisation_spec": [
+    {
+      "finding_ref": "Bivariate:acquisition_channel_vs_churn_type",
+      "chart_type": "Stacked bar (100%)",
+      "x_axis": "acquisition_channel",
+      "y_axis": "Percentage of users",
+      "colour_facet": "churn_type (active / voluntary / involuntary)",
+      "tool": "Plotly or Seaborn",
+      "insight_in_one_sentence": "Paid-search voluntary churn (31%) is more than double organic (14%) — channel mix is a primary lever.",
+      "reasoning": "Stacked-bar keeps the within-channel proportions readable; using counts here would let channel size dominate the visual."
+    },
+    {
+      "finding_ref": "Bivariate:event_count_30d_vs_churn_type",
+      "chart_type": "Grouped box plot, log-y",
+      "x_axis": "churn_type",
+      "y_axis": "log(event_count_30d + 1)",
+      "colour_facet": "acquisition_channel",
+      "tool": "Seaborn",
+      "insight_in_one_sentence": "Voluntary churners engage at a fraction of retained users — and the gap widens for paid_search.",
+      "reasoning": "Log-y handles the power-law tail; facet by channel exposes the H4 interaction visually."
+    },
+    {
+      "finding_ref": "Bivariate:end_date_week_vs_churn_count",
+      "chart_type": "Line chart with annotation",
+      "x_axis": "Week ending date",
+      "y_axis": "Voluntary churn count",
+      "colour_facet": "Pre/post pricing change",
+      "tool": "Matplotlib",
+      "insight_in_one_sentence": "Weekly voluntary churn jumped ~50% after the 2025-07-15 pricing change.",
+      "reasoning": "Time-series view + a vertical marker at the change date communicates the discontinuity at a glance."
+    },
+    {
+      "finding_ref": "Multivariate:starter_tier_first_bill_cliff",
+      "chart_type": "Density plot of tenure_days by plan_tier, faceted by churn_type",
+      "x_axis": "tenure_days",
+      "y_axis": "Density",
+      "colour_facet": "plan_tier",
+      "tool": "Seaborn",
+      "insight_in_one_sentence": "Starter-tier churners cluster at days 28–35 (the first-bill window).",
+      "reasoning": "Density plot exposes the modal cluster cleanly; a histogram would be sensitive to bin choice for this narrow window."
+    },
+    {
+      "finding_ref": "Univariate:event_count_30d_distribution",
+      "chart_type": "Log-scale histogram",
+      "x_axis": "log(event_count_30d + 1)",
+      "y_axis": "Count of users",
+      "colour_facet": "",
+      "tool": "Matplotlib",
+      "insight_in_one_sentence": "Event activity follows a long-tail power law — median (12) is more meaningful than mean (47).",
+      "reasoning": "Establishes for the Phase 7 audience why we report medians and use non-parametric tests."
+    }
+  ],
+
+  "phase_5_handoff": {
+    "hypotheses_to_test": ["H1", "H2", "H3", "H4"],
+    "priority_order": "H3 (pricing change is time-sensitive) → H1 (largest segment-level effect) → H2 (behavioural lever) → H4 (interaction; only meaningful if H1 and H2 both supported)",
+    "notes": "Multiple-testing correction will apply (4 hypotheses). Phase 5 should use Holm–Bonferroni at α=0.05. H3 requires a seasonal control series; the 2024 Q3 weekly churn series is the recommended baseline."
+  }
+}
