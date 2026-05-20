@@ -1,0 +1,45 @@
+Running Phase 3 against the real dataset...
+
+=== code_calls: 1 ===
+--- exec 1 ok=True ---
+CODE: # -*- coding: utf-8 -*-
+import pandas as pd
+import numpy as np
+from scipy import stats
+
+# --- PRE-COMPUTATION SETUP ---
+# Create a binary Churn_Flag for easier calculations
+df['Churn_Flag'] = df['Churn'].apply(lambda x: 1 if x == 'Yes' else 0)
+
+print("--- 1. INITIAL DATA PROFILING & ANOMALY IDENTIFICATION ---")
+print("\n[INFO] Initial DataFrame Info:")
+df.info()
+
+print("\n[PROFILE] Initial Null Co
+OUT : --- 1. INITIAL DATA PROFILING & ANOMALY IDENTIFICATION ---
+
+[INFO] Initial DataFrame Info:
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 7043 entries, 0 to 7042
+Data columns (total 22 columns):
+ #   Column            Non-Null Count  Dtype  
+---  ------            --------------  -----  
+ 0   customerID        7043 non-null   object 
+ 1   gender            7043 non-null   object 
+ 2   SeniorCit
+
+=== status: COMPLETE ===
+validation_suite: {
+  "null_check": "PASSED",
+  "range_check": "PASSED",
+  "date_check": "PASSED",
+  "enum_check": "PASSED",
+  "row_count_check": "PASSED",
+  "row_count_original": 7043,
+  "row_count_clean": 7043,
+  "row_loss_pct": 0.0,
+  "join_integrity_check": "PASSED",
+  "notes": "All critical data quality issues have been resolved. The dataset is now internally consistent and ready for analysis. No rows were dropped. The null check confirms that the imputation of 'TotalCharges' was successful."
+}
+
+Full output -> benchmark/results/diagnose_phase3_output.json
