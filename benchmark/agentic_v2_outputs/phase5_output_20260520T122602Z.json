@@ -1,0 +1,258 @@
+{
+  "phase": 5,
+  "phase_name": "Hypothesis Testing & Statistical Validation",
+  "status": "COMPLETE",
+  "tests_conducted": [
+    {
+      "hypothesis_id": "H1",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates between customers on 'Month-to-month', 'One year', and 'Two year' contracts, with 'Month-to-month' customers exhibiting a higher churn rate.",
+      "null_hypothesis": "There is no association between contract type and customer churn; the churn rate is the same across all contract types.",
+      "alternative_hypothesis": "There is an association between contract type and customer churn; the churn rate differs for at least one contract type.",
+      "test_selected": "Chi-squared Test of Independence",
+      "test_selection_reasoning": "This test is appropriate for assessing the statistical association between two categorical variables: 'Contract' (3 levels) and 'Churn' (2 levels).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium to Large (Cram\u00e9r's V > 0.3)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 1179.8030",
+      "degrees_of_freedom": "2",
+      "p_value": 6.44e-257,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.4099
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%",
+        "notes": "Confidence intervals for Cram\u00e9r's V are not standard output but the effect size is very large."
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size (Cram\u00e9r's V \u2248 0.41) indicates a very strong association. The churn rate for Month-to-month customers (42.6%) is over 15 times higher than for Two-year contract customers (2.8%), a difference of immense business importance.",
+      "linked_subquestion": "SQ1"
+    },
+    {
+      "hypothesis_id": "H2",
+      "hypothesis_statement": "There is a statistically significant negative correlation between customer tenure (in months) and the likelihood of churn.",
+      "null_hypothesis": "The mean tenure of customers who churn is equal to the mean tenure of customers who do not churn.",
+      "alternative_hypothesis": "The mean tenure of customers who churn is different from the mean tenure of customers who do not churn.",
+      "test_selected": "Independent Samples t-test (Welch's)",
+      "test_selection_reasoning": "This test is appropriate for comparing the means of a continuous variable ('tenure') between two independent groups ('Churn' Yes/No). Welch's version was used as the assumption of equal variances was violated.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "Violated",
+        "independence": "Met",
+        "variance_homogeneity": "Violated"
+      },
+      "power_analysis": {
+        "effect_size_target": "Large (Cohen's d > 0.8)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "t-statistic = -34.6688",
+      "degrees_of_freedom": "3046 (approximate for Welch's)",
+      "p_value": 1.47e-230,
+      "effect_size": {
+        "metric": "Cohen's d",
+        "value": -0.8512
+      },
+      "confidence_interval": {
+        "lower": -21.46,
+        "upper": -17.64,
+        "level": "95%",
+        "notes": "CI for the difference in mean tenure (Churners - Non-Churners)."
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size (Cohen's d \u2248 -0.85) is large. Customers who churn have an average tenure of only 18 months, compared to 37.6 months for those who stay. This highlights new customers as a high-risk group.",
+      "linked_subquestion": "SQ3"
+    },
+    {
+      "hypothesis_id": "H3",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates among customers with 'Fiber optic', 'DSL', and 'No' internet service, with 'Fiber optic' customers having the highest churn rate.",
+      "null_hypothesis": "There is no association between internet service type and customer churn.",
+      "alternative_hypothesis": "There is an association between internet service type and customer churn.",
+      "test_selected": "Chi-squared Test of Independence",
+      "test_selection_reasoning": "This test is appropriate for assessing the statistical association between two categorical variables: 'InternetService' (3 levels) and 'Churn' (2 levels).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Cram\u00e9r's V > 0.3)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 732.0575",
+      "degrees_of_freedom": "2",
+      "p_value": 1.09e-159,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.3229
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%",
+        "notes": "Confidence intervals for Cram\u00e9r's V are not standard output."
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size (Cram\u00e9r's V \u2248 0.32) indicates a strong association. The churn rate for Fiber optic customers (41.8%) is more than double that of DSL customers (18.9%), pointing to a major issue with this specific service.",
+      "linked_subquestion": "SQ1"
+    },
+    {
+      "hypothesis_id": "H4",
+      "hypothesis_statement": "The association between having a 'Month-to-month' contract and churning is significantly stronger for customers who also have 'Fiber optic' internet service.",
+      "null_hypothesis": "The relationship between contract type and the log-odds of churn does not depend on internet service type (interaction effect is zero).",
+      "alternative_hypothesis": "The relationship between contract type and the log-odds of churn depends on internet service type (interaction effect is non-zero).",
+      "test_selected": "Logistic Regression with Interaction Term",
+      "test_selection_reasoning": "This method correctly tests if the effect of one predictor ('Contract') on a binary outcome ('Churn') is modified by another predictor ('InternetService').",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Any significant interaction term",
+        "estimated_power": 0.9,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-scores for interaction terms (all < 1.96)",
+      "degrees_of_freedom": "4 (for all interaction terms)",
+      "p_value": 0.084,
+      "effect_size": {
+        "metric": "p-value of interaction terms",
+        "value": 0.084
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%",
+        "notes": "The p-value for the most promising interaction term (One year:No internet) was 0.084, which is not significant at alpha=0.05. Other interaction p-values were much higher."
+      },
+      "result": "REJECTED",
+      "practical_significance": "MEDIUM",
+      "practical_significance_reasoning": "This is an important negative finding. While Month-to-month Fiber optic customers have a very high churn rate (54.5%), this is due to the strong additive effects of both factors, not a special synergistic interaction. This simplifies intervention strategies, as each driver can be addressed separately.",
+      "linked_subquestion": null
+    },
+    {
+      "hypothesis_id": "H5",
+      "hypothesis_statement": "Among customers with internet service, having add-ons like 'OnlineSecurity' or 'TechSupport' is associated with a statistically significant lower churn rate compared to having no such add-ons.",
+      "null_hypothesis": "There is no association between having key add-on services (Online Security, Tech Support) and customer churn.",
+      "alternative_hypothesis": "There is an association between having key add-on services and customer churn.",
+      "test_selected": "Chi-squared Test of Independence",
+      "test_selection_reasoning": "This test is appropriate for assessing the association between binary categorical variables ('Has OnlineSecurity' vs 'Churn'; 'Has TechSupport' vs 'Churn').",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small to Medium (Cram\u00e9r's V > 0.1)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 203.30 (OnlineSecurity), 187.87 (TechSupport)",
+      "degrees_of_freedom": "1",
+      "p_value": 1e-42,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.17
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%",
+        "notes": "Effect sizes were 0.1702 for OnlineSecurity and 0.1636 for TechSupport. Reporting the average."
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "MEDIUM",
+      "practical_significance_reasoning": "The effect sizes are small-to-moderate. However, the churn rate for customers without these add-ons (around 31%) is more than double the rate for those who have them (around 15%). This suggests these services are highly effective at retaining at-risk internet customers.",
+      "linked_subquestion": "SQ5"
+    }
+  ],
+  "multiple_testing_correction": {
+    "applied": true,
+    "method": "Bonferroni",
+    "adjusted_alpha": 0.01,
+    "hypotheses_surviving_correction": [
+      "H1",
+      "H2",
+      "H3",
+      "H5"
+    ],
+    "notes": "A Bonferroni correction was applied for the 5 primary hypotheses, resulting in a significance threshold of alpha = 0.05 / 5 = 0.01. All p-values for supported hypotheses were effectively zero, so they easily survived the correction. H4 was rejected before correction and remains rejected."
+  },
+  "findings_summary": [
+    {
+      "hypothesis_id": "H1",
+      "result": "SUPPORTED",
+      "p_value": 6.44e-257,
+      "effect_size_value": 0.4099,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ1",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H2",
+      "result": "SUPPORTED",
+      "p_value": 1.47e-230,
+      "effect_size_value": -0.8512,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ3",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H3",
+      "result": "SUPPORTED",
+      "p_value": 1.09e-159,
+      "effect_size_value": 0.3229,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ1",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H4",
+      "result": "REJECTED",
+      "p_value": 0.084,
+      "effect_size_value": 0,
+      "practical_significance": "MEDIUM",
+      "subquestion_answered": null,
+      "emergent": true
+    },
+    {
+      "hypothesis_id": "H5",
+      "result": "SUPPORTED",
+      "p_value": 1e-42,
+      "effect_size_value": 0.17,
+      "practical_significance": "MEDIUM",
+      "subquestion_answered": "SQ5",
+      "emergent": false
+    }
+  ],
+  "statistical_caveats": [
+    "Correlation is not causation: The analysis identifies factors strongly associated with churn, but it cannot prove that these factors cause churn. This is observational data, not from a controlled experiment.",
+    "Assumption of Representativeness: The analysis assumes the provided IBM dataset is a representative sample of the company's entire subscriber base. Findings may not generalize if this is not the case.",
+    "Static Snapshot: The data represents a single point in time. It does not capture customer journeys, trends, or the impact of past business changes on churn.",
+    "Handling of Violated Assumptions: For the t-test on tenure (H2), the normality assumption was violated. While the test is robust for large samples, this means we are testing the difference in means, which may not fully capture the difference between the skewed distributions."
+  ],
+  "phase_6_priority_insights": [
+    "The strongest, most actionable driver of churn is contract type. Month-to-month customers are at extremely high risk, indicating a critical need for strategies to encourage long-term contracts.",
+    "Low tenure is a major risk factor. Churn is heavily concentrated in the early months of a customer's lifecycle, pointing to the importance of onboarding and early-life engagement programs.",
+    "Fiber optic internet service is associated with alarmingly high churn. This is a top-priority area for investigation: is it due to price, service reliability, or something else?",
+    "The lack of a statistical interaction between Contract and InternetService simplifies the problem: interventions can target M-t-M customers and Fiber optic customers with separate, focused strategies."
+  ]
+}
