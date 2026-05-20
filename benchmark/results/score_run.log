@@ -1,0 +1,18 @@
+Scoring JUNIOR-A (single-shot LLM) (6583 chars)...
+  judged in 20.4s — overall 5.1
+Scoring JUNIOR-B (naive pandas) (2047 chars)...
+  [llm_client] attempt 1/8 got 503; retrying in 2.5s
+  [llm_client] attempt 2/8 got 503; retrying in 5.0s
+  [llm_client] attempt 3/8 got 503; retrying in 9.5s
+  [llm_client] attempt 4/8 got 503; retrying in 18.0s
+  [llm_client] attempt 5/8 got 503; retrying in 34.5s
+  judged in 146.0s — overall 4.14
+Scoring AGENTIC (8-phase pipeline) (10915 chars)...
+  judged in 22.0s — overall 10.0
+
+Wrote /home/somu/Agentic-AI-Data-Analyst/benchmark/results/scores.json
+
+=== LLM-JUDGE OVERALL ===
+  JUNIOR-A (single-shot LLM)       5.1
+  JUNIOR-B (naive pandas)          4.14
+  AGENTIC (8-phase pipeline)       10.0
