@@ -1,0 +1,207 @@
+AGENTIC: running full 8-phase pipeline (live Gemini calls)...
+
+▶ Phase 1 — Stakeholder Requirement Gathering | invoking agent (max retries: 3)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ PHASE 1 COMPLETE — Stakeholder Requirement Gathering
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THE AGENT DID:
+  The user's request was deconstructed into what they literally asked for versus the underlying business need. The gap analysis highlights the boundary between what the data can provide (correlation, impact sizing) and what it cannot (cost of business actions), setting realistic expectations for the analysis.
+
+KEY DECISIONS MADE:
+  • Classified analysis as: Descriptive, Diagnostic, Prescriptive
+  • Identified 3 P1 sub-question(s) (of 6 total)
+  • Raised 2 scope flag(s): PROCEED_WITH_CAVEAT, PROCEED_WITH_CAVEAT
+
+OUTPUT SUMMARY:
+  6 sub-questions produced. Success definition: This analysis is successful when the Customer Retention leadership can confidently identify the top 3 customer segments or service configura…
+
+QUALITY GATE: ✓ PASSED
+
+ADVANCING TO: Phase 2 — Data Identification & Extraction
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▶ Phase 2 — Data Identification & Extraction | invoking agent (max retries: 3)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ PHASE 2 COMPLETE — Data Identification & Extraction
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THE AGENT DID:
+  Data has been mapped and sourced from the single provided CSV file. The extraction plan is defined, focusing on loading the data into a pandas DataFrame and correcting the 'TotalCharges' column data type. This column will contain a small number of null values after coercion, corresponding to new customers (tenure=0), which must be handled (e.g., imputed with 0) before numerical analysis. The 'customerID' is flagged as PII and should be excluded from analytical modeling. The dataset is now prepared and ready for Phase 3: Exploratory Data Analysis.
+
+KEY DECISIONS MADE:
+  • Mapped 6 sub-question/source pair(s); 6 CONFIRMED
+  • Reconnoitred 1 schema(s); 0 INFERRED
+  • Raised 1 governance flag(s) (1 PII)
+  • KPI coverage: 3 assessed, 0 partial, 0 not coverable
+
+OUTPUT SUMMARY:
+  6 source(s) mapped, 3 extraction step(s), 21 column(s) in data dictionary.
+
+QUALITY GATE: ✓ PASSED
+
+ADVANCING TO: Phase 3 — Data Quality & Cleaning
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▶ Phase 3 — Data Quality & Cleaning | invoking agent (max retries: 3)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ PHASE 3 COMPLETE — Data Quality & Cleaning
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THE AGENT DID:
+  The data is now clean, consistent, and enriched with two new features relevant to the analysis. All known data quality issues have been addressed without data loss. The schema is finalized. The dataset is ready for Phase 4: Exploratory Data Analysis and Visualization.
+
+KEY DECISIONS MADE:
+  • Catalogued 10 anomaly(ies): 3 CRITICAL, 1 WARNING
+  • Cleaning actions: 1×FIX, 1×IMPUTE, 2×STANDARDISE, 1×DROP_COLUMN
+  • Validation row-loss: 0.0% (7043 → 7043)
+  • Engineered 2 derived feature(s)
+
+OUTPUT SUMMARY:
+  5 cleaning decision(s), 7 change log entry(ies), clean schema of 22 column(s). Validation: null=PASSED, range=PASSED, row-loss=0.0%.
+
+QUALITY GATE: ✓ PASSED
+
+ADVANCING TO: Phase 4 — Exploratory Data Analysis
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▶ Phase 4 — Exploratory Data Analysis | invoking agent (max retries: 3)
+  [llm_client] attempt 1/8 got 503; retrying in 2.5s
+  [llm_client] attempt 2/8 got 503; retrying in 5.0s
+  [llm_client] attempt 3/8 got 503; retrying in 9.5s
+  [llm_client] attempt 4/8 got 503; retrying in 18.0s
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ PHASE 4 COMPLETE — Exploratory Data Analysis
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THE AGENT DID:
+  The strongest signals in the data relate to contractual and behavioral factors (Contract, Tenure, Payment Method) rather than demographic ones. The emergent findings about Fiber optic service quality (H3, H4) and payment friction are particularly interesting and could lead to highly actionable recommendations. Phase 5 should focus on statistically confirming these strong correlations and interaction effects.
+
+KEY DECISIONS MADE:
+  • Profiled 6 variable(s) univariate, 7 pair(s) bivariate
+  • 6 STRONG bivariate relationship(s) found
+  • Catalogued 2 surprise(s); 2 flagged for Phase 6
+  • Formed 5 hypothesis(es) (1 EMERGENT from EDA)
+
+OUTPUT SUMMARY:
+  6 univariate, 7 bivariate, 5 hypothesis(es), 4 viz spec(s) ready for Phase 7.
+
+QUALITY GATE: ✓ PASSED
+
+ADVANCING TO: Phase 5 — Hypothesis Testing & Validation
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▶ Phase 5 — Hypothesis Testing & Validation | invoking agent (max retries: 3)
+  [llm_client] attempt 1/8 got 503; retrying in 2.5s
+  [llm_client] attempt 2/8 got 503; retrying in 5.0s
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ PHASE 5 COMPLETE — Hypothesis Testing & Validation
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THE AGENT DID:
+  H1 Finding: The massive churn difference by Contract type is the single most important finding. Interventions should focus on migrating Month-to-month customers to longer contracts.
+
+KEY DECISIONS MADE:
+  • Ran 5 test(s): 5 SUPPORTED, 0 REJECTED, 0 INCONCLUSIVE
+  • 5 finding(s) rated HIGH practical significance
+  • Multiple-testing correction (Bonferroni) applied: 5/5 survive
+
+OUTPUT SUMMARY:
+  5 test(s) executed, 5 finding(s) summarised, 4 caveat(s) for Phase 8, 2 priority insight(s) for Phase 6.
+
+QUALITY GATE: ✓ PASSED
+
+ADVANCING TO: Phase 6 — Advanced Analysis & Root Cause
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▶ Phase 6 — Advanced Analysis & Root Cause | invoking agent (max retries: 3)
+  [llm_client] attempt 1/8 got 503; retrying in 2.5s
+  [llm_client] attempt 2/8 got 503; retrying in 5.0s
+  [llm_client] attempt 3/8 got 503; retrying in 9.5s
+  [llm_client] attempt 4/8 got 503; retrying in 18.0s
+  [llm_client] attempt 5/8 got 503; retrying in 34.5s
+  [llm_client] attempt 6/8 got 503; retrying in 63.0s
+  [llm_client] attempt 7/8 got 503; retrying in 63.5s
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ PHASE 6 COMPLETE — Advanced Analysis & Root Cause
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THE AGENT DID:
+  The vast majority (89%) of churn comes from the 55% of customers on Month-to-Month contracts.
+
+KEY DECISIONS MADE:
+  • Ran 3 analysis(es): PARETO ANALYSIS, ROOT CAUSE ANALYSIS, SEGMENTATION / COHORT ANALYSIS
+  • Traced 3 root cause chain(s): 0 CONFIRMED, 3 HYPOTHESISED
+  • 2 segment deep-dive(s); 0 Simpson's paradox finding(s)
+  • Ranked 3 insight(s); 2 HIGH-impact
+
+OUTPUT SUMMARY:
+  3 analysis(es), 3 root cause chain(s), 3 insight(s) ranked, 1 unanswered.
+
+⚠ HYPOTHESISED root cause(s) for: H1: Massive churn from Month-to-month contracts, Anomaly: High churn for Fiber optic service, Anomaly: High churn for Electronic check payment — Phase 8 must label these as such
+
+QUALITY GATE: ✓ PASSED
+
+ADVANCING TO: Phase 7 — Visualisation & Dashboard Design
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▶ Phase 7 — Visualisation & Dashboard Design | invoking agent (max retries: 3)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ PHASE 7 COMPLETE — Visualisation & Dashboard Design
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THE AGENT DID:
+  The story begins by identifying the 'villain': Month-to-Month contracts are responsible for almost all churn. We then uncover its accomplices: poor service experience for Fiber customers and high friction in the payment process. The story resolves with a clear set of targeted interventions to fight these specific problems, empowering leadership to take decisive action.
+
+KEY DECISIONS MADE:
+  • Specced 4 chart(s)
+  • Dashboard type: EXECUTIVE (3 sections)
+  • Caught and corrected 3 anti-pattern(s)
+  • Accessibility: colourblind=✓ WCAG=✓ alt-text=✓
+
+OUTPUT SUMMARY:
+  4 chart spec(s), 3 insight→chart mapping(s), 3 anti-pattern correction(s), 3 insight headline(s) handed to Phase 8.
+
+QUALITY GATE: ✓ PASSED
+
+ADVANCING TO: Phase 8 — Storytelling, Reporting & Handoff
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▶ Phase 8 — Storytelling, Reporting & Handoff | invoking agent (max retries: 3)
+  [llm_client] attempt 1/8 got 503; retrying in 2.5s
+  [llm_client] attempt 2/8 got 503; retrying in 5.0s
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ PHASE 8 COMPLETE — Storytelling, Reporting & Handoff
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT THE AGENT DID:
+  Final stakeholder report delivered. Lead insight: Month-to-month contracts are the epicenter of churn, accounting for nearly 90% of all lost customers.
+
+KEY DECISIONS MADE:
+  • Addressed 6 sub-question(s) in Key Findings; 1 left open for follow-up
+  • Produced 2 SMART recommendation(s)
+  • Confidence mix: 3 high / 0 medium / 0 low
+  • 9-point self-check: 9 passed / 0 failed
+
+OUTPUT SUMMARY:
+  Final Markdown report (1664 words) + JSON summary. 2 recommendation(s), 3 top insight(s), 6 sub-question(s) answered.
+
+⚠ sub-question(s) left unanswered — disclosed in the report's Next Steps: The 'cost-effective' component of the main business objective could not be fully answered due to the absence of financial data on intervention costs and customer lifetime value.
+
+QUALITY GATE: ✓ PASSED
+
+PIPELINE COMPLETE — no further phases.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+=== AGENTIC PIPELINE FINISHED ===
+Elapsed: 808.6s
+Phases run: [1, 2, 3, 4, 5, 6, 7, 8]
+  Phase 1: COMPLETE
+  Phase 2: COMPLETE
+  Phase 3: COMPLETE
+  Phase 4: COMPLETE
+  Phase 5: COMPLETE
+  Phase 6: COMPLETE
+  Phase 7: COMPLETE
+  Phase 8: COMPLETE
+Final report: 10915 chars
