@@ -1,0 +1,27 @@
+{
+  "condition": "AGENTIC (8-phase pipeline)",
+  "elapsed_seconds": 808.6,
+  "blocked_phase": null,
+  "phases_run": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "phase_status": {
+    "1": "COMPLETE",
+    "2": "COMPLETE",
+    "3": "COMPLETE",
+    "4": "COMPLETE",
+    "5": "COMPLETE",
+    "6": "COMPLETE",
+    "7": "COMPLETE",
+    "8": "COMPLETE"
+  },
+  "has_final_report": true,
+  "final_report_chars": 10915
+}
