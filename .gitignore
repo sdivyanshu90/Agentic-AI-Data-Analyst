@@ -1,0 +1,12 @@
+.env
+.claude/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.benchmarks/
+logs/
+outputs/
+.venv/
+venv/
+.DS_Store
