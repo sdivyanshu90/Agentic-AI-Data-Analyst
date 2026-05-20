@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pipeline_state_log.json",
+  "title": "Pipeline State Log",
+  "type": "object",
+  "required": ["pipeline_state"],
+  "properties": {
+    "pipeline_state": {
+      "type": "object",
+      "required": ["mission_brief", "current_phase", "overall_status", "phases"],
+      "properties": {
+        "mission_brief": { "type": "object" },
+        "current_phase": { "type": "integer", "minimum": 0, "maximum": 8 },
+        "overall_status": {
+          "type": "string",
+          "enum": ["IN_PROGRESS", "COMPLETE", "BLOCKED"]
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "phase_number",
+              "phase_name",
+              "status",
+              "attempt_count",
+              "key_decisions",
+              "reasoning_summary",
+              "output_summary",
+              "quality_gate_passed",
+              "timestamp"
+            ],
+            "properties": {
+              "phase_number": { "type": "integer", "minimum": 1, "maximum": 8 },
+              "phase_name": { "type": "string" },
+              "status": {
+                "type": "string",
+                "enum": ["PENDING", "RUNNING", "COMPLETE", "RETRYING", "FAILED"]
+              },
+              "attempt_count": { "type": "integer", "minimum": 1 },
+              "key_decisions": { "type": "array" },
+              "reasoning_summary": { "type": "string" },
+              "output_summary": { "type": "string" },
+              "quality_gate_passed": { "type": "boolean" },
+              "failure_reason": { "type": "string" },
+              "timestamp": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}
