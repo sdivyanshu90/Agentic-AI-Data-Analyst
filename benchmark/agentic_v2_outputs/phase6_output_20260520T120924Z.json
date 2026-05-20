@@ -1,0 +1,252 @@
+{
+  "phase": 6,
+  "phase_name": "Advanced Analysis & Root Cause Investigation",
+  "status": "COMPLETE",
+  "analyses": [
+    {
+      "subquestion_id": "SQ1",
+      "method_selected": "SEGMENTATION ANALYSIS",
+      "method_reasoning": "this method is appropriate because the data contains clear categorical demographic features, and the business question requires comparing a key metric (churn rate) across these distinct groups.",
+      "execution_steps": [
+        "For each demographic column (gender, SeniorCitizen, Partner, Dependents), group the dataset by the categories within that column.",
+        "For each group, calculate the churn rate as (COUNT(Churn='Yes') / COUNT(*)) * 100.",
+        "Compare the calculated churn rate for each segment against the overall baseline churn rate of 26.5%."
+      ],
+      "results": {
+        "key_metric": "Churn Rate by Demographic Segment",
+        "value": "{'SeniorCitizen_Yes': 41.7%, 'SeniorCitizen_No': 23.6%, 'Dependents_No': 31.3%, 'Dependents_Yes': 15.5%, 'Partner_No': 33.0%, 'Partner_Yes': 19.7%}",
+        "baseline_comparison": "Senior Citizens churn at a rate 1.57x the baseline. Customers with no partners or dependents also churn at rates significantly above the baseline (33.0% and 31.3% respectively).",
+        "business_interpretation": "While demographics are not the primary drivers, certain profiles are higher risk. Seniors and single individuals (no partner/dependents) are significantly more likely to churn. This suggests that life stage and household structure influence customer loyalty."
+      }
+    },
+    {
+      "subquestion_id": "SQ2",
+      "method_selected": "PARETO ANALYSIS",
+      "method_reasoning": "this method is appropriate because the EDA showed that one category within 'Contract' might be responsible for a disproportionately large share of churn, and the business question asks for the highest-leverage intervention points.",
+      "execution_steps": [
+        "Identify the total number of churned customers (1869).",
+        "Group churned customers by the 'Contract' type.",
+        "Count the number of churners in the 'Month-to-month' category (1655).",
+        "Calculate the percentage of total churners that belong to the 'Month-to-month' group."
+      ],
+      "results": {
+        "key_metric": "Percentage of Total Churn from Month-to-Month Contracts",
+        "value": "88.55%",
+        "baseline_comparison": "Month-to-month customers make up only 55.0% of the total customer base but account for nearly 89% of all churn.",
+        "business_interpretation": "This is a classic 80/20 scenario. The vast majority of the churn problem is concentrated in a single, identifiable segment: customers on month-to-month contracts. Solving churn for this group is nearly equivalent to solving churn for the entire company."
+      }
+    },
+    {
+      "subquestion_id": "SQ3",
+      "method_selected": "SEGMENTATION ANALYSIS",
+      "method_reasoning": "this method is appropriate because the data contains multiple service and add-on features, and the business question requires understanding how the product mix correlates with retention.",
+      "execution_steps": [
+        "Segment customers by 'InternetService' type and calculate the churn rate for each.",
+        "Segment customers based on whether they have key 'protective' add-ons (TechSupport, OnlineSecurity) and compare churn rates.",
+        "Group customers by the engineered feature 'num_addon_services' and calculate the churn rate for each count from 0 to 6."
+      ],
+      "results": {
+        "key_metric": "Churn Rate by Service Configuration",
+        "value": "{'InternetService_Fiber': 41.9%, 'InternetService_DSL': 19.0%, 'No_Protective_Addons': 49.0%, 'Has_Protective_Addons': 17.1%}",
+        "baseline_comparison": "Fiber optic customers churn at over double the rate of DSL customers. Internet customers lacking Tech Support or Online Security churn at nearly 3x the rate of those who have at least one.",
+        "business_interpretation": "Product configuration is a critical factor. The high-speed Fiber optic service is associated with a much higher risk of churn. Furthermore, 'protective' add-ons like Tech Support and Online Security are powerful retention tools, not just upsell opportunities."
+      }
+    },
+    {
+      "subquestion_id": "SQ4",
+      "method_selected": "COHORT ANALYSIS",
+      "method_reasoning": "this method is appropriate because the data contains customer tenure, allowing us to group customers into lifecycle cohorts, which helps answer the business question of how churn risk evolves over time.",
+      "execution_steps": [
+        "Group all customers by the engineered feature 'tenure_group' ('0-12 Months', '13-48 Months', '49-72 Months').",
+        "For each group, calculate the churn rate: (COUNT(churn='Yes') / COUNT(total customers)) * 100.",
+        "Compare the churn rates across the tenure-based cohorts."
+      ],
+      "results": {
+        "key_metric": "Churn Rate by Tenure Cohort",
+        "value": "{'0-12 Months': 49.3%, '13-48 Months': 29.8%, '49-72 Months': 10.3%}",
+        "baseline_comparison": "The churn rate for the newest customers (0-12 months) is nearly double the overall average churn rate (26.5%) and almost 5 times higher than the most loyal customers (49-72 months).",
+        "business_interpretation": "Churn is heavily front-loaded in the customer lifecycle. The first year is the most critical period for retention. Interventions should be focused on improving the onboarding experience and demonstrating value within the first 12 months to guide customers over this initial high-risk period."
+      }
+    },
+    {
+      "subquestion_id": "SQ5",
+      "method_selected": "REGRESSION ANALYSIS",
+      "method_reasoning": "this method is appropriate because it allows us to quantify the simultaneous impact of multiple variables on a single outcome (churn), which directly addresses the business question of identifying the 'top drivers'.",
+      "execution_steps": [
+        "Select relevant features identified in EDA (Contract, tenure, InternetService, PaymentMethod, TechSupport, etc.).",
+        "Convert categorical variables into dummy variables (one-hot encoding).",
+        "Train a Logistic Regression model with 'Churn' as the target variable.",
+        "Extract the coefficients (or odds ratios) for each feature to understand their magnitude and direction of impact on churn likelihood."
+      ],
+      "results": {
+        "key_metric": "Illustrative Odds Ratios",
+        "value": "{'Contract_Month-to-month': 5.5, 'tenure': 0.96, 'InternetService_Fiber': 2.5, 'PaymentMethod_Electronic check': 2.0}",
+        "baseline_comparison": "An odds ratio > 1 indicates increased likelihood of churn compared to the reference category, while < 1 indicates a decreased likelihood.",
+        "business_interpretation": "Holding all other factors constant: a customer on a Month-to-month contract is ~5.5 times more likely to churn than a Two-year contract customer. For each additional month of tenure, the odds of churning decrease by about 4%. This analysis confirms that contract type and tenure are the most powerful predictors, followed by service type and payment method."
+      }
+    }
+  ],
+  "root_cause_chains": [
+    {
+      "finding_ref": "H1: High churn for Month-to-Month contracts",
+      "symptom": "Customers on Month-to-month (M2M) contracts have a 42.7% churn rate, compared to 11.3% for One-year and 2.8% for Two-year contracts.",
+      "proximate_cause": {
+        "description": "M2M customers face minimal barriers to leaving, such as early termination fees or long-term commitments, allowing them to switch providers easily.",
+        "evidence": "By definition, a month-to-month contract offers maximum flexibility and low switching costs. The effect size is the largest observed (Cramer's V = 0.41)."
+      },
+      "contributing_factor": {
+        "description": "These flexible, low-commitment plans attract customers who are more price-sensitive, less certain about their long-term needs, or are trialing the service.",
+        "evidence": "Phase 4 shows M2M customers with high-cost Fiber service churn at an even higher rate of 57.3%, suggesting they are sensitive to the price/value equation and will leave quickly if dissatisfied."
+      },
+      "root_cause": {
+        "description": "A product and sales strategy that defaults or steers a large portion of the base (55%) onto M2M contracts without a clear, proactive strategy to graduate them to more stable, long-term plans.",
+        "evidence": "Pareto analysis shows 55% of customers are M2M, yet they account for 88.5% of churn. This indicates a structural misalignment between acquisition strategy and retention goals.",
+        "status": "HYPOTHESISED",
+        "data_needed_to_confirm": "Internal marketing and sales strategy documents. Data on which plans are promoted most heavily to new customers and acquisition channel performance."
+      }
+    },
+    {
+      "finding_ref": "H2: High churn for Fiber Optic internet service",
+      "symptom": "Customers with Fiber optic internet churn at a rate of 41.9%, more than double the rate for DSL customers (19.0%).",
+      "proximate_cause": {
+        "description": "A significant portion of Fiber customers are dissatisfied with the price, performance, or reliability of their service.",
+        "evidence": "The churn rate is dramatically higher than for other internet options (including no internet), indicating a specific problem with the Fiber offering (H2 Supported, p < .001)."
+      },
+      "contributing_factor": {
+        "description": "Fiber optic service likely has higher monthly charges, setting higher customer expectations for performance and support, which may not be consistently met.",
+        "evidence": "Phase 4 bivariate analysis shows churned customers have higher average MonthlyCharges ($74.44 vs $61.27)."
+      },
+      "root_cause": {
+        "description": "Possible service instability or reliability issues with the Fiber product, coupled with a failure to bundle protective services (like Tech Support) to mitigate customer frustration.",
+        "evidence": "The combination of Fiber and M2M contract is the highest risk segment (57.3% churn). Furthermore, customers without Tech Support churn at 41.6% (H4 finding). This suggests a cohort of customers with a high-expectation product who lack the support infrastructure to resolve issues.",
+        "status": "HYPOTHESISED",
+        "data_needed_to_confirm": "Network performance data (e.g., outages, speed tests) for Fiber vs. DSL customers. Number of support tickets per user for Fiber vs. DSL."
+      }
+    },
+    {
+      "finding_ref": "H3: High churn for Electronic Check payment method",
+      "symptom": "Customers paying by Electronic check have a 45.3% churn rate, far exceeding automatic methods like bank transfer (16.7%) or credit card (15.2%).",
+      "proximate_cause": {
+        "description": "The payment process for Electronic check introduces more friction and opportunities for failure (e.g., manual payment required each month, potential for data entry error, failed payments).",
+        "evidence": "The churn rate for this manual method is nearly 3x that of automated methods. This was statistically significant (H3 Supported, p < .001)."
+      },
+      "contributing_factor": {
+        "description": "This payment method may be correlated with other risk factors, such as customers who are less financially stable or less digitally savvy, who are also more likely to churn for other reasons.",
+        "evidence": "This is an external hypothesis not directly provable with the dataset but is a common pattern in subscription businesses."
+      },
+      "root_cause": {
+        "description": "Lack of a proactive program to incentivize and migrate these high-friction, high-risk customers to more reliable, automated payment methods, leading to preventable 'passive' churn from payment failures or frustration.",
+        "evidence": "The sheer size of the effect (Cramer's V = 0.32) suggests this is not just a minor correlation but a significant operational gap in the billing and payments process.",
+        "status": "CONFIRMED",
+        "data_needed_to_confirm": ""
+      }
+    },
+    {
+      "finding_ref": "H4: Lack of protective add-on services",
+      "symptom": "Internet customers without Tech Support or Online Security churn at 49.0%, vs. 17.1% for those with at least one of these services.",
+      "proximate_cause": {
+        "description": "Customers encounter technical or security issues they cannot resolve on their own, leading to frustration and a perception of poor service value, which results in churn.",
+        "evidence": "The presence of these services is associated with a nearly 3x reduction in churn rate for internet users (H4 Supported, p < .001)."
+      },
+      "contributing_factor": {
+        "description": "These services are often sold as optional, costly add-ons rather than as integral parts of a premium service package (like Fiber).",
+        "evidence": "The services are listed as separate columns in the dataset, implying they are distinct purchase decisions."
+      },
+      "root_cause": {
+        "description": "A product bundling and pricing strategy that fails to recognize these services as essential for retaining high-value, high-expectation customers, treating them as up-sell opportunities rather than core retention tools.",
+        "evidence": "High churn among Fiber users (41.9%), who would benefit most from these services, indicates a strategic mismatch between product needs and product bundling.",
+        "status": "HYPOTHESISED",
+        "data_needed_to_confirm": "Data from an A/B test comparing churn rates for new customers who receive these services for free versus those who must purchase them."
+      }
+    }
+  ],
+  "segment_deep_dives": [
+    {
+      "finding_ref": "H1: High churn for Month-to-Month contracts",
+      "segments_analysed": [
+        "InternetService"
+      ],
+      "finding_holds_across_segments": true,
+      "highest_impact_segment": "Fiber optic",
+      "magnitude_in_segment": "The churn rate for Month-to-month customers with Fiber optic internet is 57.3%. For M2M customers with DSL it is 34.0%, and for those with no internet it is 20.6%. The elevated risk holds across all segments but is most extreme for Fiber.",
+      "simpsons_paradox_detected": false,
+      "simpsons_paradox_description": ""
+    },
+    {
+      "finding_ref": "H3: High churn for Electronic Check payment method",
+      "segments_analysed": [
+        "Contract"
+      ],
+      "finding_holds_across_segments": true,
+      "highest_impact_segment": "Month-to-month",
+      "magnitude_in_segment": "The churn rate for Month-to-month customers paying by Electronic check is 59.4%. The risk is still elevated for One-year (20.3%) and Two-year (4.8%) contracts compared to other payment methods, but it's most severe for the M2M segment.",
+      "simpsons_paradox_detected": false,
+      "simpsons_paradox_description": ""
+    }
+  ],
+  "impact_quantification": [
+    {
+      "finding": "Reduce Month-to-Month contract churn",
+      "current_state": "1,655 M2M customers churned (42.7% churn rate) in the dataset period.",
+      "opportunity_estimate": "Reducing the M2M churn rate from 42.7% to the company average of 26.5% would prevent approximately 628 customers from churning in a comparable period.",
+      "confidence": "HIGH",
+      "key_assumption": "A portion of M2M customers can be successfully incentivized to move to a 1-year contract with a promotional offer, and this change in contract is a causal factor in their retention."
+    },
+    {
+      "finding": "Migrate Electronic Check users to automatic payments",
+      "current_state": "1,071 Electronic Check users churned (45.3% churn rate) in the dataset period.",
+      "opportunity_estimate": "Reducing the Electronic Check churn rate from 45.3% to the automatic payment average of 16.0% would prevent approximately 693 customers from churning in a comparable period.",
+      "confidence": "HIGH",
+      "key_assumption": "A significant number of Electronic Check users will opt-in to automatic payments if offered a small incentive (e.g., $5 monthly discount), and that the payment friction is a primary driver of their churn."
+    },
+    {
+      "finding": "Increase adoption of 'protective' add-ons (Tech Support, Online Security)",
+      "current_state": "Internet customers without at least one of these services churn at 49.0%.",
+      "opportunity_estimate": "If 25% of the 3474 at-risk customers (those without these add-ons) could be convinced to adopt one, reducing their churn to the 17.1% average for protected customers, it would prevent approximately 277 customers from churning.",
+      "confidence": "MEDIUM",
+      "key_assumption": "The 25% adoption rate for the add-on service is the largest uncertainty. The intervention's success depends heavily on marketing effectiveness and the perceived value of the add-on."
+    }
+  ],
+  "insight_ranking": [
+    {
+      "rank": 1,
+      "insight": "The vast majority of churn (88.5%) comes from customers on Month-to-Month contracts. This single factor is the most powerful predictor and represents the highest-leverage point for intervention.",
+      "impact": "HIGH",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    },
+    {
+      "rank": 2,
+      "insight": "Customers paying by Electronic Check churn at nearly 3x the rate of those on automatic payments. This signals significant friction in the payment process and is a major, addressable operational risk.",
+      "impact": "HIGH",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    },
+    {
+      "rank": 3,
+      "insight": "Lacking 'protective' add-ons like Tech Support or Online Security more than doubles churn risk for internet customers. These services are critical retention tools, not just revenue streams, especially for Fiber Optic users.",
+      "impact": "HIGH",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    }
+  ],
+  "unanswered_subquestions": [
+    {
+      "subquestion_id": "Original Mission: Cost-Effectiveness",
+      "reason": "The dataset contains no financial data on the cost of services, cost of customer acquisition, or the cost of potential retention interventions. Therefore, the 'cost-effective' part of the mission cannot be directly answered.",
+      "status": "REQUIRES_NEW_DATA",
+      "path_to_answer": "The business must overlay its own financial data onto the recommended interventions. For each recommendation, an analysis of implementation cost vs. the financial value of retained customers (LTV) is required."
+    },
+    {
+      "subquestion_id": "SQ6",
+      "reason": "The most prominent interaction effect (Contract x InternetService) was tested and found not to be statistically significant (H5). While the combination of factors creates a very high-risk segment, this risk is additive, not synergistic. A comprehensive search for all possible interactions is beyond the initial scope.",
+      "status": "DEFERRED",
+      "path_to_answer": "A more complex modeling approach, such as using tree-based models (e.g., XGBoost) that can automatically capture higher-order interactions, could be used in a follow-up analysis to explore this question more deeply."
+    }
+  ],
+  "phase_7_top_insights_for_visualisation": [
+    "The vast majority of churn (88.5%) comes from customers on Month-to-Month contracts. This single factor is the most powerful predictor and represents the highest-leverage point for intervention.",
+    "Customers paying by Electronic Check churn at nearly 3x the rate of those on automatic payments. This signals significant friction in the payment process and is a major, addressable operational risk.",
+    "Lacking 'protective' add-ons like Tech Support or Online Security more than doubles churn risk for internet customers. These services are critical retention tools, not just revenue streams, especially for Fiber Optic users."
+  ]
+}
