@@ -1,0 +1,344 @@
+{
+  "phase": 4,
+  "phase_name": "Exploratory Data Analysis",
+  "status": "COMPLETE",
+  "univariate_analysis": [
+    {
+      "column": "tenure",
+      "distribution_shape": "Slightly right-skewed",
+      "central_tendency": {
+        "mean": "32.37",
+        "median": "29.0"
+      },
+      "spread": {
+        "std_dev": "24.56",
+        "iqr": "46.0"
+      },
+      "outlier_count": 0,
+      "key_observation": "The distribution is wide, ranging from 0 to 72 months, with a slight positive skew (0.24). Mean and median are relatively close, suggesting a fairly symmetric spread with a longer tail of loyal customers.",
+      "recommended_viz": "Histogram with Kernel Density Estimate (KDE) overlay"
+    },
+    {
+      "column": "MonthlyCharges",
+      "distribution_shape": "Bimodal",
+      "central_tendency": {
+        "mean": "64.76",
+        "median": "70.35"
+      },
+      "spread": {
+        "std_dev": "30.09",
+        "iqr": "54.35"
+      },
+      "outlier_count": 0,
+      "key_observation": "The distribution is bimodal with a slight left skew (-0.22), indicating two main groups of customers: one at a lower price point (~$20-30) and another at a higher price point (~$70-100). The median is higher than the mean.",
+      "recommended_viz": "Histogram or KDE plot"
+    },
+    {
+      "column": "TotalCharges",
+      "distribution_shape": "Right-skewed",
+      "central_tendency": {
+        "mean": "2279.73",
+        "median": "1394.55"
+      },
+      "spread": {
+        "std_dev": "2266.79",
+        "iqr": "3388.05"
+      },
+      "outlier_count": 0,
+      "key_observation": "The distribution is strongly right-skewed (skewness 0.96), with the mean being significantly higher than the median. This is expected as long-tenure customers accumulate high total charges.",
+      "recommended_viz": "Histogram with a log transformation"
+    },
+    {
+      "column": "Contract",
+      "distribution_shape": "Categorical",
+      "central_tendency": {
+        "mean": "N/A",
+        "median": "N/A"
+      },
+      "spread": {
+        "std_dev": "N/A",
+        "iqr": "N/A"
+      },
+      "outlier_count": 0,
+      "key_observation": "The majority of customers (55.0%) are on a 'Month-to-month' contract, followed by 'Two year' (24.1%) and 'One year' (20.9%). This suggests a large portion of the customer base has low commitment.",
+      "recommended_viz": "Bar chart"
+    },
+    {
+      "column": "InternetService",
+      "distribution_shape": "Categorical",
+      "central_tendency": {
+        "mean": "N/A",
+        "median": "N/A"
+      },
+      "spread": {
+        "std_dev": "N/A",
+        "iqr": "N/A"
+      },
+      "outlier_count": 0,
+      "key_observation": "Fiber optic is the most common internet service (44.0%), followed by DSL (34.4%). A significant portion of customers (21.7%) have no internet service.",
+      "recommended_viz": "Bar chart"
+    },
+    {
+      "column": "Churn",
+      "distribution_shape": "Categorical (Binary)",
+      "central_tendency": {
+        "mean": "N/A",
+        "median": "N/A"
+      },
+      "spread": {
+        "std_dev": "N/A",
+        "iqr": "N/A"
+      },
+      "outlier_count": 0,
+      "key_observation": "The target variable is imbalanced, with a churn rate of 26.54%. There are 1869 'Yes' instances and 5174 'No' instances.",
+      "recommended_viz": "Bar chart or Pie chart"
+    }
+  ],
+  "bivariate_analysis": [
+    {
+      "variable_a": "Contract",
+      "variable_b": "Churn",
+      "relationship_type": "Categorical-Categorical",
+      "strength": "STRONG",
+      "direction": "NEGATIVE",
+      "key_finding": "Churn rate is drastically different across contract types. Month-to-month customers churn at 42.7%, while One year (11.3%) and Two year (2.8%) customers are far more loyal.",
+      "statistic": "Crosstab showing counts: M2M (1655 churned), One year (166 churned), Two year (48 churned)",
+      "recommended_viz": "Bar chart of churn rate by contract type",
+      "reasoning": "The strength is rated STRONG because the churn rate for the most common contract type (M2M) is over 15 times higher than the churn rate for Two-year contracts. This indicates contract type is a primary determinant of churn."
+    },
+    {
+      "variable_a": "tenure",
+      "variable_b": "Churn",
+      "relationship_type": "Numeric-Categorical",
+      "strength": "MODERATE",
+      "direction": "NEGATIVE",
+      "key_finding": "Customers who churn have a much lower average tenure (18.0 months) compared to those who do not churn (37.6 months). The Pearson correlation between tenure and Churn (numeric) is -0.35.",
+      "statistic": "Mean tenure (Churn='Yes'): 17.98; Mean tenure (Churn='No'): 37.57. Pearson r = -0.3522",
+      "recommended_viz": "Grouped box plot or violin plot of tenure by churn status",
+      "reasoning": "The relationship is MODERATE because there is a clear and substantial difference in the central tendency of tenure between the two groups, and the correlation coefficient, while not extreme, is significant. It shows a clear pattern of newer customers being more likely to churn."
+    },
+    {
+      "variable_a": "InternetService",
+      "variable_b": "Churn",
+      "relationship_type": "Categorical-Categorical",
+      "strength": "STRONG",
+      "direction": "N/A",
+      "key_finding": "Customers with Fiber optic internet have a very high churn rate (41.9%), more than double that of DSL customers (19.0%). Customers with no internet service have a very low churn rate (7.4%).",
+      "statistic": "Churn Rates: Fiber optic=41.9%, DSL=19.0%, No=7.4%",
+      "recommended_viz": "Bar chart of churn rate by internet service type",
+      "reasoning": "The strength is rated STRONG because the churn rate for Fiber optic users is more than five times the rate for those without internet, indicating the type of internet service is a major factor in churn."
+    },
+    {
+      "variable_a": "PaymentMethod",
+      "variable_b": "Churn",
+      "relationship_type": "Categorical-Categorical",
+      "strength": "STRONG",
+      "direction": "N/A",
+      "key_finding": "Customers using 'Electronic check' as a payment method have a churn rate of 45.3%, which is substantially higher than all other methods (Mailed check: 19.1%, Automatic bank transfer: 16.7%, Automatic credit card: 15.2%).",
+      "statistic": "Churn Rates: Electronic check=45.3%, others < 20%",
+      "recommended_viz": "Bar chart of churn rate by payment method",
+      "reasoning": "The relationship is STRONG because one specific category ('Electronic check') has a churn rate nearly three times higher than the automatic payment methods, indicating a powerful association with churn."
+    },
+    {
+      "variable_a": "TechSupport",
+      "variable_b": "Churn",
+      "relationship_type": "Categorical-Categorical",
+      "strength": "STRONG",
+      "direction": "NEGATIVE",
+      "key_finding": "Customers without Tech Support churn at a rate of 41.6%, while those with Tech Support have a much lower churn rate of 15.2%.",
+      "statistic": "Churn Rates: No=41.6%, Yes=15.2%",
+      "recommended_viz": "Bar chart of churn rate by Tech Support status",
+      "reasoning": "Rated STRONG because the lack of this single add-on service is associated with a churn rate that is 2.7 times higher than having it, suggesting it's a critical retention feature."
+    },
+    {
+      "variable_a": "MonthlyCharges",
+      "variable_b": "Churn",
+      "relationship_type": "Numeric-Categorical",
+      "strength": "WEAK",
+      "direction": "POSITIVE",
+      "key_finding": "Customers who churn tend to have higher monthly charges (mean $74.44) than those who stay (mean $61.27). The Pearson correlation is positive but low (0.19).",
+      "statistic": "Mean MonthlyCharges (Churn='Yes'): 74.44; Mean MonthlyCharges (Churn='No'): 61.27. Pearson r = 0.1934",
+      "recommended_viz": "Grouped box plot of Monthly Charges by churn status",
+      "reasoning": "The relationship is WEAK. While there is a discernible difference in means and a positive correlation, the distributions have significant overlap, and the correlation coefficient is below 0.3, suggesting it's a contributing factor but not a primary driver on its own."
+    },
+    {
+      "variable_a": "SeniorCitizen",
+      "variable_b": "Churn",
+      "relationship_type": "Categorical-Categorical",
+      "strength": "MODERATE",
+      "direction": "N/A",
+      "key_finding": "Senior citizens have a significantly higher churn rate (41.7%) compared to non-senior citizens (23.6%).",
+      "statistic": "Churn Rates: Yes=41.7%, No=23.6%",
+      "recommended_viz": "Bar chart of churn rate by Senior Citizen status",
+      "reasoning": "The strength is MODERATE because the churn rate for seniors is substantially higher (1.76x) than for non-seniors, representing a clear risk factor, though not as extreme as contract type."
+    }
+  ],
+  "multivariate_patterns": [
+    {
+      "variables_involved": [
+        "InternetService",
+        "Contract",
+        "Churn"
+      ],
+      "pattern_observed": "The high churn rate associated with Fiber optic internet is heavily concentrated among customers with Month-to-month contracts. The churn rate for this specific segment is 57.3%. In contrast, Fiber optic customers on a Two-year contract have a churn rate of only 1.7%.",
+      "business_interpretation": "The combination of a high-cost/high-performance service (Fiber) and a low-commitment contract (Month-to-month) creates an extremely high-risk customer segment. This could be due to price sensitivity, service reliability issues that are intolerable without a long-term discount, or competitor poaching.",
+      "recommended_followup": "Investigate the root cause of high churn in the M2M Fiber segment. Conduct surveys or analyze support tickets for this group to understand if the issue is price, performance, or service."
+    },
+    {
+      "variables_involved": [
+        "TechSupport",
+        "Contract",
+        "Churn"
+      ],
+      "pattern_observed": "The value of Tech Support as a retention tool is most pronounced for customers on Month-to-month contracts. For this group, having Tech Support reduces churn from 52.8% (No Tech Support) to 29.5% (Yes Tech Support). The churn difference is much smaller for longer contract types.",
+      "business_interpretation": "Tech Support acts as a significant mitigating factor for the highest-risk contract group. M2M customers may be more sensitive to service issues and lack the commitment to tolerate them without immediate help. Tech Support provides that safety net.",
+      "recommended_followup": "Consider bundling Tech Support, or offering it at a discount, specifically for new customers signing up on a Month-to-month plan with internet service."
+    }
+  ],
+  "anomaly_catalogue": [
+    {
+      "anomaly_description": "The distribution of MonthlyCharges is bimodal, with distinct peaks around $20-30 and $70-100, and a valley in between.",
+      "possible_explanations": [
+        "This reflects two primary product bundles: a basic service package (e.g., phone only or low-speed internet) and a premium package (e.g., high-speed internet with multiple add-ons).",
+        "The lower peak represents legacy customers or those in areas with limited service options, while the higher peak represents customers on modern, feature-rich plans."
+      ],
+      "investigate_in_phase_6": false
+    },
+    {
+      "anomaly_description": "The relationship between the number of add-on services and churn is non-linear. Churn rate is low for 0 services (21.4%), peaks at 1 service (45.8%), and then steadily decreases as more services are added, reaching a low of 5.3% for 6 services.",
+      "possible_explanations": [
+        "The '0 services' group includes customers with no internet, who are inherently low-churn. This skews the baseline.",
+        "Customers with only one add-on may be 'dabblers' who are less committed, or the single add-on is not compelling enough to create loyalty.",
+        "High 'stickiness' and loyalty only begin to manifest after a customer subscribes to 2 or more add-on services, indicating deeper integration into the ecosystem."
+      ],
+      "investigate_in_phase_6": true
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "There is a statistically significant negative relationship between contract length and customer churn rate, where customers on Month-to-month contracts have a higher churn rate than those on One year or Two year contracts.",
+      "variables": [
+        "Contract",
+        "Churn"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ2",
+      "expected_test_type": "Chi-squared test of independence",
+      "reasoning": "Bivariate analysis showed a dramatic difference in churn rates: 42.7% for M2M vs. 2.8% for Two Year. This hypothesis formalizes the strongest observed pattern."
+    },
+    {
+      "id": "H2",
+      "statement": "There is a statistically significant difference in churn rates based on Internet Service type, with Fiber optic customers having a higher churn rate than DSL customers among internet subscribers.",
+      "variables": [
+        "InternetService",
+        "Churn"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ3",
+      "expected_test_type": "Chi-squared test of independence",
+      "reasoning": "Fiber optic customers churn at 41.9%, more than double the rate for DSL customers (19.0%). This hypothesis aims to confirm this significant service-level difference."
+    },
+    {
+      "id": "H3",
+      "statement": "There is a statistically significant association between using 'Electronic check' for payments and a higher likelihood of churn compared to automatic payment methods (bank transfer or credit card).",
+      "variables": [
+        "PaymentMethod",
+        "Churn"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ2",
+      "expected_test_type": "Chi-squared test of independence",
+      "reasoning": "The churn rate for 'Electronic check' users (45.3%) is nearly triple that of users with automatic payment methods (~16%). This suggests a non-automated, manual payment method is a major risk factor."
+    },
+    {
+      "id": "H4",
+      "statement": "There is a statistically significant negative relationship between having protective add-on services (OnlineSecurity or TechSupport) and the likelihood of churn for customers with internet service.",
+      "variables": [
+        "OnlineSecurity",
+        "TechSupport",
+        "Churn"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ3",
+      "expected_test_type": "Logistic Regression with interaction terms",
+      "reasoning": "Customers without these services churn at rates over 41%, while those with them churn at ~15%. This hypothesis seeks to confirm that these 'protective' services are key retention tools."
+    },
+    {
+      "id": "H5",
+      "statement": "There is a statistically significant interaction effect between Contract and InternetService on churn, where the churn rate for 'Fiber optic' customers on a 'Month-to-month' contract is significantly greater than the sum of the individual effects of each variable.",
+      "variables": [
+        "Contract",
+        "InternetService",
+        "Churn"
+      ],
+      "source": "EMERGENT",
+      "subquestion_id": "SQ6",
+      "expected_test_type": "Logistic Regression with interaction term",
+      "reasoning": "Multivariate analysis revealed this specific segment has an exceptionally high churn rate (57.3%), suggesting the combined risk is more than additive. This hypothesis formalizes this emergent, high-impact finding."
+    }
+  ],
+  "eda_visualisation_spec": [
+    {
+      "finding_ref": "Bivariate:Contract_vs_Churn",
+      "chart_type": "Bar Chart",
+      "x_axis": "Contract",
+      "y_axis": "Churn Rate (%)",
+      "colour_facet": "N/A",
+      "tool": "Seaborn / matplotlib",
+      "insight_in_one_sentence": "Customers on month-to-month contracts churn at a dramatically higher rate than those on longer-term contracts.",
+      "reasoning": "A bar chart is the clearest way to show the stark difference in a categorical metric across a few distinct groups, directly highlighting the impact of contract length."
+    },
+    {
+      "finding_ref": "Bivariate:tenure_vs_Churn",
+      "chart_type": "Box Plot",
+      "x_axis": "Churn",
+      "y_axis": "Tenure (Months)",
+      "colour_facet": "Churn",
+      "tool": "Seaborn / Plotly",
+      "insight_in_one_sentence": "Customers who churned have a significantly shorter tenure distribution compared to customers who stayed.",
+      "reasoning": "A box plot effectively visualizes the difference in distributions (median, quartiles, spread) for a numeric variable between two categorical groups, clearly showing that churned customers are less tenured."
+    },
+    {
+      "finding_ref": "Multivariate:InternetService_Contract_Churn",
+      "chart_type": "Grouped Bar Chart",
+      "x_axis": "InternetService",
+      "y_axis": "Churn Rate (%)",
+      "colour_facet": "Contract",
+      "tool": "Tableau / Seaborn",
+      "insight_in_one_sentence": "The high churn risk of Fiber optic internet is almost entirely concentrated in the month-to-month customer segment.",
+      "reasoning": "A grouped bar chart is ideal for visualizing an interaction effect between two categorical variables. It allows for easy comparison of churn rates across internet types, while also showing how this pattern changes for each contract type."
+    },
+    {
+      "finding_ref": "Bivariate:PaymentMethod_vs_Churn",
+      "chart_type": "Bar Chart",
+      "x_axis": "PaymentMethod",
+      "y_axis": "Churn Rate (%)",
+      "colour_facet": "N/A",
+      "tool": "Seaborn / Power BI",
+      "insight_in_one_sentence": "Customers paying by electronic check churn at a far higher rate than those using any other payment method.",
+      "reasoning": "A bar chart clearly isolates the 'Electronic check' category as an outlier with a much higher churn rate compared to the other three payment methods, which have similar, lower rates."
+    },
+    {
+      "finding_ref": "Anomaly:num_addon_services_vs_Churn",
+      "chart_type": "Line Chart",
+      "x_axis": "Number of Add-on Services",
+      "y_axis": "Churn Rate (%)",
+      "colour_facet": "N/A",
+      "tool": "matplotlib / Plotly",
+      "insight_in_one_sentence": "Customer churn risk peaks with one add-on service and then steadily declines as more services are adopted.",
+      "reasoning": "A line chart is effective for showing a trend across an ordered, discrete numeric variable (number of services). It will clearly illustrate the non-linear pattern of rising then falling churn, which a bar chart might make look less like a continuous trend."
+    }
+  ],
+  "phase_5_handoff": {
+    "hypotheses_to_test": [
+      "H1",
+      "H2",
+      "H3",
+      "H4",
+      "H5"
+    ],
+    "priority_order": "H1, H5, H2, H3, H4",
+    "notes": "The strongest signals in the data relate to contract terms and the interaction between contract type and internet service. H1 and H5 should be the highest priority for formal testing as they point to the most impactful business levers. The subsequent hypotheses confirm other major factors like internet service, payment method, and key add-ons. Phase 5 should prepare data for logistic regression to test all these simultaneously and quantify their relative importance."
+  }
+}
