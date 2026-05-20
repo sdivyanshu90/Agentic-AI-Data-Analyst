@@ -1,0 +1,310 @@
+{
+  "phase": 7,
+  "phase_name": "Data Visualisation & Dashboard Design",
+  "status": "COMPLETE",
+  "insight_to_chart_map": [
+    {
+      "insight_rank": 1,
+      "insight_summary": "Month-to-month contracts are the primary driver of churn, especially within the first 6 months. This represents a failure to lock in customers and demonstrate value early in their lifecycle.",
+      "chart_type": "Combination of a Bar Chart and a Line Chart",
+      "chart_reasoning": "This insight has two components: a categorical comparison (contract types) and a trend over time (tenure). A Bar Chart is optimal for comparing churn rates across the three discrete contract types, as it makes the vast difference in magnitude immediately apparent. A Line Chart is best for showing the churn rate trend across tenure buckets, as it emphasizes the continuous decline and highlights the critical early-lifecycle period.",
+      "alternatives_rejected": [
+        {
+          "chart": "Single grouped bar chart",
+          "reason_rejected": "Trying to combine contract type and tenure buckets into one chart would be too complex and cluttered, obscuring both key messages. Separating them allows each point to be made with maximum clarity."
+        },
+        {
+          "chart": "Pie Chart for contracts",
+          "reason_rejected": "A pie chart would show the proportion of churners from each contract type, but the key insight is the *rate* of churn, which is a comparison of proportions. Bar charts are far superior for comparing values."
+        }
+      ]
+    },
+    {
+      "insight_rank": 2,
+      "insight_summary": "The premium Fiber Optic service has a critical value-for-money problem. Its high price is not matched by a perceived premium experience, particularly regarding tech support, leading to alarmingly high churn.",
+      "chart_type": "Grouped Bar Chart",
+      "chart_reasoning": "A grouped bar chart is the most effective way to show the interaction between two categorical variables. It allows the audience to first compare the overall churn for Fiber vs. DSL, and then immediately see within the Fiber group how the presence or absence of Tech Support dramatically changes the outcome. This single chart tells the entire story of the problem and its most likely driver.",
+      "alternatives_rejected": [
+        {
+          "chart": "Stacked Bar Chart",
+          "reason_rejected": "A stacked bar chart would show the composition of churners/non-churners within each group, but it would make it very difficult to compare the churn rates (the top of the 'Churn' segment) directly across bars, which is the primary goal."
+        },
+        {
+          "chart": "Treemap",
+          "reason_rejected": "A treemap could show the relative size of each segment (e.g., 'Fiber with no support') but is poor for accurately comparing the churn rates between them. A bar chart's common baseline makes comparison effortless."
+        }
+      ]
+    },
+    {
+      "insight_rank": 3,
+      "insight_summary": "Protective add-on services like Tech Support and Online Security are powerful retention tools. Proactively bundling or offering these to high-risk segments is a clear intervention opportunity.",
+      "chart_type": "Bar Chart (or Dumbbell Plot)",
+      "chart_reasoning": "A simple bar chart comparing churn rates for customers with and without these key services is the clearest, most direct way to communicate this finding. It directly visualizes the 'retention lift' provided by the add-on.",
+      "alternatives_rejected": [
+        {
+          "chart": "Line Chart",
+          "reason_rejected": "There is no time-series or continuous element here, just a binary comparison ('Has Service' vs. 'No Service'). A line chart would imply a non-existent connection between the points."
+        },
+        {
+          "chart": "Table with Numbers",
+          "reason_rejected": "While a table is precise, a bar chart is faster for a business audience to process. The visual difference in bar lengths communicates the magnitude of the impact more effectively than comparing two percentage numbers."
+        }
+      ]
+    }
+  ],
+  "dashboard_architecture": {
+    "dashboard_type": "EXECUTIVE",
+    "sections": [
+      {
+        "section_name": "KPI Summary & Headline Finding",
+        "purpose": "To provide a high-level overview of the churn problem and state the most critical finding upfront.",
+        "components": [
+          "KPI Card: Overall Churn Rate",
+          "KPI Card: M-t-M Contract Churn Rate",
+          "KPI Card: Fiber Optic Churn Rate",
+          "Text Box: Key takeaway from Pareto analysis"
+        ],
+        "layout_position": "top"
+      },
+      {
+        "section_name": "The Primary Drivers: Why Customers Leave",
+        "purpose": "To present the core evidence for the top 2-3 churn drivers, focusing on contracts, tenure, and internet service.",
+        "components": [
+          "Chart: Churn Rate by Contract Type",
+          "Chart: Churn Rate by Customer Tenure",
+          "Chart: Churn Rate by Internet Service & Tech Support"
+        ],
+        "layout_position": "center"
+      },
+      {
+        "section_name": "The Solution Pathway: How to Reduce Churn",
+        "purpose": "To visualize the impact of potential interventions and provide evidence for recommendations.",
+        "components": [
+          "Chart: Impact of Protective Add-ons on Churn",
+          "Text Box: Summary of Recommendations"
+        ],
+        "layout_position": "bottom"
+      }
+    ],
+    "interactivity_spec": "Interactivity should be minimal for this executive audience. All charts must include tooltips on hover to show precise figures (e.g., churn rate, number of customers). A single, optional dashboard filter for 'Tenure Bucket' can be included to allow for deeper questions about whether patterns hold for new vs. tenured customers."
+  },
+  "visualisation_specs": [
+    {
+      "chart_name": "Churn Rate Soars for Month-to-Month Contracts",
+      "purpose": "To visually establish that contract type is the single most important predictor of churn.",
+      "data_source": {
+        "table": "clean_data",
+        "columns": [
+          "Contract",
+          "Churn_numeric"
+        ]
+      },
+      "x_axis": {
+        "field": "Contract",
+        "label": "Contract Type",
+        "format": "Text"
+      },
+      "y_axis": {
+        "field": "AVG(Churn_numeric)",
+        "label": "Churn Rate",
+        "format": "Percentage (0.0%)",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "Contract",
+        "palette": "Sequential: Grays, with a contrasting Red/Orange for 'Month-to-month' to draw attention.",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Contract Type",
+        "Churn Rate (%)",
+        "Total Customers in Segment"
+      ],
+      "reference_lines": [
+        {
+          "type": "Average",
+          "value": "Overall Churn Rate (26.5%)",
+          "label": "Overall Average"
+        }
+      ],
+      "annotations": [
+        {
+          "location": "Data label on 'Month-to-month' bar",
+          "text": "42.6%"
+        }
+      ],
+      "alt_text": "A bar chart showing churn rates by contract type. The 'Month-to-month' contract has the highest churn rate at 42.6%. The 'One year' contract is next at 11.3%, and the 'Two year' contract is lowest at 2.8%. A reference line indicates the overall average churn rate of 26.5%.",
+      "recommended_tool": "Tableau / Power BI"
+    },
+    {
+      "chart_name": "Churn Risk Plummets After the First Year",
+      "purpose": "To demonstrate that churn is overwhelmingly an early-lifecycle problem, creating urgency for onboarding interventions.",
+      "data_source": {
+        "table": "clean_data",
+        "columns": [
+          "tenure_bucket",
+          "Churn_numeric"
+        ]
+      },
+      "x_axis": {
+        "field": "tenure_bucket",
+        "label": "Customer Tenure",
+        "format": "Categorical (sorted)"
+      },
+      "y_axis": {
+        "field": "AVG(Churn_numeric)",
+        "label": "Churn Rate",
+        "format": "Percentage (0.0%)",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": null,
+        "palette": "Single brand color (e.g., Blue)",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Tenure Bucket",
+        "Churn Rate (%)",
+        "Total Customers in Segment"
+      ],
+      "reference_lines": [],
+      "annotations": [
+        {
+          "location": "Above the first data point ('0-12 Mos')",
+          "text": "Peak risk period"
+        }
+      ],
+      "alt_text": "A line chart showing churn rate decreasing as customer tenure increases. The churn rate starts very high in the '0-12 Months' bucket at over 50%, and steadily drops to below 10% for customers with more than 48 months of tenure.",
+      "recommended_tool": "Matplotlib / Plotly"
+    },
+    {
+      "chart_name": "Fiber Optic Churn is 2x DSL, Driven by Lack of Tech Support",
+      "purpose": "To diagnose the root cause of high churn among premium Fiber Optic customers.",
+      "data_source": {
+        "table": "clean_data",
+        "columns": [
+          "InternetService",
+          "TechSupport",
+          "Churn_numeric"
+        ]
+      },
+      "x_axis": {
+        "field": "InternetService",
+        "label": "Internet Service",
+        "format": "Text"
+      },
+      "y_axis": {
+        "field": "AVG(Churn_numeric)",
+        "label": "Churn Rate",
+        "format": "Percentage (0.0%)",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "TechSupport",
+        "palette": "Diverging: Blue for 'Yes', Orange for 'No'",
+        "colourblind_safe": true
+      },
+      "filters": [
+        "InternetService != 'No'"
+      ],
+      "tooltips": [
+        "Internet Service",
+        "Has Tech Support?",
+        "Churn Rate (%)"
+      ],
+      "reference_lines": [],
+      "annotations": [
+        {
+          "location": "Arrow drawn between the 'No' and 'Yes' TechSupport bars for the Fiber Optic group",
+          "text": "Tech Support cuts Fiber churn by more than half"
+        }
+      ],
+      "alt_text": "A grouped bar chart comparing churn rates for DSL and Fiber optic customers, with bars split by whether the customer has Tech Support. For Fiber optic, the churn rate is 49.4% without Tech Support but only 22.6% with it. For DSL, the churn rate is 24.3% without Tech Support and 7.7% with it.",
+      "recommended_tool": "Tableau / Seaborn"
+    },
+    {
+      "chart_name": "Key Add-ons Cut Churn Risk in Half",
+      "purpose": "To provide evidence for the retention value of specific add-ons, supporting a recommendation to bundle them.",
+      "data_source": {
+        "table": "clean_data",
+        "columns": [
+          "OnlineSecurity",
+          "TechSupport",
+          "Churn_numeric"
+        ]
+      },
+      "x_axis": {
+        "field": "Service Type (Calculated Field)",
+        "label": "Protective Add-on Service",
+        "format": "Text"
+      },
+      "y_axis": {
+        "field": "AVG(Churn_numeric)",
+        "label": "Churn Rate",
+        "format": "Percentage (0.0%)",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "Has Service (Yes/No)",
+        "palette": "Diverging: Blue for 'Yes', Orange for 'No'",
+        "colourblind_safe": true
+      },
+      "filters": [
+        "InternetService != 'No'"
+      ],
+      "tooltips": [
+        "Service Type",
+        "Has Service?",
+        "Churn Rate (%)"
+      ],
+      "reference_lines": [],
+      "annotations": [],
+      "alt_text": "A grouped bar chart showing the impact of Online Security and Tech Support on churn. For each service, two bars are shown: 'No' and 'Yes'. For customers without Online Security, churn is 31.4%, versus 14.6% for those with it. Similarly, for Tech Support, churn is 31.1% without it and 15.2% with it.",
+      "recommended_tool": "Tableau / Power BI"
+    }
+  ],
+  "anti_pattern_audit": [
+    {
+      "chart_name": "All Charts",
+      "anti_pattern_found": "Potentially misleading titles (e.g., 'Churn by Contract')",
+      "correction_applied": "All chart titles have been rewritten as active headlines that state the key insight (e.g., 'Churn Rate Soars for Month-to-Month Contracts'). This prevents the user from having to interpret the chart and delivers the message immediately."
+    },
+    {
+      "chart_name": "All Charts",
+      "anti_pattern_found": "Potential for a truncated y-axis to exaggerate differences.",
+      "correction_applied": "All specifications for charts showing rates or totals mandate that the y-axis must start at zero. This ensures that the visual proportions of the bars accurately reflect the proportional differences in the data."
+    }
+  ],
+  "accessibility_review": {
+    "colourblind_safe": true,
+    "min_font_size_met": true,
+    "alt_text_written": true,
+    "wcag_contrast_met": true,
+    "notes": "All chart specifications use colorblind-safe palettes (e.g., Blue/Orange diverging). Alt text has been written for all visualizations. Final implementation must ensure font sizes are >=12pt for labels and >=16pt for titles, and that text/background color combinations meet WCAG AA contrast ratios (4.5:1)."
+  },
+  "narrative_flow": {
+    "hook": "Start with the KPI scorecards and a headline text box stating that 83% of all churn originates from Month-to-Month contracts. This immediately focuses attention on the biggest problem.",
+    "context_sequence": [
+      "First, show the scale of the Month-to-Month contract problem with the bar chart, establishing it as the primary driver.",
+      "Second, add the time dimension with the tenure line chart, showing the problem is concentrated in the early lifecycle.",
+      "Third, introduce the secondary, but still critical, problem with the high-value Fiber Optic service using the grouped bar chart."
+    ],
+    "payoff": "Finally, present the chart showing the powerful retention effects of Tech Support and Online Security. This directly leads into the recommendations, providing a clear, evidence-based path forward.",
+    "dashboard_section_order": [
+      "KPI Summary & Headline Finding",
+      "The Primary Drivers: Why Customers Leave",
+      "The Solution Pathway: How to Reduce Churn"
+    ]
+  },
+  "phase_8_handoff": {
+    "chart_titles_as_insight_headlines": [
+      "Churn Rate Soars for Month-to-Month Contracts",
+      "Churn Risk Plummets After the First Year",
+      "Fiber Optic Churn is 2x DSL, Driven by Lack of Tech Support",
+      "Key Add-ons Cut Churn Risk in Half"
+    ],
+    "narrative_arc_summary": "The story begins by identifying Month-to-Month contracts as the overwhelming source of churn (the 'what'). It then explores the 'when' (early tenure) and a critical secondary problem (Fiber Optic service). It concludes by presenting a clear solution pathway: encourage longer contracts and bundle protective add-on services to mitigate risk, especially for high-value Fiber customers."
+  }
+}
