@@ -1,0 +1,408 @@
+{
+  "phase": 3,
+  "phase_name": "Data Quality Assessment & Cleaning",
+  "status": "COMPLETE",
+  "data_profile": [
+    {
+      "column": "customerID",
+      "null_pct": 0.0,
+      "distinct_count": 7043,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": []
+    },
+    {
+      "column": "gender",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "Male",
+          "count": 3555
+        },
+        {
+          "value": "Female",
+          "count": 3488
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "SeniorCitizen",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": "0",
+      "max": "1",
+      "mean": "0.1621",
+      "median": "0.0",
+      "top_values": [
+        {
+          "value": 0,
+          "count": 5901
+        },
+        {
+          "value": 1,
+          "count": 1142
+        }
+      ],
+      "anomalies_detected": [
+        "NOTE: Encoded as integer (0/1) while other binary columns are 'Yes'/'No' strings. This is a consistency note, not an error."
+      ]
+    },
+    {
+      "column": "Partner",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "No",
+          "count": 3641
+        },
+        {
+          "value": "Yes",
+          "count": 3402
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "Dependents",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "No",
+          "count": 4933
+        },
+        {
+          "value": "Yes",
+          "count": 2110
+        }
+      ],
+      "anomalies_detected": []
+    },
+    {
+      "column": "tenure",
+      "null_pct": 0.0,
+      "distinct_count": 73,
+      "min": "0",
+      "max": "72",
+      "mean": "32.3711",
+      "median": "29.0",
+      "top_values": [],
+      "anomalies_detected": [
+        "NOTE: tenure=0 exists for 11 customers, which aligns with the 'TotalCharges' anomaly. This is a valid state for new customers."
+      ]
+    },
+    {
+      "column": "MonthlyCharges",
+      "null_pct": 0.0,
+      "distinct_count": 1585,
+      "min": "18.25",
+      "max": "118.75",
+      "mean": "64.7617",
+      "median": "70.35",
+      "top_values": [],
+      "anomalies_detected": []
+    },
+    {
+      "column": "TotalCharges",
+      "null_pct": 0.0,
+      "distinct_count": 6531,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": [
+        "CRITICAL: Column data type is 'object' (string), not numeric.",
+        "CRITICAL: Contains 11 non-numeric values (empty strings ' ') which will become nulls upon coercion."
+      ]
+    },
+    {
+      "column": "Churn",
+      "null_pct": 0.0,
+      "distinct_count": 2,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "No",
+          "count": 5174
+        },
+        {
+          "value": "Yes",
+          "count": 1869
+        }
+      ],
+      "anomalies_detected": []
+    }
+  ],
+  "anomaly_taxonomy": [
+    {
+      "column": "TotalCharges",
+      "issue": "Incorrect data type ('object' instead of numeric) prevents calculations.",
+      "type": "STRUCTURAL",
+      "severity": "CRITICAL"
+    },
+    {
+      "column": "TotalCharges",
+      "issue": "Contains empty strings which become nulls after coercion, representing missing data for a key metric.",
+      "type": "COMPLETENESS",
+      "severity": "CRITICAL"
+    },
+    {
+      "column": "tenure",
+      "issue": "11 customers have tenure of 0 months.",
+      "type": "CONTENT",
+      "severity": "NOTE"
+    },
+    {
+      "column": "SeniorCitizen",
+      "issue": "Column uses 0/1 integer encoding while other binary columns use 'Yes'/'No'.",
+      "type": "CONSISTENCY",
+      "severity": "NOTE"
+    }
+  ],
+  "cleaning_decisions": [
+    {
+      "column": "TotalCharges",
+      "issue": "Incorrect data type ('object') and 11 empty string values for new customers.",
+      "action": "FIX",
+      "method": "1. Coerce the column to a numeric (float) data type. 2. Impute the resulting 11 null values with the constant value 0.",
+      "business_logic_check": "The 11 affected rows are for customers with `tenure` = 0. A new customer with zero months of service should logically have zero total charges. Therefore, imputing with 0 is the correct business representation.",
+      "reasoning": "This is a FIX and IMPUTE action, not just imputation. The primary problem is the data type. After fixing the type, the resulting nulls have a clear business meaning. Imputing with 0 is chosen over mean/median because it accurately reflects the state of a new customer. Dropping these 11 rows would remove valid new customer data from the analysis, which would be an incorrect decision."
+    }
+  ],
+  "feature_engineering": [
+    {
+      "feature_name": "tenure_bins",
+      "formula": "pandas.qcut(df['tenure'], q=5, duplicates='drop', labels=False)",
+      "derived_from": [
+        "tenure"
+      ],
+      "rationale": "To group the continuous 'tenure' variable into discrete quintiles. This supports the KPI 'Churn Rate by Tenure/Charge Quantile' and simplifies the analysis of churn behavior across different customer loyalty stages (e.g., new vs. established customers).",
+      "output_type": "integer",
+      "validation_check": "Check the min/max tenure values for each bin to ensure they are sequential and non-overlapping. The computed evidence confirms the bins are: [0-6], [7-20], [21-40], [41-60], [61-72]."
+    },
+    {
+      "feature_name": "monthly_charges_bins",
+      "formula": "pandas.qcut(df['MonthlyCharges'], q=5, duplicates='drop', labels=False)",
+      "derived_from": [
+        "MonthlyCharges"
+      ],
+      "rationale": "To group the continuous 'MonthlyCharges' variable into discrete quintiles. This supports the KPI 'Churn Rate by Tenure/Charge Quantile' and allows for easier analysis of churn based on customer price sensitivity or plan value.",
+      "output_type": "integer",
+      "validation_check": "Check the min/max MonthlyCharges values for each bin to ensure they are sequential and non-overlapping. The computed evidence confirms the bins are valid."
+    },
+    {
+      "feature_name": "Churn_Flag",
+      "formula": "df['Churn'].apply(lambda x: 1 if x == 'Yes' else 0)",
+      "derived_from": [
+        "Churn"
+      ],
+      "rationale": "To create a binary integer representation of the target variable 'Churn'. This simplifies numerical calculations like computing mean churn rates and correlations.",
+      "output_type": "integer",
+      "validation_check": "Verify that all 'Yes' values in 'Churn' correspond to 1 in 'Churn_Flag' and 'No' corresponds to 0. The sum of 'Churn_Flag' should equal the count of 'Yes' in 'Churn' (1869)."
+    }
+  ],
+  "change_log": [
+    {
+      "column": "TotalCharges",
+      "transformation": "Coerced data type from 'object' to 'float64' and imputed 11 resulting nulls with 0.0.",
+      "rows_affected": 11,
+      "original_sample": [
+        "29.85",
+        "1889.5",
+        " "
+      ],
+      "new_sample": [
+        29.85,
+        1889.5,
+        0.0
+      ],
+      "reason": "To correct the data type for numeric analysis and accurately represent the zero total charges for brand new customers (tenure=0)."
+    }
+  ],
+  "validation_suite": {
+    "null_check": "PASSED",
+    "range_check": "PASSED",
+    "date_check": "PASSED",
+    "enum_check": "PASSED",
+    "row_count_check": "PASSED",
+    "row_count_original": 7043,
+    "row_count_clean": 7043,
+    "row_loss_pct": 0.0,
+    "join_integrity_check": "PASSED",
+    "notes": "All critical data quality issues have been resolved. The dataset is now internally consistent and ready for analysis. No rows were dropped. The null check confirms that the imputation of 'TotalCharges' was successful."
+  },
+  "bias_audit": {
+    "risks_found": [],
+    "severity": "LOW",
+    "mitigation": "No rows were dropped, minimizing the risk of selection bias. Imputation was performed on a small, well-defined subgroup (tenure=0 customers) using a constant (0) that is grounded in business logic, rather than a statistical measure like the mean which could obscure the subgroup's unique characteristics. The cleaning process is therefore unlikely to have introduced or exacerbated bias."
+  },
+  "clean_schema": [
+    {
+      "column_name": "customerID",
+      "data_type": "string",
+      "business_definition": "A unique identifier for each customer.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "gender",
+      "data_type": "string",
+      "business_definition": "The customer's gender.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "SeniorCitizen",
+      "data_type": "integer",
+      "business_definition": "Indicates if the customer is a senior citizen (1=Yes, 0=No).",
+      "is_engineered": false
+    },
+    {
+      "column_name": "Partner",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer has a partner.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "Dependents",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer has dependents.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "tenure",
+      "data_type": "integer",
+      "business_definition": "The number of months the customer has been with the company.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "PhoneService",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer subscribes to phone service.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "MultipleLines",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer has multiple phone lines.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "InternetService",
+      "data_type": "string",
+      "business_definition": "The type of internet service the customer has.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "OnlineSecurity",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer subscribes to the online security add-on.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "OnlineBackup",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer subscribes to the online backup add-on.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "DeviceProtection",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer subscribes to the device protection add-on.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "TechSupport",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer subscribes to the tech support add-on.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "StreamingTV",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer subscribes to the TV streaming add-on.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "StreamingMovies",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer subscribes to the movie streaming add-on.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "Contract",
+      "data_type": "string",
+      "business_definition": "The customer's contract term.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "PaperlessBilling",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer uses paperless billing.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "PaymentMethod",
+      "data_type": "string",
+      "business_definition": "The method the customer uses to pay their bill.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "MonthlyCharges",
+      "data_type": "float",
+      "business_definition": "The amount charged to the customer monthly.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "TotalCharges",
+      "data_type": "float",
+      "business_definition": "The total amount charged to the customer over their lifetime.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "Churn",
+      "data_type": "string",
+      "business_definition": "Indicates if the customer churned (left the company) in the last month.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "Churn_Flag",
+      "data_type": "integer",
+      "business_definition": "A binary flag for churn (1=Yes, 0=No).",
+      "is_engineered": true
+    },
+    {
+      "column_name": "tenure_bins",
+      "data_type": "integer",
+      "business_definition": "Customer tenure grouped into five quintiles (0-4) for loyalty analysis.",
+      "is_engineered": true
+    },
+    {
+      "column_name": "monthly_charges_bins",
+      "data_type": "integer",
+      "business_definition": "Monthly charges grouped into five quintiles (0-4) for price sensitivity analysis.",
+      "is_engineered": true
+    }
+  ],
+  "phase_4_readiness_notes": "The data has been profiled, cleaned, and validated. The critical issue with the 'TotalCharges' column is resolved. Feature engineering to support KPI calculations has been completed. The dataset is now considered trustworthy and ready for the analytical tasks in Phase 4, which will involve descriptive and diagnostic analysis to address the core business questions."
+}
