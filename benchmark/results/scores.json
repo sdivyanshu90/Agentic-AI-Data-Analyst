@@ -1,0 +1,169 @@
+{
+  "rubric": {
+    "driver_coverage": "Identifies the true top churn drivers (tenure, Contract, InternetService, OnlineSecurity, TechSupport, PaymentMethod) and does NOT promote non-drivers (gender) as important. 0-10.",
+    "statistical_rigour": "Uses hypothesis tests, p-values, effect sizes (Cramer's V / Cohen's d), or significance reasoning rather than eyeballing raw rate spreads. Distinguishes signal strength. 0-10.",
+    "data_quality": "Catches the real data-quality issues: TotalCharges stored as text with 11 blank values (all tenure=0 new customers), SeniorCitizen's 0/1 encoding, the structural 'No internet service' levels. 0-10.",
+    "confounding_root_cause": "Recognises that the predictors are correlated (Contract / tenure / InternetService / add-on services overlap), avoids double-counting, and reasons about WHY churn happens, not just WHAT correlates. 0-10.",
+    "caveat_honesty": "States limitations, calibrates confidence, and flags that the analysis is observational/correlational, not causal. 0-10.",
+    "actionability": "Recommendations are specific, measurable, prioritised, tied to the identified drivers, and mindful of cost/leverage. 0-10.",
+    "traceability_comms": "Clear evidence chain from data to finding to recommendation; communication suited to a medium-technical business stakeholder. 0-10."
+  },
+  "conditions": {
+    "JUNIOR-A (single-shot LLM)": {
+      "deliverable_file": "junior_a_output.md",
+      "deterministic_scan": {
+        "mentions_tenure": true,
+        "mentions_contract": true,
+        "mentions_internet_service": true,
+        "mentions_payment_method": true,
+        "mentions_security_support": true,
+        "significance_testing": true,
+        "effect_sizes": false,
+        "data_quality_totalcharges": false,
+        "confounding": false,
+        "causal_caveat": false,
+        "gender_distractor_handled": false,
+        "n_recommendations": 16,
+        "length_chars": 6583
+      },
+      "llm_judge": {
+        "scores": {
+          "driver_coverage": {
+            "score": 9,
+            "justification": "Correctly identifies most top drivers (Contract, tenure, Internet Service, add-ons). The analysis is sound, though it misses the nuance around TotalCharges as a distinct driver from MonthlyCharges and tenure."
+          },
+          "statistical_rigour": {
+            "score": 2,
+            "justification": "The analysis relies solely on comparing raw churn percentages. It lacks any formal statistical tests, p-values, or effect size measures (like Cramer's V) to validate the significance or strength of the findings."
+          },
+          "data_quality": {
+            "score": 0,
+            "justification": "Completely misses all data quality issues. There is no mention of the blank 'TotalCharges' values, its string data type, or other data quirks. The analysis proceeds as if the data were pristine."
+          },
+          "confounding_root_cause": {
+            "score": 5,
+            "justification": "Lightly touches on root causes (e.g., Fiber price) and correctly links interacting variables in one recommendation. However, it fails to explicitly discuss major confounding between tenure, contract type, and total charges."
+          },
+          "caveat_honesty": {
+            "score": 0,
+            "justification": "Presents all findings as definitive truths with no caveats. The crucial distinction between correlation and causation is absent, and no limitations of the observational data are mentioned."
+          },
+          "actionability": {
+            "score": 10,
+            "justification": "Excellent. Recommendations are specific, targeted at high-impact segments identified in the analysis (new, monthly, fiber customers), and represent concrete, plausible business actions."
+          },
+          "traceability_comms": {
+            "score": 10,
+            "justification": "Superb. The report is well-structured with a clear narrative from findings to recommendations. It uses simple tables and business-focused language, perfectly suited for the intended audience."
+          }
+        },
+        "overall_weighted": 5.1,
+        "one_line_verdict": "Actionable and well-communicated, but critically lacks statistical rigor and any data quality assessment."
+      }
+    },
+    "JUNIOR-B (naive pandas)": {
+      "deliverable_file": "junior_b_output.md",
+      "deterministic_scan": {
+        "mentions_tenure": true,
+        "mentions_contract": true,
+        "mentions_internet_service": true,
+        "mentions_payment_method": true,
+        "mentions_security_support": true,
+        "significance_testing": true,
+        "effect_sizes": true,
+        "data_quality_totalcharges": false,
+        "confounding": false,
+        "causal_caveat": false,
+        "gender_distractor_handled": true,
+        "n_recommendations": 27,
+        "length_chars": 2047
+      },
+      "llm_judge": {
+        "scores": {
+          "driver_coverage": {
+            "score": 6,
+            "justification": "Correctly identifies most top categorical drivers and demotes non-drivers, but critically omits 'tenure' (the strongest overall driver) from its final ranked list."
+          },
+          "statistical_rigour": {
+            "score": 1,
+            "justification": "The analyst explicitly states no significance testing was used. Ranking by raw rate spreads is non-rigorous. The one point is for the honesty about the weak method."
+          },
+          "data_quality": {
+            "score": 0,
+            "justification": "Completely fails to identify any key data quality issues: the `TotalCharges` text format with blank strings, `SeniorCitizen` encoding, or the structural 'No internet service' level."
+          },
+          "confounding_root_cause": {
+            "score": 1,
+            "justification": "Presents a simple univariate analysis with no attempt to discuss correlations between drivers (e.g., tenure and contract type) or explore underlying causal factors."
+          },
+          "caveat_honesty": {
+            "score": 8,
+            "justification": "Scores highly for the explicit footnote acknowledging the lack of statistical testing. This self-awareness of the analysis's limitations is a major strength."
+          },
+          "actionability": {
+            "score": 5,
+            "justification": "Recommendations are logically tied to the findings (e.g., focus on M2M customers) but are generic and lack business context, measurement, or discussion of cost."
+          },
+          "traceability_comms": {
+            "score": 8,
+            "justification": "The report is very clear, well-structured, and easy for a stakeholder to follow. The link from data to finding to recommendation is simple and direct."
+          }
+        },
+        "overall_weighted": 4.14,
+        "one_line_verdict": "Clear but superficial EDA; misses data quality issues and lacks all statistical rigor, despite honest caveats."
+      }
+    },
+    "AGENTIC (8-phase pipeline)": {
+      "deliverable_file": "agentic_report.md",
+      "deterministic_scan": {
+        "mentions_tenure": true,
+        "mentions_contract": true,
+        "mentions_internet_service": true,
+        "mentions_payment_method": true,
+        "mentions_security_support": true,
+        "significance_testing": true,
+        "effect_sizes": true,
+        "data_quality_totalcharges": true,
+        "confounding": true,
+        "causal_caveat": true,
+        "gender_distractor_handled": false,
+        "n_recommendations": 33,
+        "length_chars": 10915
+      },
+      "llm_judge": {
+        "scores": {
+          "driver_coverage": {
+            "score": 10,
+            "justification": "Perfectly identifies the key drivers (Contract, InternetService/TechSupport interaction, PaymentMethod) and correctly ignores non-drivers. The focus on the most impactful factors is precise and aligns with the ground truth."
+          },
+          "statistical_rigour": {
+            "score": 10,
+            "justification": "Excellent use of statistical language. Correctly cites p-values and a precise Cramer's V effect size. The mention of testing for interaction effects demonstrates a sophisticated and rigorous approach beyond simple comparisons."
+          },
+          "data_quality": {
+            "score": 10,
+            "justification": "Exemplary. The methodology appendix explicitly states the correct handling for all key data quality traps: TotalCharges coercion and imputation, SeniorCitizen standardization, and awareness of the 'No internet service' category."
+          },
+          "confounding_root_cause": {
+            "score": 10,
+            "justification": "Outstanding. Moves beyond correlation to analyze interaction effects (Fiber & Tech Support) and connections between drivers (Contract & tenure). The 'Root Cause' sections in the report demonstrate deep thinking about the 'why'."
+          },
+          "caveat_honesty": {
+            "score": 10,
+            "justification": "Perfect. A dedicated, comprehensive 'Caveats & Limitations' section correctly identifies the correlation/causation limitation, sample representativeness, and data snapshot issues, demonstrating high intellectual honesty."
+          },
+          "actionability": {
+            "score": 10,
+            "justification": "Superb. Recommendations are specific (e.g., targeting M2M customers with >$70 monthly charge), measurable (e.g., reduce Fiber churn to <30%), prioritized, and directly tied to the analytical findings. The table format is excellent."
+          },
+          "traceability_comms": {
+            "score": 10,
+            "justification": "Flawless communication and structure. The report flows logically from executive summary to findings to recommendations. Each finding presents a clear evidence chain, making the logic easy for a stakeholder to follow."
+          }
+        },
+        "overall_weighted": 10.0,
+        "one_line_verdict": "An exemplary, insightful, and actionable analysis that sets the standard for data-driven decision-making."
+      }
+    }
+  }
+}
