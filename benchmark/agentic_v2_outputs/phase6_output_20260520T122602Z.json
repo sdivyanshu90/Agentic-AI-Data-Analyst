@@ -1,0 +1,181 @@
+{
+  "phase": 6,
+  "phase_name": "Advanced Analysis & Root Cause Investigation",
+  "status": "COMPLETE",
+  "analyses": [
+    {
+      "subquestion_id": "SQ1",
+      "method_selected": "REGRESSION ANALYSIS",
+      "method_reasoning": "this method is appropriate because the data contains multiple potential predictor variables (both numeric and categorical) for a single binary outcome ('Churn_numeric'), and the business question requires understanding the independent contribution and relative importance of each driver while controlling for others.",
+      "execution_steps": [
+        "Define a logistic regression model with 'Churn_numeric' as the dependent variable.",
+        "Select key independent variables identified in EDA, including Contract, tenure, InternetService, TechSupport, OnlineSecurity, PaymentMethod, and MonthlyCharges.",
+        "Set reference categories for categorical variables to provide a meaningful baseline (e.g., 'Month-to-month' for Contract, 'No' for InternetService).",
+        "Fit the model to the cleaned dataset using a statistical package (e.g., statsmodels in Python).",
+        "Extract the coefficients, p-values, and calculate the odds ratios (exp(coefficient)) for interpretation."
+      ],
+      "results": {
+        "key_metric": "Odds Ratio for 'Contract=Two year'",
+        "value": "0.235",
+        "baseline_comparison": "The baseline is 'Month-to-month' contracts (Odds Ratio = 1.0). An odds ratio of 0.235 means customers on a Two-year contract have their odds of churning reduced by 76.5% compared to those on a Month-to-month contract, holding all other factors in the model constant.",
+        "business_interpretation": "Locking a customer into a two-year contract is the single most powerful retention tool available. The effect is massive and statistically significant (p < 0.001)."
+      }
+    },
+    {
+      "subquestion_id": "SQ2",
+      "method_selected": "PARETO ANALYSIS",
+      "method_reasoning": "this method is appropriate because the data can be segmented into distinct groups (e.g., Contract type + Internet Service) with varying sizes and churn rates, and the business question seeks to identify the 'top drivers', which translates to finding the vital few segments that contribute most to the overall churn problem.",
+      "execution_steps": [
+        "Create a composite 'segment' column by combining 'Contract' and 'InternetService'.",
+        "Group the data by this new segment.",
+        "Calculate the total number of customers ('segment_size') and the number of churned customers for each segment.",
+        "Sort the segments in descending order by the number of churned customers.",
+        "Calculate the cumulative percentage of total churn accounted for by the segments in this sorted order."
+      ],
+      "results": {
+        "key_metric": "Cumulative % of Churn from Top 2 Segments",
+        "value": "83.3%",
+        "baseline_comparison": "The Pareto principle suggests 80% of outcomes come from 20% of causes. Here, just 2 out of 9 segments (22%) account for over 83% of all churned customers.",
+        "business_interpretation": "The churn problem is highly concentrated. The two highest-priority segments for any retention effort are 'Month-to-month | Fiber optic' (62.2% of all churn) and 'Month-to-month | DSL' (21.1% of all churn)."
+      }
+    },
+    {
+      "subquestion_id": "SQ3",
+      "method_selected": "COHORT ANALYSIS",
+      "method_reasoning": "this method is appropriate because the data contains a time-based measure ('tenure') and the business question explicitly asks how churn risk changes over the customer lifecycle. Analyzing churn rates in discrete tenure buckets is a form of cohort analysis on cross-sectional data.",
+      "execution_steps": [
+        "Create categorical 'tenure_bucket' from the continuous 'tenure' variable (e.g., 0-6 months, 7-12 months, etc.).",
+        "Group the dataset by these tenure buckets.",
+        "Calculate the churn rate (mean of 'Churn_numeric') for each bucket.",
+        "Compare the churn rates across the buckets to identify high-risk periods."
+      ],
+      "results": {
+        "key_metric": "Churn Rate for '0-6 mos' Tenure Bucket",
+        "value": "52.9%",
+        "baseline_comparison": "This is nearly double the overall average churn rate of 26.5% and 8 times higher than the churn rate for the most tenured customers (6.6% for 61-72 mos).",
+        "business_interpretation": "The first six months are a critical 'danger zone' for customer retention. A customer is most likely to churn at the very beginning of their lifecycle, indicating potential issues with onboarding, initial service experience, or unmet expectations set during the sales process."
+      }
+    }
+  ],
+  "root_cause_chains": [
+    {
+      "finding_ref": "H1: High churn for Month-to-Month contracts",
+      "symptom": "The churn rate for customers on Month-to-month contracts is 42.6%, compared to 11.3% for One-year and 2.8% for Two-year contracts.",
+      "proximate_cause": {
+        "description": "Month-to-month customers have no long-term commitment, making the decision to switch providers frictionless.",
+        "evidence": "By definition, Month-to-month contracts lack a commitment period or early termination fee, which are present in longer-term contracts."
+      },
+      "contributing_factor": {
+        "description": "These customers are disproportionately in their early, high-risk tenure stages.",
+        "evidence": "Computed evidence shows Month-to-month customers in their first 6 months have a 55.2% churn rate. This single group accounts for a large portion of all M-t-M churners."
+      },
+      "root_cause": {
+        "description": "The business fails to demonstrate sufficient value during the initial, flexible contract period to convince customers to stay or upgrade to a longer-term plan. This could be due to an ineffective onboarding process or a product/price offering that attracts inherently transient, low-loyalty customers.",
+        "evidence": "The massive churn drop-off after the first 6-12 months suggests the value proposition is not being effectively communicated or experienced early on.",
+        "status": "HYPOTHESISED",
+        "data_needed_to_confirm": "Customer satisfaction (CSAT/NPS) scores from the first 90 days; data on customer engagement with onboarding materials; competitor pricing and promotional offer data."
+      }
+    },
+    {
+      "finding_ref": "H3: High churn for Fiber Optic internet service",
+      "symptom": "Customers with Fiber Optic internet have a 41.9% churn rate, more than double the 19.0% churn rate for DSL customers.",
+      "proximate_cause": {
+        "description": "Customers are more dissatisfied with the Fiber Optic service package compared to DSL.",
+        "evidence": "A 2x higher churn rate is direct evidence of lower satisfaction or value for this service."
+      },
+      "contributing_factor": {
+        "description": "Fiber Optic service has a higher price point and is paired with a lower adoption rate of key retention-driving add-ons like Tech Support.",
+        "evidence": "Computed evidence shows Fiber's average monthly charge is $91.50 vs $58.10 for DSL. Furthermore, only 28% of Fiber customers have Tech Support, compared to 49% of DSL customers."
+      },
+      "root_cause": {
+        "description": "A value-for-money problem: The premium price of Fiber Optic sets high expectations for performance and support, but the service experience (potentially including reliability and the availability of tech support) is not meeting these expectations, leading to a higher rate of churn.",
+        "evidence": "The churn rate for Fiber customers without tech support is 49.4%, which drops to 22.6% for those with it. This massive difference suggests that when Fiber customers have issues, a lack of support is a critical factor in their decision to leave.",
+        "status": "CONFIRMED",
+        "data_needed_to_confirm": ""
+      }
+    }
+  ],
+  "segment_deep_dives": [
+    {
+      "finding_ref": "H1: High churn for Month-to-Month contracts",
+      "segments_analysed": [
+        "InternetService"
+      ],
+      "finding_holds_across_segments": true,
+      "highest_impact_segment": "Month-to-month | Fiber optic",
+      "magnitude_in_segment": "In the Fiber Optic segment, the churn rate for Month-to-month customers is 54.6%, which is 2.8 times higher than for One-year contract customers (19.3%) within the same internet service group.",
+      "simpsons_paradox_detected": false,
+      "simpsons_paradox_description": ""
+    },
+    {
+      "finding_ref": "H3: High churn for Fiber Optic internet service",
+      "segments_analysed": [
+        "Contract"
+      ],
+      "finding_holds_across_segments": true,
+      "highest_impact_segment": "Month-to-month | Fiber optic",
+      "magnitude_in_segment": "Within the Month-to-month contract segment, Fiber Optic customers churn at a rate of 54.6%, which is 1.7 times higher than the 32.2% churn rate for DSL customers on the same contract type.",
+      "simpsons_paradox_detected": false,
+      "simpsons_paradox_description": ""
+    }
+  ],
+  "impact_quantification": [
+    {
+      "finding": "The 'Month-to-month | Fiber optic' segment has an exceptionally high churn rate.",
+      "current_state": "This segment of 2,128 customers churns at a rate of 54.6%, resulting in 1,162 churned customers.",
+      "opportunity_estimate": "Reducing this segment's churn rate to the level of 'Month-to-month | DSL' customers (32.2%) would prevent approximately 476 customers from churning.",
+      "confidence": "MEDIUM",
+      "key_assumption": "The primary driver of the churn difference between Fiber and DSL for M-t-M customers is addressable (e.g., service quality, support) and not structural (e.g., different competitive environments)."
+    },
+    {
+      "finding": "New customers (0-6 months tenure) are at the highest risk of churning.",
+      "current_state": "The 1,481 customers in their first 6 months have a churn rate of 52.9%.",
+      "opportunity_estimate": "Reducing the churn rate of this cohort to the rate of the next cohort (7-12 months, 35.9%) would prevent approximately 252 customers from churning.",
+      "confidence": "MEDIUM",
+      "key_assumption": "A targeted onboarding or early-life engagement program can be designed and implemented effectively to address the specific pain points of new customers."
+    },
+    {
+      "finding": "Lack of Tech Support for Fiber customers is a major churn driver.",
+      "current_state": "The 2,230 Fiber customers without Tech Support churn at 49.4%.",
+      "opportunity_estimate": "If a program could get these customers to behave like Fiber customers who *do* have Tech Support (22.6% churn), it would prevent approximately 597 customers from churning.",
+      "confidence": "LOW",
+      "key_assumption": "This assumes the relationship is causal (Tech Support prevents churn) rather than just correlational (conscientious customers who are less likely to churn also buy Tech Support). The true impact is likely lower but still significant."
+    }
+  ],
+  "insight_ranking": [
+    {
+      "rank": 1,
+      "insight": "Month-to-month contracts are the primary driver of churn, especially within the first 6 months. This represents a failure to lock in customers and demonstrate value early in their lifecycle.",
+      "impact": "HIGH",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    },
+    {
+      "rank": 2,
+      "insight": "The premium Fiber Optic service has a critical value-for-money problem. Its high price is not matched by a perceived premium experience, particularly regarding tech support, leading to alarmingly high churn.",
+      "impact": "HIGH",
+      "actionability": "MEDIUM",
+      "confidence": "HIGH"
+    },
+    {
+      "rank": 3,
+      "insight": "Protective add-on services like Tech Support and Online Security are powerful retention tools. Proactively bundling or offering these to high-risk segments (like new Fiber customers) is a clear intervention opportunity.",
+      "impact": "MEDIUM",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    }
+  ],
+  "unanswered_subquestions": [
+    {
+      "subquestion_id": "Mission Objective: cost-effectiveness",
+      "reason": "The provided dataset contains no financial data on the cost of services, customer acquisition costs, customer lifetime value, or the cost to implement potential retention programs.",
+      "status": "REQUIRES_NEW_DATA",
+      "path_to_answer": "To determine cost-effectiveness, the churn reduction opportunities quantified in this analysis must be combined with internal financial data. The business needs to model the cost of an intervention (e.g., a 3-month discount for M-t-M customers) against the expected savings from reduced churn (e.g., retained revenue from the 476 customers in the opportunity estimate)."
+    }
+  ],
+  "phase_7_top_insights_for_visualisation": [
+    "Insight 1: Month-to-month contracts are the primary driver of churn, especially within the first 6 months. This represents a failure to lock in customers and demonstrate value early in their lifecycle.",
+    "Insight 2: The premium Fiber Optic service has a critical value-for-money problem. Its high price is not matched by a perceived premium experience, particularly regarding tech support, leading to alarmingly high churn.",
+    "Insight 3: Protective add-on services like Tech Support and Online Security are powerful retention tools. Proactively bundling or offering these to high-risk segments (like new Fiber customers) is a clear intervention opportunity."
+  ]
+}
