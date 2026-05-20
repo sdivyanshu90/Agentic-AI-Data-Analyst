@@ -1,0 +1,252 @@
+{
+  "phase": 3,
+  "phase_name": "Data Quality Assessment & Cleaning",
+  "status": "COMPLETE",
+
+  "data_profile": [
+    {
+      "column": "users.id",
+      "null_pct": 0.0,
+      "distinct_count": 248312,
+      "min": "",
+      "max": "",
+      "mean": "",
+      "median": "",
+      "top_values": [],
+      "anomalies_detected": []
+    },
+    {
+      "column": "users.acquisition_channel",
+      "null_pct": 1.2,
+      "distinct_count": 6,
+      "min": "",
+      "max": "",
+      "mean": "",
+      "median": "",
+      "top_values": [
+        {"value": "organic", "pct": 38.4},
+        {"value": "paid_search", "pct": 27.1},
+        {"value": "referral", "pct": 16.0},
+        {"value": "partner", "pct": 11.2},
+        {"value": "other", "pct": 6.1}
+      ],
+      "anomalies_detected": ["1.2% NULLs — these rows came from the legacy 2021 import"]
+    },
+    {
+      "column": "subscriptions.end_date",
+      "null_pct": 63.5,
+      "distinct_count": 1820,
+      "min": "2020-01-04",
+      "max": "2025-09-30",
+      "mean": "",
+      "median": "",
+      "top_values": [],
+      "anomalies_detected": ["63.5% NULLs are expected (still-active subs); not a quality issue"]
+    },
+    {
+      "column": "subscriptions.cancel_reason",
+      "null_pct": 8.7,
+      "distinct_count": 14,
+      "min": "",
+      "max": "",
+      "mean": "",
+      "median": "",
+      "top_values": [
+        {"value": "voluntary", "pct": 41.0},
+        {"value": "payment_failed", "pct": 32.8},
+        {"value": "downgrade", "pct": 10.5}
+      ],
+      "anomalies_detected": ["Free-text values present in 2.1% of rows (pre-2023 records)"]
+    },
+    {
+      "column": "events.event_name",
+      "null_pct": 0.0,
+      "distinct_count": 84,
+      "min": "",
+      "max": "",
+      "mean": "",
+      "median": "",
+      "top_values": [
+        {"value": "login", "pct": 41.2},
+        {"value": "feature_used", "pct": 22.9},
+        {"value": "page_view", "pct": 18.1}
+      ],
+      "anomalies_detected": ["Pre-2023 event names use camelCase; post-2023 use snake_case — needs mapping"]
+    }
+  ],
+
+  "anomaly_taxonomy": [
+    {
+      "column": "users.acquisition_channel",
+      "issue": "1.2% of users have NULL channel from the 2021 legacy import",
+      "type": "COMPLETENESS",
+      "severity": "WARNING"
+    },
+    {
+      "column": "subscriptions.cancel_reason",
+      "issue": "Free-text values in 2.1% of pre-2023 rows do not match the enum",
+      "type": "CONSISTENCY",
+      "severity": "WARNING"
+    },
+    {
+      "column": "events.event_name",
+      "issue": "Event taxonomy migration in 2023 — camelCase ↔ snake_case duplicates",
+      "type": "CONSISTENCY",
+      "severity": "CRITICAL"
+    },
+    {
+      "column": "users.email",
+      "issue": "PII column carried into extract — must be hashed before any analysis",
+      "type": "STRUCTURAL",
+      "severity": "CRITICAL"
+    },
+    {
+      "column": "subscriptions.end_date",
+      "issue": "63.5% NULL — expected for active subscriptions, NOT a quality issue",
+      "type": "COMPLETENESS",
+      "severity": "NOTE"
+    }
+  ],
+
+  "cleaning_decisions": [
+    {
+      "column": "users.acquisition_channel",
+      "issue": "1.2% NULLs from legacy import",
+      "action": "IMPUTE",
+      "method": "Mode-fill with constant 'unknown_legacy' (not 'organic' — would bias channel comparisons)",
+      "business_logic_check": "Imputing with the mode 'organic' would conflate paid/organic attribution; a separate 'unknown_legacy' bucket preserves the gap.",
+      "reasoning": "These are pre-2021 records where the channel attribution column did not exist. Treating them as a separate cohort preserves the analytical integrity of Phase 4's channel-segmented churn rates."
+    },
+    {
+      "column": "subscriptions.cancel_reason",
+      "issue": "Free-text values in 2.1% of pre-2023 rows",
+      "action": "STANDARDISE",
+      "method": "Regex-map common phrases (case-insensitive 'card decline' / 'cc failed' → payment_failed; 'switched plan' → downgrade); residue → 'other'.",
+      "business_logic_check": "Voluntary vs payment-failure distinction is the key separator Phase 5 will test; misclassifying these would inflate the voluntary-churn baseline.",
+      "reasoning": "Standardisation preserves the row, retains the analytical signal, and is explicitly justified by Phase 1's success_definition (drivers of voluntary churn)."
+    },
+    {
+      "column": "events.event_name",
+      "issue": "camelCase ↔ snake_case duplicate names from the 2023 taxonomy migration",
+      "action": "STANDARDISE",
+      "method": "Apply mapping table from the engineering taxonomy doc; lowercase + snake_case as canonical form.",
+      "business_logic_check": "Phase 1 SQ2 (behaviour–churn association) requires unified event names; otherwise feature_used and featureUsed would be counted as separate features and dilute the signal.",
+      "reasoning": "This is a CRITICAL anomaly because untreated it would silently halve the effect size in Phase 5. Standardisation is reversible (we keep the raw column); imputation/drop are inappropriate here."
+    },
+    {
+      "column": "users.email",
+      "issue": "PII column present in extract",
+      "action": "DROP_COLUMN",
+      "method": "Drop users.email from the analysis extract entirely; if hashed identity is needed downstream, derive a SHA-256(email + project_salt) column instead.",
+      "business_logic_check": "Email is not needed to compute any Phase 1 KPI; dropping it removes the PII risk with zero analytical cost.",
+      "reasoning": "DROP_COLUMN over hash because there is no downstream use case that requires re-identification; Phase 2 governance_flags already mandates mitigation."
+    }
+  ],
+
+  "feature_engineering": [
+    {
+      "feature_name": "tenure_days",
+      "formula": "DATEDIFF(COALESCE(end_date, CURRENT_DATE), start_date)",
+      "derived_from": ["subscriptions.start_date", "subscriptions.end_date"],
+      "rationale": "Phase 1 KPI 'first-30-day behaviour vs 90-day churn' requires a fixed-window tenure variable; derived once here so Phase 4 can reuse.",
+      "output_type": "integer (days)",
+      "validation_check": "tenure_days ≥ 0 for every row; max ≤ 2200 (longest subscription in 5 years of data)."
+    },
+    {
+      "feature_name": "churn_type",
+      "formula": "CASE WHEN cancel_reason = 'payment_failed' THEN 'involuntary' WHEN end_date IS NULL THEN 'active' ELSE 'voluntary' END",
+      "derived_from": ["subscriptions.cancel_reason", "subscriptions.end_date"],
+      "rationale": "Phase 1 A2 assumption: voluntary vs involuntary churn must be analysed separately.",
+      "output_type": "categorical (active | voluntary | involuntary)",
+      "validation_check": "Distribution: roughly 65% active, 22% voluntary, 13% involuntary; outside this range → investigate before Phase 4."
+    }
+  ],
+
+  "change_log": [
+    {
+      "column": "users.acquisition_channel",
+      "transformation": "Impute NULL → 'unknown_legacy'",
+      "rows_affected": 2980,
+      "original_sample": [null, null, null],
+      "new_sample": ["unknown_legacy", "unknown_legacy", "unknown_legacy"],
+      "reason": "Preserve cohort integrity per Phase 1 channel-segmented analysis."
+    },
+    {
+      "column": "subscriptions.cancel_reason",
+      "transformation": "Regex standardisation of free-text values to enum",
+      "rows_affected": 6312,
+      "original_sample": ["card decline", "switched plan", "CC failed"],
+      "new_sample": ["payment_failed", "downgrade", "payment_failed"],
+      "reason": "Phase 5 voluntary-vs-payment-failure test requires clean enum values."
+    },
+    {
+      "column": "events.event_name",
+      "transformation": "Apply 2023 taxonomy mapping; canonicalise to snake_case",
+      "rows_affected": 11420880,
+      "original_sample": ["featureUsed", "pageView", "loginSuccess"],
+      "new_sample": ["feature_used", "page_view", "login_success"],
+      "reason": "Critical anomaly fix; required for SQ2 behaviour analysis."
+    },
+    {
+      "column": "users.email",
+      "transformation": "DROP COLUMN",
+      "rows_affected": 248312,
+      "original_sample": ["alice@example.com", "bob@example.com"],
+      "new_sample": [],
+      "reason": "PII; not needed for any KPI per Phase 2 governance_flags."
+    },
+    {
+      "column": "tenure_days (engineered)",
+      "transformation": "ADD COLUMN from start_date/end_date",
+      "rows_affected": 302108,
+      "original_sample": [],
+      "new_sample": [12, 384, 91],
+      "reason": "Required by Phase 4 KPI computation."
+    },
+    {
+      "column": "churn_type (engineered)",
+      "transformation": "ADD COLUMN via CASE expression",
+      "rows_affected": 302108,
+      "original_sample": [],
+      "new_sample": ["voluntary", "active", "involuntary"],
+      "reason": "Phase 1 A2 voluntary/involuntary split."
+    }
+  ],
+
+  "validation_suite": {
+    "null_check": "PASSED",
+    "range_check": "PASSED",
+    "date_check": "PASSED",
+    "enum_check": "PASSED",
+    "row_count_check": "PASSED",
+    "row_count_original": 302108,
+    "row_count_clean": 299812,
+    "row_loss_pct": 0.76,
+    "join_integrity_check": "PASSED",
+    "notes": "Row loss is from de-duplicating 2296 exact-duplicate subscription rows created by a 2024-08 retry loop in the billing system."
+  },
+
+  "bias_audit": {
+    "risks_found": [
+      "Imputing acquisition_channel as 'unknown_legacy' could under-represent paid channels' historical performance if many of those NULLs were genuinely paid.",
+      "Standardising cancel_reason via regex may misclassify rare free-text values, slightly biasing toward 'voluntary' if the regex is too narrow."
+    ],
+    "severity": "LOW",
+    "mitigation": "Phase 5 should treat 'unknown_legacy' as its own segment when reporting effect sizes; Phase 8 should disclose the regex-standardisation rule in the Caveats section."
+  },
+
+  "clean_schema": [
+    {"column_name": "user_id", "data_type": "uuid", "business_definition": "Unique user identifier", "is_engineered": false},
+    {"column_name": "acquisition_channel", "data_type": "text", "business_definition": "How the user found the product", "is_engineered": false},
+    {"column_name": "plan_tier", "data_type": "text", "business_definition": "Subscription plan", "is_engineered": false},
+    {"column_name": "start_date", "data_type": "date", "business_definition": "Subscription start", "is_engineered": false},
+    {"column_name": "end_date", "data_type": "date", "business_definition": "Subscription end (NULL if active)", "is_engineered": false},
+    {"column_name": "cancel_reason", "data_type": "text", "business_definition": "Cancellation reason (enum)", "is_engineered": false},
+    {"column_name": "tenure_days", "data_type": "integer", "business_definition": "Days between start_date and end_date (or today if active)", "is_engineered": true},
+    {"column_name": "churn_type", "data_type": "text", "business_definition": "active | voluntary | involuntary", "is_engineered": true},
+    {"column_name": "event_name", "data_type": "text", "business_definition": "Canonical snake_case event taxonomy", "is_engineered": false},
+    {"column_name": "event_at", "data_type": "timestamp", "business_definition": "When the event was recorded", "is_engineered": false}
+  ],
+
+  "phase_4_readiness_notes": "Clean schema certified for Phase 4. tenure_days and churn_type are engineered features; downstream agents must reference these by their canonical names. Bias risks (LOW) documented for Phase 8 Caveats. Row loss 0.76% — well below the 20% blocker."
+}
