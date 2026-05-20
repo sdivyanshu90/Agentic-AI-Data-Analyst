@@ -1,0 +1,250 @@
+{
+  "phase": 5,
+  "phase_name": "Hypothesis Testing & Statistical Validation",
+  "status": "COMPLETE",
+  "tests_conducted": [
+    {
+      "hypothesis_id": "H1",
+      "hypothesis_statement": "There is a statistically significant negative relationship between contract length and customer churn rate, where customers on Month-to-month contracts have a higher churn rate than those on One year or Two year contracts.",
+      "null_hypothesis": "H\u2080: There is no association between contract type and churn status.",
+      "alternative_hypothesis": "H\u2081: There is an association between contract type and churn status.",
+      "test_selected": "Chi-squared test of independence",
+      "test_selection_reasoning": "This test is appropriate for evaluating the association between two categorical variables: 'Contract' (3 levels) and 'Churn' (2 levels).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium to Large (Cram\u00e9r's V > 0.3)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 1184.5966",
+      "degrees_of_freedom": "2",
+      "p_value": 5.863e-258,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.4098
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size is large (V=0.41). The churn rate for Month-to-month customers (42.7%) is over 15 times higher than for Two-year contract customers (2.8%). This is a massive, business-critical difference.",
+      "linked_subquestion": "SQ2"
+    },
+    {
+      "hypothesis_id": "H2",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates based on Internet Service type, with Fiber optic customers having a higher churn rate than DSL customers among internet subscribers.",
+      "null_hypothesis": "H\u2080: Among internet subscribers, there is no association between internet service type (DSL/Fiber) and churn.",
+      "alternative_hypothesis": "H\u2081: Among internet subscribers, there is an association between internet service type (DSL/Fiber) and churn.",
+      "test_selected": "Chi-squared test of independence",
+      "test_selection_reasoning": "This test is appropriate for evaluating the association between two categorical variables ('InternetService' and 'Churn') within a filtered subset of the data (internet subscribers).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small to Medium (Cram\u00e9r's V > 0.2)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 328.2635",
+      "degrees_of_freedom": "1",
+      "p_value": 2.296e-73,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.2436
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size is medium (V=0.24). The churn rate for Fiber optic customers (41.9%) is more than double that of DSL customers (19.0%), representing a substantial and actionable difference in risk.",
+      "linked_subquestion": "SQ3"
+    },
+    {
+      "hypothesis_id": "H3",
+      "hypothesis_statement": "There is a statistically significant association between using 'Electronic check' for payments and a higher likelihood of churn compared to automatic payment methods (bank transfer or credit card).",
+      "null_hypothesis": "H\u2080: There is no association between payment type (Electronic Check vs. Automatic) and churn.",
+      "alternative_hypothesis": "H\u2081: There is an association between payment type (Electronic Check vs. Automatic) and churn.",
+      "test_selected": "Chi-squared test of independence",
+      "test_selection_reasoning": "This test is appropriate for comparing the churn rates between two engineered categorical groups: 'Electronic Check' and 'Automatic' payments.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Cram\u00e9r's V > 0.3)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 558.3451",
+      "degrees_of_freedom": "1",
+      "p_value": 1.926e-123,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.3204
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size is medium-to-large (V=0.32). Customers using Electronic check have a churn rate of 45.3%, nearly triple the rate of those with automatic payments (~16.0%). This identifies a major risk factor related to payment friction.",
+      "linked_subquestion": "SQ2"
+    },
+    {
+      "hypothesis_id": "H4",
+      "hypothesis_statement": "There is a statistically significant negative relationship between having protective add-on services (OnlineSecurity or TechSupport) and the likelihood of churn for customers with internet service.",
+      "null_hypothesis": "H\u2080: For internet customers, there is no association between having a protective add-on and churn.",
+      "alternative_hypothesis": "H\u2081: For internet customers, there is an association between having a protective add-on and churn.",
+      "test_selected": "Chi-squared test of independence",
+      "test_selection_reasoning": "This test is suitable for assessing the association between a new binary categorical variable ('HasProtectiveService') and the 'Churn' variable among internet customers.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Cram\u00e9r's V > 0.3)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 641.4057",
+      "degrees_of_freedom": "1",
+      "p_value": 1.653e-141,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.3407
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size is medium-to-large (V=0.34). Customers lacking at least one protective add-on churn at 49.0%, whereas those with one churn at 17.1%. This demonstrates the strong retention value of these specific services.",
+      "linked_subquestion": "SQ3"
+    },
+    {
+      "hypothesis_id": "H5",
+      "hypothesis_statement": "There is a statistically significant interaction effect between Contract and InternetService on churn, where the churn rate for 'Fiber optic' customers on a 'Month-to-month' contract is significantly greater than the sum of the individual effects of each variable.",
+      "null_hypothesis": "H\u2080: The effect of Internet Service on churn is independent of Contract type (no interaction effect exists).",
+      "alternative_hypothesis": "H\u2081: The effect of Internet Service on churn depends on Contract type (an interaction effect exists).",
+      "test_selected": "Logistic Regression",
+      "test_selection_reasoning": "Logistic regression is the standard method for testing the significance of an interaction term between two predictor variables on a binary outcome, while controlling for their main effects.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small to Medium",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-value for M2M:Fiber optic interaction = -1.292",
+      "degrees_of_freedom": "1",
+      "p_value": 0.196,
+      "effect_size": {
+        "metric": "Pseudo R-squared (overall model)",
+        "value": 0.2218
+      },
+      "confidence_interval": {
+        "lower": -1.628,
+        "upper": 0.334,
+        "level": "95%"
+      },
+      "result": "REJECTED",
+      "practical_significance": "LOW",
+      "practical_significance_reasoning": "The interaction term was not statistically significant (p=0.196). While the M2M-Fiber segment has a very high churn rate (54.6%), the model indicates this is due to the strong, additive main effects of being on a M2M contract and having Fiber service, not a synergistic interaction effect. The high risk of this segment is still practically significant, but it's not due to a statistical interaction.",
+      "linked_subquestion": "SQ6"
+    }
+  ],
+  "multiple_testing_correction": {
+    "applied": true,
+    "method": "Bonferroni",
+    "adjusted_alpha": 0.01,
+    "hypotheses_surviving_correction": [
+      "H1",
+      "H2",
+      "H3",
+      "H4"
+    ]
+  },
+  "findings_summary": [
+    {
+      "hypothesis_id": "H1",
+      "result": "SUPPORTED",
+      "p_value": 5.863e-258,
+      "effect_size_value": 0.4098,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ2",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H2",
+      "result": "SUPPORTED",
+      "p_value": 2.296e-73,
+      "effect_size_value": 0.2436,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ3",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H3",
+      "result": "SUPPORTED",
+      "p_value": 1.926e-123,
+      "effect_size_value": 0.3204,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ2",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H4",
+      "result": "SUPPORTED",
+      "p_value": 1.653e-141,
+      "effect_size_value": 0.3407,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ3",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H5",
+      "result": "REJECTED",
+      "p_value": 0.196,
+      "effect_size_value": 0.2218,
+      "practical_significance": "LOW",
+      "subquestion_answered": "SQ6",
+      "emergent": true
+    }
+  ],
+  "statistical_caveats": [
+    "Correlation is not causation. This is an observational study. While we've identified strong associations (e.g., between contract type and churn), we cannot conclude that changing a customer's contract type would cause them to stay. Unmeasured factors like customer intent or price sensitivity may influence both variables.",
+    "Sample representativeness is assumed. The findings are valid for this dataset, but their generalizability to the entire customer base depends on the assumption that this dataset is a representative sample (A1).",
+    "Snapshot in time. The analysis is based on a static dataset. The identified drivers of churn and their relative importance may evolve over time due to market changes, competitor actions, or internal policy changes.",
+    "H5 Interaction Result: The rejection of H5 does not mean the combination of 'Month-to-month' and 'Fiber optic' is low risk. On the contrary, it is an extremely high-risk segment. The finding is that this high risk is explained by adding the two strong main effects together, not by a separate, synergistic interaction effect."
+  ],
+  "phase_6_priority_insights": [
+    "The overwhelmingly strong association between contract type and churn (H1) should be the primary focus. Understanding how to incentivize month-to-month customers to move to longer contracts is the highest-leverage intervention point.",
+    "The combination of having no protective add-ons (H4), using Fiber optic service (H2), and paying by Electronic check (H3) creates a profile of a very high-risk customer. A model in Phase 6 should quantify the combined impact of these factors to create a churn risk score."
+  ]
+}
