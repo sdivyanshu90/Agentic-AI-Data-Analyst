@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase1.json",
+  "title": "Phase 1 Output — Stakeholder Requirement Gathering",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "stakeholder_decoding",
+    "analysis_classification",
+    "sub_questions",
+    "kpis",
+    "stakeholder_profile",
+    "scope_flags",
+    "success_definition",
+    "assumptions_log",
+    "downstream_phase_goals"
+  ],
+  "properties": {
+    "phase": { "const": 1 },
+    "phase_name": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "NEEDS_RETRY", "CLARIFICATION_NEEDED"]
+    },
+    "clarification_needed": { "type": ["string", "null"] },
+
+    "stakeholder_decoding": {
+      "type": "object",
+      "required": [
+        "stated_problem",
+        "implied_business_problem",
+        "root_question",
+        "gap_analysis",
+        "reasoning"
+      ],
+      "properties": {
+        "stated_problem": { "type": "string" },
+        "implied_business_problem": { "type": "string" },
+        "root_question": { "type": "string" },
+        "gap_analysis": { "type": "string" },
+        "reasoning": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "analysis_classification": {
+      "type": "object",
+      "required": ["types", "reasoning"],
+      "properties": {
+        "types": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"]
+          }
+        },
+        "reasoning": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "sub_questions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "priority", "reasoning"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^SQ\\d+$" },
+          "question": { "type": "string", "minLength": 1 },
+          "priority": { "type": "string", "enum": ["P1", "P2", "P3"] },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "kpis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sub_question_id",
+          "metric_name",
+          "calculation_logic",
+          "time_window",
+          "comparison_baseline"
+        ],
+        "properties": {
+          "sub_question_id": { "type": "string", "pattern": "^SQ\\d+$" },
+          "metric_name": { "type": "string" },
+          "calculation_logic": { "type": "string" },
+          "time_window": { "type": "string" },
+          "comparison_baseline": { "type": "string" }
+        }
+      }
+    },
+
+    "stakeholder_profile": {
+      "type": "object",
+      "required": [
+        "primary_audience",
+        "technical_tolerance",
+        "output_format",
+        "decision_to_be_made"
+      ],
+      "properties": {
+        "primary_audience": { "type": "string", "minLength": 1 },
+        "technical_tolerance": { "type": "string", "enum": ["Low", "Medium", "High"] },
+        "output_format": { "type": "string" },
+        "decision_to_be_made": { "type": "string" }
+      }
+    },
+
+    "scope_flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["flag", "type", "decision", "reasoning"],
+        "properties": {
+          "flag": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": [
+              "OUT_OF_SCOPE",
+              "MISSING_DATA",
+              "PRIVACY",
+              "NEEDS_DATA_SCIENTIST"
+            ]
+          },
+          "decision": {
+            "type": "string",
+            "enum": ["BLOCK", "PROCEED_WITH_CAVEAT", "DESCOPE"]
+          },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "success_definition": { "type": "string", "minLength": 1 },
+
+    "assumptions_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "assumption"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^A\\d+$" },
+          "assumption": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "downstream_phase_goals": {
+      "type": "object",
+      "required": [
+        "phase_2_goal",
+        "phase_3_goal",
+        "phase_4_goal",
+        "phase_5_goal",
+        "phase_6_goal",
+        "phase_7_goal",
+        "phase_8_goal"
+      ],
+      "properties": {
+        "phase_2_goal": { "type": "string" },
+        "phase_3_goal": { "type": "string" },
+        "phase_4_goal": { "type": "string" },
+        "phase_5_goal": { "type": "string" },
+        "phase_6_goal": { "type": "string" },
+        "phase_7_goal": { "type": "string" },
+        "phase_8_goal": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": true
+}
