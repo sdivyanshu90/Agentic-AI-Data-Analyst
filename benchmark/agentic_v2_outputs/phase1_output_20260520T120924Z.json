@@ -1,0 +1,148 @@
+{
+  "phase": 1,
+  "phase_name": "Stakeholder Requirement Gathering",
+  "status": "COMPLETE",
+  "clarification_needed": null,
+  "stakeholder_decoding": {
+    "stated_problem": "Identify the top drivers of customer churn in our telecom subscriber base and recommend the two or three highest-leverage, cost-effective interventions to reduce it.",
+    "implied_business_problem": "The company is experiencing customer attrition, leading to revenue loss, and lacks a clear, data-driven strategy to prioritize retention efforts.",
+    "root_question": "Which customer segments, service configurations, and contract terms are most strongly associated with churn, and which of these represent the most impactful areas for intervention?",
+    "gap_analysis": "The request uses the term 'drivers,' which implies causality, but the available data can only establish correlation. Additionally, the request asks for 'cost-effective' interventions, but the dataset contains no cost or financial data. The analysis can identify high-impact factors, but the business must overlay cost information to determine cost-effectiveness.",
+    "reasoning": "The stated problem is a direct request for analysis and recommendations. The implied problem contextualizes this as a need to stop revenue leakage. The root question reframes 'drivers' into something answerable with the data (correlation/association) and sets the stage for prioritizing interventions based on impact, which is the precursor to assessing cost-effectiveness."
+  },
+  "analysis_classification": {
+    "types": [
+      "Descriptive",
+      "Diagnostic",
+      "Predictive",
+      "Prescriptive"
+    ],
+    "reasoning": "The analysis must be: Descriptive (to profile churn across segments), Diagnostic (to understand 'why' churn differs between groups), Predictive (to build a model that quantifies the impact of each 'driver'), and Prescriptive (to recommend interventions based on the findings)."
+  },
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "question": "How does churn rate vary across key customer demographic segments (gender, SeniorCitizen, Partner, Dependents)?",
+      "priority": "P1",
+      "reasoning": "This establishes a baseline understanding of the customer profile and identifies if churn is concentrated in specific demographic groups. It's a fundamental first step."
+    },
+    {
+      "id": "SQ2",
+      "question": "What is the relationship between contract type (Month-to-month, One year, Two year), payment method, and paperless billing with customer churn?",
+      "priority": "P1",
+      "reasoning": "Contract and billing terms are often the strongest predictors of churn in subscription businesses. This directly investigates customer commitment levels."
+    },
+    {
+      "id": "SQ3",
+      "question": "How do service-related factors, particularly Internet Service type and the uptake of add-on services (OnlineSecurity, TechSupport, etc.), correlate with churn?",
+      "priority": "P1",
+      "reasoning": "This helps determine if product/service configuration and customer 'stickiness' (number of services) are key retention factors. It can inform bundling strategies."
+    },
+    {
+      "id": "SQ4",
+      "question": "What is the impact of customer tenure and monthly/total charges on the likelihood of churn?",
+      "priority": "P1",
+      "reasoning": "This explores the financial and loyalty dimensions of churn. Are new customers or high-paying customers more likely to leave? This is critical for understanding the financial impact of churn."
+    },
+    {
+      "id": "SQ5",
+      "question": "Using a statistical model, what is the ranked list of the most important predictors (top 'drivers') of churn?",
+      "priority": "P2",
+      "reasoning": "This synthesizes the findings from individual variable analyses into a single, comprehensive view of what matters most, directly answering the core stakeholder question."
+    },
+    {
+      "id": "SQ6",
+      "question": "Are there significant interaction effects between top drivers (e.g., does the churn rate for Fiber Optic customers differ significantly based on their contract type)?",
+      "priority": "P3",
+      "reasoning": "This adds a layer of sophistication, moving beyond individual factors to understand how combinations of factors might create high-risk customer segments. It's a 'nice to have' for more targeted interventions."
+    }
+  ],
+  "kpis": [
+    {
+      "sub_question_id": "SQ1",
+      "metric_name": "Churn Rate by Demographic Segment",
+      "calculation_logic": "(COUNT(customers in segment with Churn='Yes') / COUNT(customers in segment)) * 100",
+      "time_window": "Snapshot (entire dataset)",
+      "comparison_baseline": "Overall average churn rate (26.5%)"
+    },
+    {
+      "sub_question_id": "SQ2",
+      "metric_name": "Churn Rate by Contract & Billing Method",
+      "calculation_logic": "(COUNT(customers in segment with Churn='Yes') / COUNT(customers in segment)) * 100",
+      "time_window": "Snapshot (entire dataset)",
+      "comparison_baseline": "Overall average churn rate (26.5%)"
+    },
+    {
+      "sub_question_id": "SQ3",
+      "metric_name": "Churn Rate by Service & Add-on Uptake",
+      "calculation_logic": "(COUNT(customers with specific service configuration who churned) / COUNT(customers with specific service configuration)) * 100",
+      "time_window": "Snapshot (entire dataset)",
+      "comparison_baseline": "Overall average churn rate and churn rate for customers without the service."
+    },
+    {
+      "sub_question_id": "SQ4",
+      "metric_name": "Distribution of Tenure/MonthlyCharges for Churned vs. Retained Customers",
+      "calculation_logic": "Comparison of summary statistics (mean, median, quartiles) and visualizations (histograms, box plots) for the 'tenure' and 'MonthlyCharges' columns, grouped by the 'Churn' column.",
+      "time_window": "Snapshot (entire dataset)",
+      "comparison_baseline": "The distribution for churned customers vs. the distribution for retained customers."
+    }
+  ],
+  "stakeholder_profile": {
+    "primary_audience": "Customer Retention / Marketing leadership",
+    "technical_tolerance": "Medium",
+    "output_format": "Slide Deck / Summary Report",
+    "decision_to_be_made": "To select and fund 2-3 specific retention initiatives to pilot in the next business cycle, based on the identified high-leverage churn drivers."
+  },
+  "scope_flags": [
+    {
+      "flag": "Request for 'cost-effective' recommendations cannot be fully met.",
+      "type": "OUT_OF_SCOPE",
+      "decision": "PROCEED_WITH_CAVEAT",
+      "reasoning": "The dataset contains no cost data for services or interventions. The analysis will identify the highest-leverage drivers of churn, but the stakeholder must provide the business context to assess cost-effectiveness."
+    },
+    {
+      "flag": "The term 'drivers' implies causality, which cannot be proven with this data.",
+      "type": "NEEDS_DATA_SCIENTIST",
+      "decision": "DESCOPE",
+      "reasoning": "True causal inference is a complex task. We will redefine 'drivers' as 'the factors with the highest predictive correlation with churn' and use a statistical model (e.g., logistic regression) to identify them. We will explicitly state this is about correlation, not causation."
+    },
+    {
+      "flag": "The 'TotalCharges' column requires data type coercion and may contain missing values.",
+      "type": "MISSING_DATA",
+      "decision": "PROCEED_WITH_CAVEAT",
+      "reasoning": "The 'TotalCharges' column is an object type and contains non-numeric values (e.g., empty strings for customers with 0 tenure) that will become NaNs upon conversion. A strategy to handle these missing values (e.g., imputation or removal) will be required and documented."
+    }
+  ],
+  "success_definition": "This analysis is successful when Retention/Marketing leadership receives a prioritized list of the top 3-5 factors most strongly correlated with churn, enabling them to select and commit to at least two specific, data-informed retention initiatives.",
+  "assumptions_log": [
+    {
+      "id": "A1",
+      "assumption": "The provided IBM Telco dataset is a representative sample of the entire customer base."
+    },
+    {
+      "id": "A2",
+      "assumption": "The 'Churn' column accurately reflects customer attrition over a consistent and relevant time period."
+    },
+    {
+      "id": "A3",
+      "assumption": "'Drivers' of churn can be effectively proxied by identifying features with the highest statistical correlation or model-derived importance."
+    },
+    {
+      "id": "A4",
+      "assumption": "The business has access to its own cost data to evaluate the financial feasibility of any recommended interventions."
+    },
+    {
+      "id": "A5",
+      "assumption": "The `tenure` column is measured in a consistent unit, assumed to be months."
+    }
+  ],
+  "downstream_phase_goals": {
+    "phase_2_goal": "Ingest the Telco-Customer-Churn.csv dataset, clean it, and perform necessary data type corrections, especially for 'TotalCharges'.",
+    "phase_3_goal": "Conduct an exploratory data analysis (EDA) to visualize churn rates across all key variables identified in the P1 sub-questions.",
+    "phase_4_goal": "Formulate specific, testable hypotheses from the EDA, such as 'Customers on month-to-month contracts have a churn rate more than double those on annual contracts'.",
+    "phase_5_goal": "Preprocess data and build a logistic regression model to quantify the impact of each feature on churn.",
+    "phase_6_goal": "Extract and rank model coefficients or feature importances to identify the top 3-5 statistical drivers of churn.",
+    "phase_7_goal": "Synthesize all findings into 2-3 concrete, actionable recommendations for interventions to reduce churn.",
+    "phase_8_goal": "Create a final slide deck for marketing leadership summarizing the top churn drivers and proposed interventions with clear visualizations."
+  }
+}
