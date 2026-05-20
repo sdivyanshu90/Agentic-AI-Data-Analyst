@@ -1,0 +1,251 @@
+{
+  "phase": 5,
+  "phase_name": "Hypothesis Testing & Statistical Validation",
+  "status": "COMPLETE",
+  "tests_conducted": [
+    {
+      "hypothesis_id": "H1",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates between Contract types, with Month-to-month contracts having a higher churn rate than One-year or Two-year contracts.",
+      "null_hypothesis": "There is no association between Contract type and Churn status; the churn rate is independent of the contract type.",
+      "alternative_hypothesis": "There is an association between Contract type and Churn status; the churn rate is not independent of the contract type.",
+      "test_selected": "Chi-squared test of independence",
+      "test_selection_reasoning": "This test is appropriate for comparing the frequency of a categorical outcome (Churn: Yes/No) across more than two independent categorical groups (Contract: Month-to-month, One year, Two year).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Cram\u00e9r's V > 0.3)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 1184.58",
+      "degrees_of_freedom": "2",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.409
+      },
+      "confidence_interval": {
+        "lower": 0.38,
+        "upper": 0.43,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size is large (V=0.41). The churn rate for Month-to-month customers (42.7%) is nearly 4x that of One-year customers (11.3%) and 15x that of Two-year customers (2.7%). This is a massive, highly actionable business insight.",
+      "linked_subquestion": "SQ1"
+    },
+    {
+      "hypothesis_id": "H2",
+      "hypothesis_statement": "There is a statistically significant negative relationship between customer tenure and the likelihood of churn; as tenure increases, the probability of churn decreases.",
+      "null_hypothesis": "The coefficient for tenure in a logistic regression model predicting churn is zero.",
+      "alternative_hypothesis": "The coefficient for tenure in a logistic regression model predicting churn is not zero.",
+      "test_selected": "Logistic Regression",
+      "test_selection_reasoning": "This test is appropriate for assessing the relationship between a continuous predictor variable (tenure) and a binary outcome variable (Churn). It provides an odds ratio to quantify the effect size, which is highly interpretable.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small to Medium (Odds Ratio < 0.97 per unit)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-value = -31.39",
+      "degrees_of_freedom": "1",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Odds Ratio (per month of tenure)",
+        "value": 0.964
+      },
+      "confidence_interval": {
+        "lower": 0.962,
+        "upper": 0.966,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "For every additional month of tenure, the odds of a customer churning decrease by about 3.6%. This effect compounds significantly over time (e.g., a 12-month customer has approximately 65% of the churn odds of a brand new customer), making tenure a critical retention factor.",
+      "linked_subquestion": "SQ2"
+    },
+    {
+      "hypothesis_id": "H3",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates between customers with Fiber optic and DSL internet service, with Fiber optic customers being more likely to churn.",
+      "null_hypothesis": "There is no association between Internet Service type (Fiber optic vs. DSL) and Churn status.",
+      "alternative_hypothesis": "There is an association between Internet Service type (Fiber optic vs. DSL) and Churn status.",
+      "test_selected": "Chi-squared test of independence",
+      "test_selection_reasoning": "This test is appropriate for comparing the frequency of a categorical outcome (Churn: Yes/No) across two independent categorical groups (InternetService: Fiber optic, DSL).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Cram\u00e9r's V > 0.2)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 312.48",
+      "degrees_of_freedom": "1",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.237
+      },
+      "confidence_interval": {
+        "lower": 0.21,
+        "upper": 0.26,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The churn rate for Fiber optic customers (41.9%) is more than double that of DSL customers (19.0%). This medium-to-large effect size points to a significant business problem with the premium internet product, warranting immediate investigation.",
+      "linked_subquestion": "SQ3"
+    },
+    {
+      "hypothesis_id": "H4",
+      "hypothesis_statement": "There is a statistically significant interaction effect between InternetService type and having TechSupport on churn likelihood.",
+      "null_hypothesis": "The effect of having Tech Support on churn likelihood is independent of the customer's Internet Service type.",
+      "alternative_hypothesis": "The effect of having Tech Support on churn likelihood depends on the customer's Internet Service type.",
+      "test_selected": "Logistic Regression with Interaction Term",
+      "test_selection_reasoning": "Logistic regression is the standard method for testing if the effect of one predictor on a binary outcome is modified by another predictor. A significant p-value for the interaction term coefficient supports the hypothesis.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Any significant interaction",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-value for interaction term = -5.83",
+      "degrees_of_freedom": "1",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "p-value of interaction term coefficient",
+        "value": 0.0
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The analysis shows that the churn-reducing benefit of Tech Support is significantly stronger for Fiber optic customers. This provides a highly specific, actionable strategy: promote and bundle Tech Support with Fiber optic plans to mitigate their high churn rate.",
+      "linked_subquestion": null
+    },
+    {
+      "hypothesis_id": "H5",
+      "hypothesis_statement": "There is a statistically significant positive relationship between MonthlyCharges and the likelihood of churn, particularly for customers on Month-to-month contracts.",
+      "null_hypothesis": "The effect of Monthly Charges on churn likelihood is independent of the customer's Contract type.",
+      "alternative_hypothesis": "The effect of Monthly Charges on churn likelihood depends on the customer's Contract type.",
+      "test_selected": "Logistic Regression with Interaction Term",
+      "test_selection_reasoning": "This tests if the effect of a continuous predictor (MonthlyCharges) on a binary outcome is modified by a categorical predictor (Contract). A significant interaction term validates the hypothesis.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Any significant interaction",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-value for M2M interaction term = 6.21",
+      "degrees_of_freedom": "1",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "p-value of interaction term coefficient",
+        "value": 0.0
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The analysis confirms that price sensitivity is most acute among Month-to-month customers. This pinpoints a key risk segment (high-paying M2M customers) and suggests a clear action: develop targeted campaigns to move these customers onto longer contracts.",
+      "linked_subquestion": "SQ4"
+    }
+  ],
+  "multiple_testing_correction": {
+    "applied": true,
+    "method": "Bonferroni",
+    "adjusted_alpha": 0.01,
+    "hypotheses_surviving_correction": [
+      "H1",
+      "H2",
+      "H3",
+      "H4",
+      "H5"
+    ]
+  },
+  "findings_summary": [
+    {
+      "hypothesis_id": "H1",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.409,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ1",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H2",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.964,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ2",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H3",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.237,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ3",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H4",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.0,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ3",
+      "emergent": true
+    },
+    {
+      "hypothesis_id": "H5",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.0,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ4",
+      "emergent": false
+    }
+  ],
+  "statistical_caveats": [
+    "Correlation does not imply causation: All findings are based on observational data. We have identified strong associations (e.g., Month-to-month contracts and high churn), but we cannot prove a causal link. For example, customers intending to leave may choose M2M contracts, rather than the contract itself causing them to leave.",
+    "Potential for omitted variable bias: While we tested some interactions, these tests do not control for all other variables simultaneously. A comprehensive multivariate model in a later phase would be required to isolate the independent effect of each factor while holding others constant.",
+    "Snapshot in time: The analysis is based on a static dataset. Customer behaviors and market conditions can change, so these findings should be periodically re-validated.",
+    "High statistical power: With a large sample size (N=7043), our tests have very high power, meaning even small, practically insignificant effects could be statistically significant. It is crucial to focus on the effect size (e.g., Cram\u00e9r's V, Odds Ratios) and practical significance ratings to guide business decisions."
+  ],
+  "phase_6_priority_insights": [
+    "H1 Finding: The massive churn difference by Contract type is the single most important finding. Interventions should focus on migrating Month-to-month customers to longer contracts.",
+    "H4 Finding: The interaction between Fiber optic service and Tech Support presents a highly targeted intervention. Mitigating the high churn of the premium Fiber product by bundling/promoting Tech Support could be a high-leverage strategy."
+  ]
+}
