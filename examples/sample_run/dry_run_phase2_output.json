@@ -1,0 +1,181 @@
+{
+  "phase": 2,
+  "phase_name": "Data Identification, Collection & Extraction",
+  "status": "COMPLETE",
+  "blocker": null,
+
+  "data_source_map": [
+    {
+      "sub_question_id": "SQ1",
+      "sources_needed": ["users", "subscriptions"],
+      "availability": "CONFIRMED",
+      "join_logic": "subscriptions.user_id = users.id",
+      "reasoning": "Q3 churn rate by segment requires user attributes (acquisition_channel, plan_tier) joined to subscription lifecycle dates. Both tables are explicitly named in the data source description."
+    },
+    {
+      "sub_question_id": "SQ2",
+      "sources_needed": ["users", "events", "subscriptions"],
+      "availability": "CONFIRMED",
+      "join_logic": "events.user_id = users.id; subscriptions.user_id = users.id",
+      "reasoning": "Behaviour–churn association requires per-user event counts in the first 30 days joined to a churn flag derived from subscription.end_date."
+    },
+    {
+      "sub_question_id": "SQ3",
+      "sources_needed": ["subscriptions"],
+      "availability": "ASSUMED",
+      "join_logic": "",
+      "reasoning": "Pre/post pricing change analysis needs price-effective-date metadata. The subscriptions table likely carries plan_price snapshots but this is unconfirmed — flagging ASSUMED until Phase 3 verifies."
+    }
+  ],
+
+  "schema_reconnaissance": [
+    {
+      "source_name": "users",
+      "source_type": "SQL_TABLE",
+      "schema_status": "INFERRED",
+      "columns": [
+        { "name": "id", "data_type": "uuid", "example_values": [], "is_pii": false, "notes": "primary key" },
+        { "name": "email", "data_type": "text", "example_values": [], "is_pii": true, "notes": "must be hashed" },
+        { "name": "full_name", "data_type": "text", "example_values": [], "is_pii": true, "notes": "must be dropped or hashed" },
+        { "name": "acquisition_channel", "data_type": "text", "example_values": ["organic", "paid_search", "referral"], "is_pii": false, "notes": "" },
+        { "name": "signup_at", "data_type": "timestamp", "example_values": [], "is_pii": false, "notes": "" }
+      ],
+      "estimated_rows": "~250k rows",
+      "date_range": "2020-01-01 to present",
+      "primary_key": "id",
+      "foreign_keys": []
+    },
+    {
+      "source_name": "subscriptions",
+      "source_type": "SQL_TABLE",
+      "schema_status": "INFERRED",
+      "columns": [
+        { "name": "id", "data_type": "uuid", "is_pii": false, "notes": "primary key" },
+        { "name": "user_id", "data_type": "uuid", "is_pii": false, "notes": "FK → users.id" },
+        { "name": "plan_tier", "data_type": "text", "example_values": ["starter", "pro", "enterprise"], "is_pii": false, "notes": "" },
+        { "name": "start_date", "data_type": "date", "is_pii": false, "notes": "" },
+        { "name": "end_date", "data_type": "date", "is_pii": false, "notes": "null = active" },
+        { "name": "cancel_reason", "data_type": "text", "is_pii": false, "notes": "voluntary vs involuntary signal" }
+      ],
+      "estimated_rows": "~300k rows",
+      "date_range": "2020-01-01 to present",
+      "primary_key": "id",
+      "foreign_keys": ["user_id → users.id"]
+    },
+    {
+      "source_name": "events",
+      "source_type": "SQL_TABLE",
+      "schema_status": "INFERRED",
+      "columns": [
+        { "name": "user_id", "data_type": "uuid", "is_pii": false, "notes": "FK → users.id" },
+        { "name": "event_name", "data_type": "text", "is_pii": false, "notes": "" },
+        { "name": "event_at", "data_type": "timestamp", "is_pii": false, "notes": "" }
+      ],
+      "estimated_rows": "~50M rows (Q3 window only)",
+      "date_range": "2025-07-01 to 2025-09-30",
+      "primary_key": "(user_id, event_at, event_name)",
+      "foreign_keys": ["user_id → users.id"]
+    }
+  ],
+
+  "extraction_plan": [
+    {
+      "sub_question_id": "SQ1",
+      "extraction_type": "SQL",
+      "query_or_steps": "-- Q3 churn rate by acquisition_channel x plan_tier\n-- (SCHEMA INFERRED — confirm column names with PM before running)\nWITH active_at_q3_start AS (\n  SELECT s.user_id, u.acquisition_channel, s.plan_tier\n  FROM subscriptions s\n  JOIN users u ON u.id = s.user_id\n  WHERE s.start_date <= DATE '2025-07-01'\n    AND (s.end_date IS NULL OR s.end_date >= DATE '2025-07-01')\n),\nchurned_in_q3 AS (\n  SELECT user_id FROM subscriptions\n  WHERE end_date BETWEEN DATE '2025-07-01' AND DATE '2025-09-30'\n)\nSELECT acquisition_channel, plan_tier,\n       COUNT(DISTINCT c.user_id)::float / COUNT(DISTINCT a.user_id) AS churn_rate\nFROM active_at_q3_start a\nLEFT JOIN churned_in_q3 c USING (user_id)\nGROUP BY acquisition_channel, plan_tier;",
+      "volume_estimate": "~50 segment rows out",
+      "reasoning": "Cohort defined at Q3 start to avoid survivorship bias. LEFT JOIN keeps non-churned users in denominator."
+    },
+    {
+      "sub_question_id": "SQ2",
+      "extraction_type": "SQL",
+      "query_or_steps": "-- Per-user event counts in first 30 days, with 90-day churn flag\nSELECT u.id AS user_id,\n       COUNT(*) FILTER (WHERE event_name = 'feature_used') AS feature_uses_30d,\n       COUNT(*) FILTER (WHERE event_name = 'support_ticket') AS tickets_30d,\n       MAX(CASE WHEN s.end_date BETWEEN u.signup_at AND u.signup_at + INTERVAL '90 days' THEN 1 ELSE 0 END) AS churned_90d\nFROM users u\nJOIN events e ON e.user_id = u.id\n   AND e.event_at BETWEEN u.signup_at AND u.signup_at + INTERVAL '30 days'\nLEFT JOIN subscriptions s ON s.user_id = u.id\nWHERE u.signup_at BETWEEN DATE '2025-04-01' AND DATE '2025-06-30'\nGROUP BY u.id;",
+      "volume_estimate": "~30k user rows out",
+      "reasoning": "Restricting signup_at to Q2 ensures every user has had a full 90-day window. event_name filters are illustrative — exact values to be confirmed in Phase 3."
+    },
+    {
+      "sub_question_id": "SQ3",
+      "extraction_type": "SQL",
+      "query_or_steps": "-- Weekly churn rate before/after 2025-07-15 pricing update\nSELECT date_trunc('week', end_date) AS wk,\n       COUNT(*) AS churned_users\nFROM subscriptions\nWHERE end_date BETWEEN DATE '2025-06-03' AND DATE '2025-08-26'\nGROUP BY wk\nORDER BY wk;",
+      "volume_estimate": "12 weekly rows out",
+      "reasoning": "Simple weekly counts; Phase 5 will normalise by active base and run the statistical test."
+    }
+  ],
+
+  "governance_flags": [
+    {
+      "column": "users.email",
+      "flag_type": "PII",
+      "mitigation": "Hash with SHA-256 + salt in Phase 3; never extract raw values."
+    },
+    {
+      "column": "users.full_name",
+      "flag_type": "PII",
+      "mitigation": "Drop from analysis extract — not needed for churn analysis."
+    }
+  ],
+
+  "completeness_assessment": [
+    {
+      "kpi": "Q3 churn rate by segment",
+      "coverage": "FULLY_COVERABLE",
+      "proxy_metric": "",
+      "impact_if_missing": "",
+      "reasoning": "users + subscriptions provide all required fields directly."
+    },
+    {
+      "kpi": "Behaviour–churn association strength",
+      "coverage": "PARTIALLY_COVERABLE",
+      "proxy_metric": "Event counts as a proxy for feature engagement intensity.",
+      "impact_if_missing": "Cannot measure session depth or duration without session-level data; effect-size confidence will be lower-bound.",
+      "reasoning": "events table gives counts but no session aggregation; we can approximate with daily-distinct event days."
+    },
+    {
+      "kpi": "Pre/post pricing-change churn rate delta",
+      "coverage": "PARTIALLY_COVERABLE",
+      "proxy_metric": "",
+      "impact_if_missing": "If subscriptions does not carry effective-price-date metadata, the pricing change date must be supplied externally by PM.",
+      "reasoning": "ASSUMED data source — confirmation pending."
+    }
+  ],
+
+  "data_dictionary": [
+    {
+      "column_name": "users.id",
+      "business_definition": "Unique user identifier",
+      "data_type": "uuid",
+      "value_range_or_enum": "",
+      "known_quality_issues": ""
+    },
+    {
+      "column_name": "users.acquisition_channel",
+      "business_definition": "How the user found the product on first signup",
+      "data_type": "text",
+      "value_range_or_enum": "organic, paid_search, referral, partner, other",
+      "known_quality_issues": "'other' bucket likely under-investigated"
+    },
+    {
+      "column_name": "subscriptions.end_date",
+      "business_definition": "Date subscription ended; NULL means still active",
+      "data_type": "date",
+      "value_range_or_enum": "NULL or [2020-01-01, today]",
+      "known_quality_issues": "Backdated cancellations may exist — Phase 3 to verify"
+    },
+    {
+      "column_name": "subscriptions.cancel_reason",
+      "business_definition": "Reason for subscription end (voluntary vs payment failure)",
+      "data_type": "text",
+      "value_range_or_enum": "voluntary, payment_failed, downgrade, other",
+      "known_quality_issues": "Reason is free-text in some legacy rows"
+    },
+    {
+      "column_name": "events.event_name",
+      "business_definition": "Type of user action recorded",
+      "data_type": "text",
+      "value_range_or_enum": "feature_used, support_ticket, login, signup, …",
+      "known_quality_issues": "Event taxonomy migrated in 2023; pre-2023 names need mapping"
+    }
+  ],
+
+  "phase_3_handoff_notes": "Schema is INFERRED — Phase 3 must confirm column names against the live PostgreSQL DB before running any extraction. PII columns (users.email, users.full_name) must be hashed/dropped before any extract leaves the warehouse. Pricing-change source is ASSUMED; if not present in subscriptions, escalate to the user."
+}
