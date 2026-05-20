@@ -1,0 +1,37 @@
+DATASET: IBM Telco Customer Churn (real, public dataset).
+SOURCE: github.com/IBM/telco-customer-churn-on-icp4d  (Telco-Customer-Churn.csv)
+SHAPE: 7043 rows x 21 columns. One row per telecom customer.
+TARGET: 'Churn' (Yes/No) — overall churn rate in the file is 26.5%.
+
+COLUMN DICTIONARY (univariate profile only — raw CSV dtypes):
+  - customerID (object, nulls=0): high-cardinality text [7043 distinct] (e.g. identifier)
+  - gender (object, nulls=0): categorical [2]: 'Male':3555, 'Female':3488
+  - SeniorCitizen (int64, nulls=0): numeric: min=0, max=1, mean=0.16, median=0.0
+  - Partner (object, nulls=0): categorical [2]: 'No':3641, 'Yes':3402
+  - Dependents (object, nulls=0): categorical [2]: 'No':4933, 'Yes':2110
+  - tenure (int64, nulls=0): numeric: min=0, max=72, mean=32.37, median=29.0
+  - PhoneService (object, nulls=0): categorical [2]: 'Yes':6361, 'No':682
+  - MultipleLines (object, nulls=0): categorical [3]: 'No':3390, 'Yes':2971, 'No phone service':682
+  - InternetService (object, nulls=0): categorical [3]: 'Fiber optic':3096, 'DSL':2421, 'No':1526
+  - OnlineSecurity (object, nulls=0): categorical [3]: 'No':3498, 'Yes':2019, 'No internet service':1526
+  - OnlineBackup (object, nulls=0): categorical [3]: 'No':3088, 'Yes':2429, 'No internet service':1526
+  - DeviceProtection (object, nulls=0): categorical [3]: 'No':3095, 'Yes':2422, 'No internet service':1526
+  - TechSupport (object, nulls=0): categorical [3]: 'No':3473, 'Yes':2044, 'No internet service':1526
+  - StreamingTV (object, nulls=0): categorical [3]: 'No':2810, 'Yes':2707, 'No internet service':1526
+  - StreamingMovies (object, nulls=0): categorical [3]: 'No':2785, 'Yes':2732, 'No internet service':1526
+  - Contract (object, nulls=0): categorical [3]: 'Month-to-month':3875, 'Two year':1695, 'One year':1473
+  - PaperlessBilling (object, nulls=0): categorical [2]: 'Yes':4171, 'No':2872
+  - PaymentMethod (object, nulls=0): categorical [4]: 'Electronic check':2365, 'Mailed check':1612, 'Bank transfer (automatic)':1544, 'Credit card (automatic)':1522
+  - MonthlyCharges (float64, nulls=0): numeric: min=18.25, max=118.75, mean=64.76, median=70.35
+  - TotalCharges (object, nulls=0): high-cardinality text [6531 distinct] (e.g. identifier)
+  - Churn (object, nulls=0): categorical [2]: 'No':5174, 'Yes':1869
+
+NOTES KNOWN AT HANDOFF (from basic profiling, no analysis done yet):
+  - 'SeniorCitizen' is encoded as integer 0/1, unlike the other Yes/No binaries.
+  - 'TotalCharges' is stored as a TEXT column in the raw CSV, not numeric — it must be coerced before any numeric work.
+  - 'customerID' is a unique identifier and is not an analytical feature.
+  - No analysis of what drives churn has been done yet. That is the task.
+
+BUSINESS QUESTION: What are the top drivers of customer churn in our telecom subscriber base, and which two or three interventions would most cost-effectively reduce it?
+STAKEHOLDER: Customer Retention / Marketing leadership (medium technical tolerance)
+CONSTRAINTS: Python + pandas available; dataset fits in memory; no PII beyond the opaque customerID; deliver within one analysis cycle.
