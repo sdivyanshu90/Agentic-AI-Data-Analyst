@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase5.json",
+  "title": "Phase 5 Output — Hypothesis Testing & Statistical Validation",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "tests_conducted",
+    "multiple_testing_correction",
+    "findings_summary",
+    "statistical_caveats",
+    "phase_6_priority_insights"
+  ],
+  "properties": {
+    "phase": { "const": 5 },
+    "phase_name": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "NEEDS_RETRY", "PARTIAL"]
+    },
+
+    "tests_conducted": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "hypothesis_id",
+          "hypothesis_statement",
+          "null_hypothesis",
+          "alternative_hypothesis",
+          "test_selected",
+          "test_selection_reasoning",
+          "assumptions_checked",
+          "power_analysis",
+          "p_value",
+          "effect_size",
+          "result",
+          "practical_significance",
+          "practical_significance_reasoning"
+        ],
+        "properties": {
+          "hypothesis_id": { "type": "string", "pattern": "^H\\d+$" },
+          "hypothesis_statement": { "type": "string", "minLength": 1 },
+          "null_hypothesis": { "type": "string", "minLength": 1 },
+          "alternative_hypothesis": { "type": "string", "minLength": 1 },
+          "test_selected": { "type": "string", "minLength": 1 },
+          "test_selection_reasoning": { "type": "string", "minLength": 1 },
+          "assumptions_checked": {
+            "type": "object",
+            "required": ["sample_size_adequate", "independence"],
+            "properties": {
+              "sample_size_adequate": { "type": "boolean" },
+              "normality": {
+                "type": "string",
+                "enum": ["Assumed", "Tested", "Violated", "N/A"]
+              },
+              "independence": {
+                "type": "string",
+                "enum": ["Met", "At-risk", "Violated"]
+              },
+              "variance_homogeneity": {
+                "type": "string",
+                "enum": ["Met", "Violated", "N/A"]
+              }
+            }
+          },
+          "power_analysis": {
+            "type": "object",
+            "required": ["estimated_power", "power_flag"],
+            "properties": {
+              "effect_size_target": { "type": "string" },
+              "estimated_power": { "type": "number", "minimum": 0, "maximum": 1 },
+              "power_flag": { "type": "string", "enum": ["ADEQUATE", "UNDERPOWERED"] }
+            }
+          },
+          "test_statistic": {},
+          "degrees_of_freedom": {},
+          "p_value": { "type": "number", "minimum": 0, "maximum": 1 },
+          "effect_size": {
+            "type": "object",
+            "required": ["metric", "value"],
+            "properties": {
+              "metric": { "type": "string", "minLength": 1 },
+              "value": { "type": "number" }
+            }
+          },
+          "confidence_interval": {
+            "type": "object",
+            "properties": {
+              "lower": { "type": "number" },
+              "upper": { "type": "number" },
+              "level": { "type": "string" }
+            }
+          },
+          "result": {
+            "type": "string",
+            "enum": ["SUPPORTED", "REJECTED", "INCONCLUSIVE"]
+          },
+          "practical_significance": {
+            "type": "string",
+            "enum": ["HIGH", "MEDIUM", "LOW", "NEGLIGIBLE"]
+          },
+          "practical_significance_reasoning": { "type": "string", "minLength": 1 },
+          "linked_subquestion": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "multiple_testing_correction": {
+      "type": "object",
+      "required": ["applied"],
+      "properties": {
+        "applied": { "type": "boolean" },
+        "method": {
+          "type": "string",
+          "enum": ["Bonferroni", "Benjamini-Hochberg", "Holm-Bonferroni", "None"]
+        },
+        "adjusted_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
+        "hypotheses_surviving_correction": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^H\\d+$" }
+        }
+      }
+    },
+
+    "findings_summary": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "hypothesis_id",
+          "result",
+          "p_value",
+          "practical_significance"
+        ],
+        "properties": {
+          "hypothesis_id": { "type": "string", "pattern": "^H\\d+$" },
+          "result": {
+            "type": "string",
+            "enum": ["SUPPORTED", "REJECTED", "INCONCLUSIVE"]
+          },
+          "p_value": { "type": "number", "minimum": 0, "maximum": 1 },
+          "effect_size_value": { "type": "number" },
+          "practical_significance": {
+            "type": "string",
+            "enum": ["HIGH", "MEDIUM", "LOW", "NEGLIGIBLE"]
+          },
+          "subquestion_answered": { "type": ["string", "null"] },
+          "emergent": { "type": "boolean" }
+        }
+      }
+    },
+
+    "statistical_caveats": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+
+    "phase_6_priority_insights": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "additionalProperties": true
+}
