@@ -1,0 +1,59 @@
+{
+  "phase": 9,
+  "phase_name": "Impact Tracking & Monitoring Handoff",
+  "status": "COMPLETE",
+  "success_metrics": [
+    {
+      "recommendation_ref": "R1 (rebalance paid-search spend toward high-retention keywords)",
+      "metric": "90-day voluntary churn rate of paid-search cohorts",
+      "cadence": "Monthly, measured on each closing monthly cohort",
+      "threshold": "Gap to organic cohorts narrows from 8.4pp to under 5pp within two cohorts",
+      "check_in_date": "2025-12-15",
+      "owner": "Growth Marketing lead",
+      "reasoning": "The recommendation targets acquisition quality, so the earliest honest read-out is the first full 90-day cohort acquired after the spend change; the 5pp threshold is half the observed gap."
+    },
+    {
+      "recommendation_ref": "R2 (onboarding intervention for low-engagement accounts)",
+      "metric": "Share of new accounts with fewer than 5 events in first 30 days",
+      "cadence": "Weekly",
+      "threshold": "Below 20% (from current 31%)",
+      "check_in_date": "2025-11-03",
+      "owner": "Product onboarding PM",
+      "reasoning": "Leading indicator: engagement moves weeks before churn does, so this metric shows whether the intervention works before churn data can."
+    }
+  ],
+  "monitoring_specs": [
+    {
+      "finding_ref": "H1 (paid-search churn gap)",
+      "alert_condition": "paid_search_90d_churn - organic_90d_churn > 10pp for any monthly cohort",
+      "evaluation_window": "Each monthly cohort at 90 days, evaluated monthly",
+      "suggested_tool": "dbt metric + Looker alert",
+      "reasoning": "Fires if the channel gap re-widens beyond the worst observed value, before it compounds across quarters."
+    },
+    {
+      "finding_ref": "H3 (pricing-change churn uplift)",
+      "alert_condition": "Pro-tier monthly voluntary churn > 4.5% for two consecutive months",
+      "evaluation_window": "Calendar month, evaluated monthly",
+      "suggested_tool": "Warehouse scheduled query + Slack alert",
+      "reasoning": "The price-driven uplift should decay as grandfathered accounts cycle out; sustained elevation means ongoing price sensitivity, not a one-off event."
+    }
+  ],
+  "knowledge_base_entry": {
+    "question": "What drove the Q3 churn increase in the SaaS product?",
+    "answer_one_paragraph": "Q3 churn was driven primarily by low-quality paid-search acquisition (8.4pp higher 90-day voluntary churn than organic, holding within every plan tier) and secondarily by the mid-quarter Pro-tier price increase, whose uplift is event-driven and tier-concentrated. Low 30-day engagement is the strongest early predictor of voluntary churn.",
+    "data_sources": ["warehouse.users", "warehouse.events", "warehouse.subscriptions"],
+    "gotchas_discovered": [
+      "acquisition_channel is null for ~6% of rows — imputing vs dropping does not change conclusions, but check on reuse",
+      "The mid-quarter pricing change confounds any naive Q3 churn trend; always split churn analysis at 2025-08-15",
+      "event_count_30d has extreme outliers from bot-like accounts; winsorise at p99"
+    ],
+    "reusable_queries": [
+      "90-day cohort churn by acquisition channel: see Phase 2 extraction_plan step 3"
+    ],
+    "confounds_checked": [
+      "Pricing change (EVENT_DRIVEN for H3, ruled out for H1)",
+      "Plan-tier mix shift (ruled out for H1 via within-tier sweep)"
+    ],
+    "tags": ["churn", "saas", "acquisition-quality", "pricing"]
+  }
+}
