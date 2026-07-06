@@ -1,0 +1,85 @@
+{
+  "phase": 0,
+  "phase_name": "Intake Triage & Context Calendar Check",
+  "status": "COMPLETE",
+  "complexity": "STANDARD_ANALYSIS",
+  "complexity_reasoning": "The request involves multiple, competing hypotheses from different senior stakeholders (VP Growth vs. CFO). It requires untangling several overlapping events (pricing change, reseller contract termination, data migration) that occurred in the same time window. This is beyond a simple lookup and requires a structured analytical approach to test hypotheses and control for confounds.",
+  "confound_candidates": [
+    {
+      "event": "15% Enterprise tier price increase",
+      "window": "Effective April 1st, 2026",
+      "source": "STATED_BY_USER",
+      "expected_signature": "An increase in observed churn for Enterprise customers renewing on or after April 1st, potentially isolated to that tier.",
+      "reasoning": "Price increases are a direct and common cause of customer churn. This event aligns perfectly with the start of Q2 and the focus on the Enterprise tier."
+    },
+    {
+      "event": "Termination of contract with largest Enterprise reseller partner",
+      "window": "March 28th, 2026",
+      "source": "STATED_BY_USER",
+      "expected_signature": "A cohort of Enterprise customers, all previously managed by this reseller, churning simultaneously as their contracts expire post-March 28th. This may appear as a large, one-time spike in Enterprise churn at the beginning of Q2.",
+      "reasoning": "Losing a major sales and service partner for a specific tier can cause a large, correlated churn event that is not representative of the general health of the tier."
+    },
+    {
+      "event": "Billing system migration",
+      "window": "April 2026",
+      "source": "STATED_BY_USER",
+      "expected_signature": "An artificial step-change (increase or decrease) in the measured churn rate around the migration date. This could be due to changes in data definitions, missed event logging during cutover, or errors in porting subscription end dates.",
+      "reasoning": "System migrations are a primary source of data artifacts. Any change in metrics that coincides with a migration must first be proven to be a real business change and not a measurement error. This is the most critical confound to rule out."
+    },
+    {
+      "event": "Business Seasonality",
+      "window": "Q2 (April-June)",
+      "source": "TO_ASK_USER",
+      "expected_signature": "A similar increase in churn during Q2 of previous years. For example, if customers finalize budgets in Q1 and churn decisions are executed in Q2.",
+      "reasoning": "Year-over-year comparison is necessary to ensure that any observed Q2 change is not simply a recurring seasonal pattern before attributing it to specific events in the current quarter."
+    }
+  ],
+  "calendar_questions_for_user": [
+    "Can you confirm the exact cutover date for the billing system migration in April? Were there any known data integrity issues or changes to business logic (e.g., how 'churn' is defined) as a result?",
+    "Regarding the reseller partner contract termination, do we know which specific customers were under their management so we can analyze them as a separate cohort?",
+    "Were there any other major product launches, feature deprecations, or marketing campaigns targeting specific tiers in Q2 that might influence retention?",
+    "Is there any known seasonality in our business? Specifically, is Q2 typically a higher or lower churn quarter compared to others?"
+  ],
+  "detected_stakeholder_conflicts": [
+    {
+      "stakeholder_a_view": "VP of Growth: There is a churn problem specific to the Enterprise tier.",
+      "stakeholder_b_view": "CFO: It's a broader pricing problem, and the Enterprise numbers are exaggerated by a mix shift.",
+      "conflict_description": "The stakeholders have competing hypotheses for the same observation. The VP's view implies a segment-specific product or service issue, while the CFO's view suggests a systemic pricing issue and a statistical artifact. The recommended actions would be very different depending on which view is correct.",
+      "add_as_subquestion": true,
+      "resolution_data_needed": "Churn rates segmented by tier and time (pre/post Q2). Cohort analysis of customers renewing after the price change. Analysis of the relative size (% of customers or revenue) of each tier over time (mix shift)."
+    }
+  ],
+  "scope_and_feasibility": {
+    "deadline_stated": "By Friday (4.5 business days)",
+    "deadline_feasibility": "FEASIBLE_WITH_DESCOPING",
+    "feasibility_reasoning": "The 4.5-day deadline is too short to confidently separate the effects of three major confounding events (price change, reseller loss, data migration) and develop robust, data-backed recommendations. The data validation for the billing migration alone is a significant risk.",
+    "descope_proposal": [
+      "By Friday, deliver a descriptive 'What Happened' analysis: churn rates by tier (Q1 vs. Q2), an initial assessment of the reseller cohort's impact, and an answer on mix shift. This will include a clear caveat about the billing migration's potential data impact.",
+      "Defer a deeper causal analysis (e.g., price change impact modeling) and the formal 'What To Do' recommendations to a second phase, allowing for the required rigor.",
+      "The sub-question regarding support ticket volume will be marked as 'unanswerable' due to lack of data."
+    ],
+    "checks_never_skipped": [
+      "known-event confound calendar",
+      "stakeholder conflict surfacing"
+    ]
+  },
+  "specialist_referrals": [
+    {
+      "implied_ask": "Determine if it's a 'pricing problem'",
+      "why_beyond_analyst_scope": "A rigorous analysis of a 'pricing problem' implies calculating price elasticity, which requires advanced econometric models (e.g., difference-in-differences) to isolate the price effect from other simultaneous events. This is typically a data scientist's task.",
+      "referral": "NEEDS_DATA_SCIENTIST",
+      "analyst_level_partial_answer": "An analyst can provide a descriptive before-and-after comparison of churn rates for customers impacted by the price change, which can serve as a strong directional indicator."
+    },
+    {
+      "implied_ask": "Check whether support ticket volume is driving any of this",
+      "why_beyond_analyst_scope": "The user stated no support ticket table is available in the warehouse. Integrating this data from a source system (e.g., Zendesk) requires building a data pipeline, which is a data engineering task.",
+      "referral": "NEEDS_DATA_ENGINEER",
+      "analyst_level_partial_answer": "This question cannot be answered with the currently available data. The first step would be a data engineering project to ingest support data."
+    }
+  ],
+  "knowledge_base_hits": [],
+  "effort_estimate": "Phase 2/3 (Data Extraction/Validation) will be high-effort due to the billing system migration. Phase 5 (Synthesis) will also be high-effort due to the need to construct a narrative that addresses multiple confounds and competing stakeholder views.",
+  "route": "FULL_PIPELINE",
+  "route_reasoning": "The request is complex, with multiple sub-questions, competing stakeholder hypotheses, and significant confounding variables. A quick lookup would be highly likely to misinterpret the data by ignoring the context of the price change, reseller loss, and billing migration. The full pipeline is required to address this complexity with appropriate rigor.",
+  "quick_answer_draft": ""
+}
