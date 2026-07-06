@@ -31,6 +31,78 @@ def _fail(reason: str) -> GateResult:
     return GateResult(passed=False, failure_reason=reason)
 
 
+def gate_phase_0(out: dict, context: dict | None = None) -> GateResult:
+    valid_complexity = {"QUICK_LOOKUP", "STANDARD_ANALYSIS", "DEEP_INVESTIGATION"}
+    if out.get("complexity") not in valid_complexity:
+        return _fail(
+            f"complexity must be one of {sorted(valid_complexity)} "
+            f"(got {out.get('complexity')!r})"
+        )
+    if not (out.get("complexity_reasoning") or "").strip():
+        return _fail("complexity_reasoning is required (audit trail)")
+
+    if "confound_candidates" not in out:
+        return _fail("confound_candidates list is required (may be empty only "
+                     "if calendar_questions_for_user is populated)")
+    candidates = out["confound_candidates"] or []
+    if not candidates and not (out.get("calendar_questions_for_user") or []):
+        return _fail(
+            "the known-event check is never skipped: either document "
+            "confound_candidates or list calendar_questions_for_user to ask"
+        )
+    valid_sources = {"STATED_BY_USER", "KNOWLEDGE_BASE", "TO_ASK_USER"}
+    for i, c in enumerate(candidates):
+        if not (c.get("event") or "").strip():
+            return _fail(f"confound_candidates[{i}].event is required")
+        if c.get("source") not in valid_sources:
+            return _fail(
+                f"confound_candidates[{i}].source must be one of {sorted(valid_sources)}"
+            )
+        if not (c.get("reasoning") or "").strip():
+            return _fail(f"confound_candidates[{i}].reasoning is required")
+
+    if "detected_stakeholder_conflicts" not in out:
+        return _fail("detected_stakeholder_conflicts list is required (may be empty)")
+    for i, conflict in enumerate(out["detected_stakeholder_conflicts"] or []):
+        for key in ("stakeholder_a_view", "stakeholder_b_view"):
+            if not (conflict.get(key) or "").strip():
+                return _fail(f"detected_stakeholder_conflicts[{i}].{key} is required")
+
+    scope = out.get("scope_and_feasibility") or {}
+    if scope.get("deadline_feasibility") not in (
+        "FEASIBLE", "FEASIBLE_WITH_DESCOPING", "INFEASIBLE"
+    ):
+        return _fail(
+            "scope_and_feasibility.deadline_feasibility must be FEASIBLE | "
+            "FEASIBLE_WITH_DESCOPING | INFEASIBLE"
+        )
+    if not (scope.get("feasibility_reasoning") or "").strip():
+        return _fail("scope_and_feasibility.feasibility_reasoning is required")
+    if scope.get("deadline_feasibility") != "FEASIBLE" and not [
+        d for d in (scope.get("descope_proposal") or []) if (d or "").strip()
+    ]:
+        return _fail(
+            "deadline_feasibility != FEASIBLE requires a concrete "
+            "descope_proposal — never silently promise everything"
+        )
+
+    route = out.get("route")
+    if route not in ("SKIP_TO_QUICK_ANSWER", "FULL_PIPELINE"):
+        return _fail("route must be SKIP_TO_QUICK_ANSWER | FULL_PIPELINE")
+    if not (out.get("route_reasoning") or "").strip():
+        return _fail("route_reasoning is required (audit trail)")
+    if route == "SKIP_TO_QUICK_ANSWER":
+        if out.get("complexity") != "QUICK_LOOKUP":
+            return _fail(
+                "route SKIP_TO_QUICK_ANSWER requires complexity QUICK_LOOKUP "
+                f"(got {out.get('complexity')!r})"
+            )
+        if not (out.get("quick_answer_draft") or "").strip():
+            return _fail("route SKIP_TO_QUICK_ANSWER requires a quick_answer_draft")
+
+    return _ok()
+
+
 def gate_phase_1(out: dict, context: dict | None = None) -> GateResult:
     ctx = context or {}
     mission_brief = ctx.get("mission_brief") or {}
@@ -218,6 +290,19 @@ def gate_phase_4(out: dict, context: dict | None = None) -> GateResult:
                 f"hypotheses[{i}].source must be GENERATED_FROM_SUBQUESTION or "
                 f"EMERGENT (got {h.get('source')!r})"
             )
+        # Confirmatory-vs-exploratory split: provenance is mandatory so Phase 5
+        # can guard against double-dipping (testing a hypothesis on the same
+        # data that suggested it).
+        if h.get("provenance") not in ("PRE_REGISTERED", "DATA_DERIVED"):
+            return _fail(
+                f"hypotheses[{i}].provenance must be PRE_REGISTERED or "
+                f"DATA_DERIVED (got {h.get('provenance')!r})"
+            )
+        if h["source"] == "EMERGENT" and h["provenance"] != "DATA_DERIVED":
+            return _fail(
+                f"hypotheses[{i}] is EMERGENT (formed after seeing the data) "
+                "so its provenance must be DATA_DERIVED"
+            )
 
     if not (out.get("univariate_analysis") or []):
         return _fail("univariate_analysis must contain at least one entry")
@@ -309,6 +394,33 @@ def gate_phase_5(out: dict, context: dict | None = None) -> GateResult:
         if not isinstance(effect.get("value"), (int, float)) or isinstance(effect["value"], bool):
             return _fail(f"tests_conducted[{i}].effect_size.value must be a number")
 
+        # Double-dipping guard: DATA_DERIVED hypotheses may only be graded
+        # CONFIRMATORY if a held-out split validated them; otherwise they are
+        # EXPLORATORY and must be presented as such downstream.
+        grade = t.get("evidence_grade")
+        if grade not in ("CONFIRMATORY", "EXPLORATORY"):
+            return _fail(
+                f"tests_conducted[{i}].evidence_grade must be CONFIRMATORY or "
+                f"EXPLORATORY (got {grade!r})"
+            )
+        provenance = t.get("hypothesis_provenance")
+        if provenance not in ("PRE_REGISTERED", "DATA_DERIVED"):
+            return _fail(
+                f"tests_conducted[{i}].hypothesis_provenance must be "
+                f"PRE_REGISTERED or DATA_DERIVED (got {provenance!r})"
+            )
+        holdout = (t.get("holdout_validation") or "NONE").strip()
+        if (
+            provenance == "DATA_DERIVED"
+            and grade == "CONFIRMATORY"
+            and (not holdout or holdout.upper() == "NONE")
+        ):
+            return _fail(
+                f"tests_conducted[{i}] ({hid}) is DATA_DERIVED with no holdout "
+                "validation — it cannot be graded CONFIRMATORY; grade it "
+                "EXPLORATORY or document the held-out split"
+            )
+
     # CLAUDE.md Phase 5 note: multiple-testing correction must be applied when
     # more than 3 hypotheses are tested.
     mtc = out.get("multiple_testing_correction") or {}
@@ -339,6 +451,23 @@ def gate_phase_5(out: dict, context: dict | None = None) -> GateResult:
             "tests_conducted missing hypotheses declared by Phase 4: "
             + ", ".join(untested)
         )
+
+    # Provenance labels must not drift between Phase 4 and Phase 5 — silently
+    # relabelling a DATA_DERIVED hypothesis PRE_REGISTERED defeats the guard.
+    p4_provenance = {
+        h.get("id"): h.get("provenance")
+        for h in (phase4.get("hypotheses") or [])
+        if h.get("provenance")
+    }
+    for t in tests:
+        hid = t.get("hypothesis_id")
+        declared = p4_provenance.get(hid)
+        if declared and t.get("hypothesis_provenance") != declared:
+            return _fail(
+                f"tests_conducted provenance for {hid} "
+                f"({t.get('hypothesis_provenance')!r}) contradicts Phase 4's "
+                f"label ({declared!r})"
+            )
 
     return _ok()
 
@@ -406,10 +535,88 @@ def gate_phase_6(out: dict, context: dict | None = None) -> GateResult:
         if not (a.get("method_reasoning") or "").strip():
             return _fail(f"analyses[{i}].method_reasoning is required (audit trail)")
 
-    # Cross-phase: every Phase 1 P1 sub-question must be addressed either in
-    # analyses or in unanswered_subquestions (CLAUDE.md: "all sub-questions answered").
     ctx = context or {}
     prior = ctx.get("prior_outputs") or {}
+
+    # Systematic confound sweep: every headline finding re-checked across all
+    # available dimensions, and every Phase 0 known-event candidate weighed.
+    sweep = out.get("confound_sweep") or []
+    if not sweep:
+        return _fail(
+            "confound_sweep must not be empty — every headline finding is "
+            "re-run across every available segmenting dimension"
+        )
+    valid_outcomes = {"HOLDS", "ATTENUATES", "DISAPPEARS", "REVERSES"}
+    valid_verdicts = {"ORGANIC", "EVENT_DRIVEN", "MIX_SHIFT", "UNRESOLVED"}
+    phase0 = prior.get(0) or prior.get("0") or prior.get("0.0") or prior.get("phase_0") or {}
+    has_candidates = bool(phase0.get("confound_candidates"))
+    for i, s in enumerate(sweep):
+        if not (s.get("finding_ref") or "").strip():
+            return _fail(f"confound_sweep[{i}].finding_ref is required")
+        dims = s.get("dimensions_swept") or []
+        not_sweepable = s.get("dimensions_not_sweepable") or []
+        if not dims and not not_sweepable:
+            return _fail(
+                f"confound_sweep[{i}] ({s.get('finding_ref')}) swept no "
+                "dimensions and documented no reason — silence reads as "
+                "'checked and clean'"
+            )
+        for j, d in enumerate(dims):
+            if d.get("outcome") not in valid_outcomes:
+                return _fail(
+                    f"confound_sweep[{i}].dimensions_swept[{j}].outcome must "
+                    f"be one of {sorted(valid_outcomes)}"
+                )
+        for j, d in enumerate(not_sweepable):
+            if not (d.get("reason") or "").strip():
+                return _fail(
+                    f"confound_sweep[{i}].dimensions_not_sweepable[{j}].reason "
+                    "is required"
+                )
+        if has_candidates and not (s.get("known_event_check") or []):
+            return _fail(
+                f"confound_sweep[{i}] ({s.get('finding_ref')}) has no "
+                "known_event_check despite Phase 0 confound_candidates — "
+                "every known event must be weighed against every finding"
+            )
+        if s.get("post_sweep_verdict") not in valid_verdicts:
+            return _fail(
+                f"confound_sweep[{i}].post_sweep_verdict must be one of "
+                f"{sorted(valid_verdicts)}"
+            )
+        if not (s.get("reasoning") or "").strip():
+            return _fail(f"confound_sweep[{i}].reasoning is required (audit trail)")
+
+    # Sensitivity analysis: HIGH-impact findings must be tested against the
+    # alternate reasonable choice at each major Phase 3 cleaning decision.
+    high_impact = [r for r in insights if r.get("impact") == "HIGH"]
+    sensitivity = out.get("sensitivity_analysis") or []
+    if high_impact and not sensitivity:
+        return _fail(
+            "sensitivity_analysis must not be empty when HIGH-impact insights "
+            "exist — re-derive each under alternate Phase 3 cleaning choices"
+        )
+    for i, s in enumerate(sensitivity):
+        for key in ("finding_ref", "cleaning_decision_varied", "alternate_choice"):
+            if not (s.get(key) or "").strip():
+                return _fail(f"sensitivity_analysis[{i}].{key} is required")
+        if s.get("robustness") not in ("ROBUST", "FRAGILE"):
+            return _fail(
+                f"sensitivity_analysis[{i}].robustness must be ROBUST or FRAGILE"
+            )
+
+    # External benchmarks may be NONE_AVAILABLE but a quoted value needs a
+    # named source — a benchmark without a source is a fabrication.
+    for i, b in enumerate(out.get("external_benchmarks") or []):
+        value = str(b.get("benchmark_value") or "").strip()
+        if value and value.upper() != "NONE_AVAILABLE" and not (b.get("source") or "").strip():
+            return _fail(
+                f"external_benchmarks[{i}] quotes a value with no source — "
+                "never fabricate a benchmark"
+            )
+
+    # Cross-phase: every Phase 1 P1 sub-question must be addressed either in
+    # analyses or in unanswered_subquestions (CLAUDE.md: "all sub-questions answered").
     phase1 = prior.get(1) or prior.get("1") or prior.get("phase_1") or {}
     p1_ids = [
         sq["id"]
@@ -488,6 +695,65 @@ def gate_phase_7(out: dict, context: dict | None = None) -> GateResult:
     return _ok()
 
 
+def gate_phase_6_5(out: dict, context: dict | None = None) -> GateResult:
+    alts = out.get("alternative_explanations") or []
+    if not alts:
+        return _fail(
+            "alternative_explanations must not be empty — every SUPPORTED "
+            "finding and root cause chain gets its strongest rival explanation"
+        )
+    for i, a in enumerate(alts):
+        for key in ("original_finding", "strongest_alt_explanation",
+                    "evidence_weighed", "reasoning"):
+            if not (a.get(key) or "").strip():
+                return _fail(f"alternative_explanations[{i}].{key} is required")
+        if not isinstance(a.get("original_survives"), bool):
+            return _fail(
+                f"alternative_explanations[{i}].original_survives must be a boolean"
+            )
+
+    verification = out.get("confound_sweep_verification") or {}
+    if "confound_sweep_gaps" not in verification:
+        return _fail(
+            "confound_sweep_verification.confound_sweep_gaps is required "
+            "(may be empty)"
+        )
+
+    for i, f in enumerate(out.get("circular_reasoning_flags") or []):
+        for key in ("phase", "field", "issue"):
+            if not str(f.get(key) or "").strip():
+                return _fail(f"circular_reasoning_flags[{i}].{key} is required")
+
+    overclaims = out.get("overclaim_flags") or []
+    for i, f in enumerate(overclaims):
+        for key in ("finding", "stated_confidence", "corrected_confidence"):
+            if not (f.get(key) or "").strip():
+                return _fail(f"overclaim_flags[{i}].{key} is required")
+
+    verdict = out.get("verdict")
+    if verdict not in ("PROCEED", "PROCEED_WITH_REVISIONS", "BLOCK"):
+        return _fail("verdict must be PROCEED | PROCEED_WITH_REVISIONS | BLOCK")
+    if not (out.get("verdict_reasoning") or "").strip():
+        return _fail("verdict_reasoning is required (audit trail)")
+
+    revisions = [r for r in (out.get("required_revisions") or []) if (r or "").strip()]
+    if verdict in ("PROCEED_WITH_REVISIONS", "BLOCK") and not revisions:
+        return _fail(f"verdict {verdict} requires a non-empty required_revisions list")
+
+    # Anti-rubber-stamp: a review that killed a finding or flagged an
+    # overclaim cannot conclude plain PROCEED with no required changes.
+    killed = [a for a in alts if a.get("original_survives") is False]
+    if verdict == "PROCEED" and (killed or overclaims):
+        return _fail(
+            "verdict PROCEED contradicts the review's own findings "
+            f"({len(killed)} finding(s) did not survive, "
+            f"{len(overclaims)} overclaim flag(s)) — use "
+            "PROCEED_WITH_REVISIONS or BLOCK"
+        )
+
+    return _ok()
+
+
 def gate_phase_8(out: dict, context: dict | None = None) -> GateResult:
     summary = out.get("phase_8_summary") or {}
     if not (summary.get("sub_questions_answered") or []):
@@ -497,19 +763,60 @@ def gate_phase_8(out: dict, context: dict | None = None) -> GateResult:
     return _ok()
 
 
-GATES: dict[int, Callable[[dict, dict | None], GateResult]] = {
+def gate_phase_9(out: dict, context: dict | None = None) -> GateResult:
+    metrics = out.get("success_metrics") or []
+    if not metrics:
+        return _fail(
+            "success_metrics must not be empty — every recommendation gets a "
+            "metric, threshold, and check-in date"
+        )
+    for i, m in enumerate(metrics):
+        for key in ("recommendation_ref", "metric", "cadence", "threshold",
+                    "check_in_date", "reasoning"):
+            if not (m.get(key) or "").strip():
+                return _fail(f"success_metrics[{i}].{key} is required")
+
+    specs = out.get("monitoring_specs") or []
+    if not specs:
+        return _fail(
+            "monitoring_specs must not be empty — every key finding gets a "
+            "drift-alert condition"
+        )
+    for i, s in enumerate(specs):
+        for key in ("finding_ref", "alert_condition", "suggested_tool"):
+            if not (s.get(key) or "").strip():
+                return _fail(f"monitoring_specs[{i}].{key} is required")
+
+    kb = out.get("knowledge_base_entry") or {}
+    for key in ("question", "answer_one_paragraph"):
+        if not (kb.get(key) or "").strip():
+            return _fail(f"knowledge_base_entry.{key} is required")
+    if not (kb.get("data_sources") or []):
+        return _fail("knowledge_base_entry.data_sources must not be empty")
+    if "gotchas_discovered" not in kb:
+        return _fail("knowledge_base_entry.gotchas_discovered is required (may be empty)")
+
+    return _ok()
+
+
+GATES: dict[float, Callable[[dict, dict | None], GateResult]] = {
+    0: gate_phase_0,
     1: gate_phase_1,
     2: gate_phase_2,
     3: gate_phase_3,
     4: gate_phase_4,
     5: gate_phase_5,
     6: gate_phase_6,
+    6.5: gate_phase_6_5,
     7: gate_phase_7,
     8: gate_phase_8,
+    9: gate_phase_9,
 }
 
 
-def check_gate(phase_number: int, output: dict, context: dict | None = None) -> GateResult:
+def check_gate(
+    phase_number: int | float, output: dict, context: dict | None = None
+) -> GateResult:
     if phase_number not in GATES:
         raise KeyError(f"No quality gate defined for phase {phase_number}")
     return GATES[phase_number](output, context)
