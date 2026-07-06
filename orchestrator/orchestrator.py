@@ -1,9 +1,15 @@
 """Master Orchestrator.
 
-Phase-1 scope: builds the mission brief from user inputs, runs Phase 1 with
-retries against its quality gate, maintains the append-only pipeline state
-log, and displays the Phase Transition Card. Other phases are wired through
-the same path but will raise NotImplementedError until their agents land.
+Builds the mission brief from user inputs, routes the 11-phase pipeline
+(0 → 1–6 → 6.5 → 7 → 8 → 9) with retries against each quality gate,
+maintains the append-only pipeline state log, displays Phase Transition
+Cards, and persists Phase 9's knowledge-base entry for future runs.
+
+Special routing:
+  * Phase 0 may triage the request as QUICK_LOOKUP → the pipeline is skipped
+    and a lightweight quick answer is returned instead.
+  * Phase 6.5 (red-team review) may return verdict BLOCK → the pipeline
+    halts and the required revisions are surfaced to the user.
 """
 from __future__ import annotations
 
@@ -27,22 +33,29 @@ from core.pipeline_state import PipelineStateLog  # noqa: E402
 from core.quality_gates import GateResult, check_gate  # noqa: E402
 from core.retry import build_retry_context  # noqa: E402
 
-PHASE_AGENTS: dict[int, tuple[str, str]] = {
+PHASE_AGENTS: dict[float, tuple[str, str]] = {
+    0: ("agents.phase0_triage", "Intake Triage & Context Calendar"),
     1: ("agents.phase1_requirements", "Stakeholder Requirement Gathering"),
     2: ("agents.phase2_extraction", "Data Identification & Extraction"),
     3: ("agents.phase3_cleaning", "Data Quality & Cleaning"),
     4: ("agents.phase4_eda", "Exploratory Data Analysis"),
     5: ("agents.phase5_hypothesis", "Hypothesis Testing & Validation"),
     6: ("agents.phase6_advanced", "Advanced Analysis & Root Cause"),
+    6.5: ("agents.phase65_redteam", "Independent Red-Team Peer Review"),
     7: ("agents.phase7_visualisation", "Visualisation & Dashboard Design"),
     8: ("agents.phase8_reporting", "Storytelling, Reporting & Handoff"),
+    9: ("agents.phase9_monitoring", "Impact Tracking & Monitoring Handoff"),
 }
+
+# Execution order of the full pipeline (phase numbers are sortable, but the
+# canonical order lives here so subsets and "next phase" displays stay honest).
+PHASE_ORDER: list[float] = [0, 1, 2, 3, 4, 5, 6, 6.5, 7, 8, 9]
 
 
 @dataclass
 class OrchestratorResult:
     mission_brief: dict
-    phase_outputs: dict[int, dict] = field(default_factory=dict)
+    phase_outputs: dict[float, dict] = field(default_factory=dict)
     pipeline_state_log: dict = field(default_factory=dict)
     final_report: str | None = None
     blocked_phase: int | None = None
@@ -70,12 +83,15 @@ class DataAnalystOrchestrator:
         # row_loss_pct is in percent (0–100); env value is a fraction.
         self.row_loss_alert_pct = self.row_loss_alert_threshold * 100
         self.verbose = verbose
+        # Institutional memory: Phase 9 appends a knowledge-base entry here at
+        # the end of every run; Phase 0 recalls entries at the start of the next.
+        self.knowledge_dir = Path(os.environ.get("KNOWLEDGE_BASE_DIR", "./knowledge_base"))
         # Optional callback for user-interactive prompts (row-loss confirmation,
         # PARTIAL status acknowledgement). Defaults to interactive stdin/stdout.
         self.user_confirm = _default_user_confirm
         # Per-phase code-execution audit trail (populated for code-capable
         # phases when a real dataset path is supplied).
-        self.execution_transcripts: dict[int, list] = {}
+        self.execution_transcripts: dict[float, list] = {}
 
     # ---------- intake ----------
 
@@ -99,6 +115,9 @@ class DataAnalystOrchestrator:
             "constraints": constraints or {},
             "success_looks_like": success_looks_like,
             "assumptions": assumptions or [],
+            # Phase 0 judges deadline feasibility and Phase 9 computes concrete
+            # check-in dates against this.
+            "run_date": datetime.now(timezone.utc).date().isoformat(),
         }
         # When a real dataset file is supplied, its path travels in the brief so
         # the analytical phases (3–6) can execute pandas against it directly.
@@ -118,9 +137,19 @@ class DataAnalystOrchestrator:
         constraints: dict | None = None,
         success_looks_like: str = "",
         assumptions: list[str] | None = None,
-        phases_to_run: list[int] | None = None,
+        phases_to_run: list[float] | None = None,
         dataset_path: str = "",
+        user_clarifications: list | None = None,
+        resume_outputs: dict[float, dict] | None = None,
     ) -> OrchestratorResult:
+        """Run the pipeline.
+
+        `user_clarifications` carries the user's answers to earlier blockers
+        (context-packet contract item 4) into every phase agent's packet.
+        `resume_outputs` pre-seeds completed phase outputs from a previous
+        (blocked) run so the pipeline can resume mid-way — pass the phases
+        still to run via `phases_to_run`.
+        """
         mission_brief = self.build_mission_brief(
             objective=objective,
             data_source_description=data_source_description,
@@ -135,10 +164,19 @@ class DataAnalystOrchestrator:
         state = PipelineStateLog()
         state.set_mission_brief(mission_brief["mission_brief"])
 
-        phase_outputs: dict[int, dict] = {}
+        phase_outputs: dict[float, dict] = dict(resume_outputs or {})
         result = OrchestratorResult(mission_brief=mission_brief)
+        result.phase_outputs.update(phase_outputs)
 
-        phases = phases_to_run or [1, 2, 3, 4, 5, 6, 7, 8]  # full 8-phase pipeline
+        phases = phases_to_run or list(PHASE_ORDER)  # full 11-phase pipeline
+
+        # Institutional memory from previous runs (persisted by Phase 9).
+        knowledge_base = self._load_knowledge_base()
+        if knowledge_base:
+            self._log(
+                f"↺ Recalled {len(knowledge_base)} knowledge-base entry(ies) "
+                "from previous runs."
+            )
 
         for phase_number in phases:
             try:
@@ -147,6 +185,8 @@ class DataAnalystOrchestrator:
                     mission_brief=mission_brief,
                     phase_outputs=phase_outputs,
                     state=state,
+                    knowledge_base=knowledge_base,
+                    user_clarifications=user_clarifications,
                 )
             except PhaseBlockedError as exc:
                 state.mark_blocked()
@@ -158,6 +198,24 @@ class DataAnalystOrchestrator:
 
             phase_outputs[phase_number] = output
             result.phase_outputs[phase_number] = output
+
+            # Phase 0 may triage the request as a quick lookup — answer it
+            # directly and skip the heavyweight pipeline entirely.
+            if phase_number == 0 and output.get("route") == "SKIP_TO_QUICK_ANSWER":
+                self._log(
+                    "\n▶ Phase 0 triaged this request as QUICK_LOOKUP — "
+                    "answering directly, skipping the full pipeline."
+                )
+                result.final_report = self._run_quick_answer(mission_brief, output)
+                state.mark_complete()
+                result.pipeline_state_log = state.to_dict()
+                self._persist(state, phase_outputs, quick_answer=result.final_report)
+                return result
+
+            # Phase 9's knowledge-base entry is institutional memory — persist
+            # it so the next run on a related question starts from it.
+            if phase_number == 9:
+                self._persist_knowledge_entry(output, mission_brief)
 
         # Phase 8's deliverable is the Markdown report — surface it on the result.
         if 8 in phase_outputs:
@@ -175,10 +233,12 @@ class DataAnalystOrchestrator:
     def _run_phase(
         self,
         *,
-        phase_number: int,
+        phase_number: float,
         mission_brief: dict,
-        phase_outputs: dict[int, dict],
+        phase_outputs: dict[float, dict],
         state: PipelineStateLog,
+        knowledge_base: list | None = None,
+        user_clarifications: list | None = None,
     ) -> dict:
         module_name, phase_name = PHASE_AGENTS[phase_number]
         agent_module = import_module(module_name)
@@ -203,6 +263,8 @@ class DataAnalystOrchestrator:
                 prior_outputs=phase_outputs,
                 pipeline_state=state.to_dict()["pipeline_state"],
                 retry_context=retry_context,
+                knowledge_base=knowledge_base,
+                user_clarifications=user_clarifications,
             )
 
             try:
@@ -258,6 +320,31 @@ class DataAnalystOrchestrator:
             last_gate = gate
 
             if gate.passed and status != "NEEDS_RETRY":
+                # Phase 6.5 red-team BLOCK verdict: the reviewer's output is
+                # valid (gate passed) but its judgment is that the analysis
+                # must not reach a stakeholder — halt and surface the required
+                # changes rather than advancing to Phase 7.
+                if phase_number == 6.5 and output.get("verdict") == "BLOCK":
+                    revisions = [
+                        r for r in (output.get("required_revisions") or [])
+                        if (r or "").strip()
+                    ]
+                    reason = (
+                        "Red-team review BLOCKED the analysis. Required changes: "
+                        + ("; ".join(revisions) if revisions else "(none listed)")
+                    )
+                    state.append_phase(
+                        phase_number=phase_number,
+                        phase_name=phase_name,
+                        status="FAILED",
+                        key_decisions=_extract_key_decisions(phase_number, output),
+                        reasoning_summary=output.get("verdict_reasoning") or "",
+                        output_summary=reason,
+                        quality_gate_passed=True,
+                        failure_reason="RED_TEAM_BLOCK",
+                    )
+                    raise PhaseBlockedError(f"Phase 6.5: {reason}")
+
                 # Per CLAUDE.md Phase 3 note: row loss >20% would already fail
                 # the gate, but any row loss above the alert threshold (default
                 # 10%) deserves an explicit user confirmation before advancing,
@@ -353,7 +440,7 @@ class DataAnalystOrchestrator:
     ) -> None:
         if not self.verbose:
             return
-        next_phase = phase_number + 1
+        next_phase = _next_in_order(phase_number)
         next_name = PHASE_AGENTS.get(next_phase, ("", "— END"))[1]
         decisions = _extract_key_decisions(phase_number, output)
         what = _extract_reasoning_summary(phase_number, output)
@@ -376,19 +463,91 @@ class DataAnalystOrchestrator:
         for w in warnings:
             print(f"\n{w}")
         print(f"\nQUALITY GATE: ✓ PASSED")
-        if next_phase in PHASE_AGENTS:
-            print(f"\nADVANCING TO: Phase {next_phase} — {next_name}")
+        if next_phase is not None:
+            print(f"\nADVANCING TO: Phase {_fmt_phase(next_phase)} — {next_name}")
         else:
             print("\nPIPELINE COMPLETE — no further phases.")
         print(bar)
 
+    # ---------- quick-answer route (Phase 0 QUICK_LOOKUP) ----------
+
+    def _run_quick_answer(self, mission_brief: dict, phase0_output: dict) -> str:
+        """Answer a QUICK_LOOKUP request directly from Phase 0's triage draft."""
+        from core.llm_client import call_llm
+
+        system = (
+            "You are a senior data analyst answering a quick-lookup question. "
+            "The triage agent classified this request as QUICK_LOOKUP and "
+            "drafted an answer. Polish it into a short, direct stakeholder "
+            "reply in Markdown (under 300 words): the answer or the exact "
+            "query to run, any assumption made, and one line on what would "
+            "warrant the full analysis pipeline instead. Never invent data "
+            "values — if the answer requires running a query, give the query "
+            "and say so."
+        )
+        user = json.dumps(
+            {
+                "mission_brief": mission_brief.get("mission_brief", mission_brief),
+                "phase_0_triage": phase0_output,
+            },
+            indent=2,
+            default=str,
+        )
+        return call_llm(system, user, json_output=False).text
+
+    # ---------- institutional memory (Phase 9 → Phase 0) ----------
+
+    def _load_knowledge_base(self, limit: int = 25) -> list[dict]:
+        """Load knowledge-base entries persisted by Phase 9 in previous runs.
+
+        Returns the most recent `limit` entries (newest last). Unparseable
+        lines are skipped — memory should never block a run.
+        """
+        path = self.knowledge_dir / "entries.jsonl"
+        if not path.exists():
+            return []
+        entries: list[dict] = []
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entries.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+        return entries[-limit:]
+
+    def _persist_knowledge_entry(self, phase9_output: dict, mission_brief: dict) -> None:
+        entry = phase9_output.get("knowledge_base_entry")
+        if not isinstance(entry, dict) or not entry:
+            return
+        record = dict(entry)
+        record["recorded_at"] = datetime.now(timezone.utc).isoformat()
+        brief = mission_brief.get("mission_brief", mission_brief)
+        record.setdefault("objective", brief.get("objective", ""))
+        path = self.knowledge_dir / "entries.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record, default=str) + "\n")
+        self._log(f"  ⚙ Knowledge-base entry persisted to {path}")
+
     # ---------- persistence ----------
 
-    def _persist(self, state: PipelineStateLog, phase_outputs: dict[int, dict]) -> None:
+    def _persist(
+        self,
+        state: PipelineStateLog,
+        phase_outputs: dict[float, dict],
+        *,
+        quick_answer: str | None = None,
+    ) -> None:
         ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         state.save(self.log_dir / f"pipeline_state_{ts}.json")
+        if quick_answer:
+            qa_path = self.output_dir / f"quick_answer_{ts}.md"
+            qa_path.parent.mkdir(parents=True, exist_ok=True)
+            qa_path.write_text(quick_answer, encoding="utf-8")
         for phase, out in phase_outputs.items():
-            path = self.output_dir / f"phase{phase}_output_{ts}.json"
+            path = self.output_dir / f"phase{_fmt_phase(phase)}_output_{ts}.json"
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
             # Phase 8 also carries the final Markdown report — write it as .md
@@ -398,7 +557,7 @@ class DataAnalystOrchestrator:
                 md_path.write_text(str(out["final_report"]), encoding="utf-8")
         # Persist the executed-code audit trail for any code-capable phases.
         for phase, transcript in self.execution_transcripts.items():
-            tpath = self.output_dir / f"phase{phase}_transcript_{ts}.json"
+            tpath = self.output_dir / f"phase{_fmt_phase(phase)}_transcript_{ts}.json"
             tpath.parent.mkdir(parents=True, exist_ok=True)
             tpath.write_text(
                 json.dumps(transcript, indent=2, default=str), encoding="utf-8"
@@ -410,6 +569,24 @@ class DataAnalystOrchestrator:
 
 
 # ---------- helpers ----------
+
+
+def _fmt_phase(phase_number: float) -> str:
+    """Render a phase number for display/filenames: 6 → '6', 6.5 → '6.5'."""
+    if isinstance(phase_number, float) and phase_number.is_integer():
+        return str(int(phase_number))
+    return str(phase_number)
+
+
+def _next_in_order(phase_number: float) -> float | None:
+    """The phase that follows `phase_number` in the canonical pipeline order."""
+    try:
+        idx = PHASE_ORDER.index(phase_number)
+    except ValueError:
+        return None
+    if idx + 1 < len(PHASE_ORDER):
+        return PHASE_ORDER[idx + 1]
+    return None
 
 
 class PhaseBlockedError(RuntimeError):
@@ -429,7 +606,76 @@ def _default_user_confirm(question: str) -> bool:
     return answer in {"y", "yes"}
 
 
-def _extract_key_decisions(phase_number: int, output: dict) -> list[str]:
+def _extract_key_decisions(phase_number: float, output: dict) -> list[str]:
+    if phase_number == 0:
+        decisions: list[str] = []
+        if output.get("complexity"):
+            decisions.append(
+                f"Triaged request as {output['complexity']} → route {output.get('route', '?')}"
+            )
+        candidates = output.get("confound_candidates") or []
+        if candidates:
+            decisions.append(
+                f"Confound calendar: {len(candidates)} known event(s) — "
+                + ", ".join(c.get("event", "?") for c in candidates[:3])
+            )
+        conflicts = output.get("detected_stakeholder_conflicts") or []
+        if conflicts:
+            decisions.append(
+                f"Surfaced {len(conflicts)} stakeholder conflict(s) to resolve with data"
+            )
+        scope = output.get("scope_and_feasibility") or {}
+        if scope.get("deadline_feasibility"):
+            decisions.append(
+                f"Deadline judged {scope['deadline_feasibility']}"
+                + (
+                    f" with {len(scope.get('descope_proposal') or [])} descope item(s)"
+                    if scope.get("deadline_feasibility") != "FEASIBLE"
+                    else ""
+                )
+            )
+        referrals = [
+            r for r in (output.get("specialist_referrals") or [])
+            if r.get("referral") and r.get("referral") != "NONE"
+        ]
+        if referrals:
+            decisions.append(
+                f"{len(referrals)} specialist referral(s): "
+                + ", ".join(r.get("referral", "?") for r in referrals)
+            )
+        return decisions
+    if phase_number == 6.5:
+        decisions = []
+        alts = output.get("alternative_explanations") or []
+        killed = [a for a in alts if a.get("original_survives") is False]
+        decisions.append(
+            f"Audited {len(alts)} finding(s) against rival explanations; "
+            f"{len(killed)} did NOT survive"
+        )
+        overclaims = output.get("overclaim_flags") or []
+        if overclaims:
+            decisions.append(f"Flagged {len(overclaims)} overclaim(s)")
+        circular = output.get("circular_reasoning_flags") or []
+        if circular:
+            decisions.append(f"Flagged {len(circular)} circular-reasoning field(s)")
+        gaps = (output.get("confound_sweep_verification") or {}).get("confound_sweep_gaps") or []
+        if gaps:
+            decisions.append(f"Found {len(gaps)} confound-sweep gap(s)")
+        decisions.append(f"Verdict: {output.get('verdict', '?')}")
+        return decisions
+    if phase_number == 9:
+        decisions = []
+        metrics = output.get("success_metrics") or []
+        decisions.append(f"Instrumented {len(metrics)} success metric(s) with check-in dates")
+        specs = output.get("monitoring_specs") or []
+        decisions.append(f"Defined {len(specs)} drift-alert condition(s)")
+        kb = output.get("knowledge_base_entry") or {}
+        gotchas = kb.get("gotchas_discovered") or []
+        if kb:
+            decisions.append(
+                f"Knowledge-base entry recorded ({len(gotchas)} gotcha(s) for future runs)"
+            )
+        return decisions
     if phase_number == 1:
         decisions: list[str] = []
         cls = output.get("analysis_classification") or {}
@@ -638,13 +884,32 @@ def _extract_key_decisions(phase_number: int, output: dict) -> list[str]:
         failed = summary.get("quality_gate_checks_failed")
         if passed is not None or failed is not None:
             decisions.append(
-                f"9-point self-check: {passed} passed / {failed} failed"
+                f"Self-check gate: {passed} passed / {failed} failed"
             )
         return decisions
     return []
 
 
-def _extract_reasoning_summary(phase_number: int, output: dict) -> str:
+def _extract_reasoning_summary(phase_number: float, output: dict) -> str:
+    if phase_number == 0:
+        return (
+            output.get("complexity_reasoning")
+            or output.get("route_reasoning")
+            or "Phase 0 triaged the request and built the known-event confound calendar."
+        )
+    if phase_number == 6.5:
+        return (
+            output.get("verdict_reasoning")
+            or "Phase 6.5 adversarially reviewed Phases 4-6 before stakeholder delivery."
+        )
+    if phase_number == 9:
+        metrics = output.get("success_metrics") or []
+        if metrics and metrics[0].get("reasoning"):
+            return metrics[0]["reasoning"]
+        return (
+            "Phase 9 instrumented recommendations with success metrics, drift "
+            "alerts, and a knowledge-base entry."
+        )
     if phase_number == 1:
         decoding = output.get("stakeholder_decoding") or {}
         return (
@@ -714,7 +979,33 @@ def _extract_reasoning_summary(phase_number: int, output: dict) -> str:
     return ""
 
 
-def _extract_output_summary(phase_number: int, output: dict) -> str:
+def _extract_output_summary(phase_number: float, output: dict) -> str:
+    if phase_number == 0:
+        candidates = output.get("confound_candidates") or []
+        conflicts = output.get("detected_stakeholder_conflicts") or []
+        return (
+            f"Complexity {output.get('complexity', '?')}, route "
+            f"{output.get('route', '?')}. {len(candidates)} confound "
+            f"candidate(s), {len(conflicts)} stakeholder conflict(s), "
+            f"effort: {str(output.get('effort_estimate') or '')[:120]}"
+        )
+    if phase_number == 6.5:
+        alts = output.get("alternative_explanations") or []
+        survived = sum(1 for a in alts if a.get("original_survives"))
+        return (
+            f"Verdict {output.get('verdict', '?')}: {survived}/{len(alts)} "
+            f"finding(s) survived adversarial review, "
+            f"{len(output.get('overclaim_flags') or [])} overclaim(s), "
+            f"{len(output.get('required_revisions') or [])} required revision(s)."
+        )
+    if phase_number == 9:
+        kb = output.get("knowledge_base_entry") or {}
+        return (
+            f"{len(output.get('success_metrics') or [])} success metric(s), "
+            f"{len(output.get('monitoring_specs') or [])} monitoring spec(s), "
+            f"knowledge-base entry with {len(kb.get('gotchas_discovered') or [])} "
+            "gotcha(s) persisted for future runs."
+        )
     if phase_number == 1:
         sq = output.get("sub_questions") or []
         success = output.get("success_definition") or ""
@@ -798,9 +1089,51 @@ def _extract_output_summary(phase_number: int, output: dict) -> str:
     return ""
 
 
-def _extract_warnings(phase_number: int, output: dict) -> list[str]:
+def _extract_warnings(phase_number: float, output: dict) -> list[str]:
     """Per-phase user-visible warnings displayed in the transition card."""
     warnings: list[str] = []
+    if phase_number == 0:
+        scope = output.get("scope_and_feasibility") or {}
+        feasibility = scope.get("deadline_feasibility")
+        if feasibility in ("FEASIBLE_WITH_DESCOPING", "INFEASIBLE"):
+            proposal = "; ".join(
+                d for d in (scope.get("descope_proposal") or []) if d
+            )[:300]
+            warnings.append(
+                f"⚠ DEADLINE {feasibility}: {scope.get('feasibility_reasoning', '')[:200]}"
+                + (f" — proposed descope: {proposal}" if proposal else "")
+            )
+        for c in output.get("detected_stakeholder_conflicts") or []:
+            warnings.append(
+                "⚠ STAKEHOLDER CONFLICT to resolve with data: "
+                f"{c.get('stakeholder_a_view', '?')[:100]} vs "
+                f"{c.get('stakeholder_b_view', '?')[:100]}"
+            )
+        for r in output.get("specialist_referrals") or []:
+            if r.get("referral") and r["referral"] != "NONE":
+                warnings.append(
+                    f"⚠ {r['referral']}: {r.get('implied_ask', '?')[:120]} — "
+                    f"analyst-level partial: {r.get('analyst_level_partial_answer', '')[:150]}"
+                )
+    if phase_number == 6.5:
+        for a in output.get("alternative_explanations") or []:
+            if a.get("original_survives") is False:
+                warnings.append(
+                    f"⚠ RED-TEAM KILLED: {a.get('original_finding', '?')[:120]} — "
+                    f"better explanation: {a.get('strongest_alt_explanation', '')[:150]}"
+                )
+        for f in output.get("overclaim_flags") or []:
+            warnings.append(
+                f"⚠ OVERCLAIM: {f.get('finding', '?')[:100]} stated "
+                f"{f.get('stated_confidence', '?')} → corrected "
+                f"{f.get('corrected_confidence', '?')}"
+            )
+        if output.get("verdict") == "PROCEED_WITH_REVISIONS":
+            revisions = output.get("required_revisions") or []
+            warnings.append(
+                "⚠ PROCEED_WITH_REVISIONS — Phases 7/8 must apply: "
+                + "; ".join(str(r) for r in revisions[:5])
+            )
     if phase_number == 2:
         # CLAUDE.md Phase 2 note: INFERRED schemas must surface a warning.
         inferred = [
@@ -955,8 +1288,11 @@ def _build_cli_parser() -> argparse.ArgumentParser:
     p.add_argument("--privacy", default="", help="Data sensitivity flags")
     p.add_argument(
         "--phases",
-        default="1,2,3,4,5,6,7,8",
-        help="Comma-separated phase numbers to run (default: 1,2,3,4,5,6,7,8)",
+        default="0,1,2,3,4,5,6,6.5,7,8,9",
+        help=(
+            "Comma-separated phase numbers to run "
+            "(default: 0,1,2,3,4,5,6,6.5,7,8,9)"
+        ),
     )
     p.add_argument("--quiet", action="store_true", help="Suppress transition cards")
     return p
@@ -964,7 +1300,11 @@ def _build_cli_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_cli_parser().parse_args(argv)
-    phases = [int(x) for x in args.phases.split(",") if x.strip()]
+    phases = [
+        float(x) if "." in x else int(x)
+        for x in args.phases.split(",")
+        if x.strip()
+    ]
     constraints = {
         "time": args.time_constraint,
         "tools": args.tools,
