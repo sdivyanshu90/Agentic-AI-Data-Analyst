@@ -1,0 +1,158 @@
+{
+  "phase": 1,
+  "phase_name": "Stakeholder Requirement Gathering",
+  "status": "COMPLETE",
+  "clarification_needed": null,
+  "stakeholder_decoding": {
+    "stated_problem": "Identify the top drivers of customer churn and recommend the two or three highest-leverage, cost-effective interventions to reduce it.",
+    "implied_business_problem": "The business is losing customers and revenue but lacks a clear, data-driven strategy for where to focus retention efforts to be most effective.",
+    "root_question": "Which customer segments, service configurations, and contract terms are most strongly associated with a customer leaving, so we can prioritize our retention initiatives?",
+    "gap_analysis": "There is a gap between the stakeholder's request for causal 'drivers' and 'cost-effective interventions' and what can be delivered from this dataset. The analysis can identify strong statistical correlations, not prove causation. Furthermore, the dataset lacks any financial data, making a 'cost-effectiveness' or ROI analysis impossible. The plan will address this by delivering a ranked list of the strongest *predictors* of churn and proposing intervention *hypotheses*.",
+    "reasoning": "The user's language ('drivers', 'cost-effective') implies a desire for causal and financial analysis. The available data and standard analytical techniques can only robustly provide correlational insights. This decoding adjusts the scope to what is feasible and valuable while acknowledging the limitations."
+  },
+  "analysis_classification": {
+    "types": [
+      "Descriptive",
+      "Diagnostic",
+      "Prescriptive"
+    ],
+    "reasoning": "The analysis will be primarily **Descriptive** (calculating churn rates for different segments) and **Diagnostic** (using a statistical model to identify the strongest predictors, i.e., 'drivers'). It will also be lightly **Prescriptive** by translating the diagnostic findings into recommended intervention hypotheses for the business to consider, acknowledging the scope limitations on proving causality or cost-effectiveness."
+  },
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "question": "What is the overall churn rate, and how does it vary across key demographic segments (SeniorCitizen, Partner, Dependents)?",
+      "priority": "P1",
+      "reasoning": "This establishes a baseline and explores fundamental customer characteristics. It's a foundational descriptive question."
+    },
+    {
+      "id": "SQ2",
+      "question": "How does churn rate differ based on contract type, payment method, and billing preference?",
+      "priority": "P1",
+      "reasoning": "These are key business-controlled levers. Understanding their relationship with churn is critical for actionable recommendations like promoting longer contracts."
+    },
+    {
+      "id": "SQ3",
+      "question": "What is the relationship between customer tenure, monthly charges, and churn?",
+      "priority": "P1",
+      "reasoning": "Tenure and price are classic drivers of loyalty and churn. Quantifying this relationship is essential for any churn analysis."
+    },
+    {
+      "id": "SQ4",
+      "question": "Which specific internet and phone services (or lack thereof) and add-ons (e.g., Online Security, Tech Support) are associated with the highest and lowest churn rates?",
+      "priority": "P1",
+      "reasoning": "This question addresses the product and service aspect, identifying which offerings might be creating friction or loyalty."
+    },
+    {
+      "id": "SQ5",
+      "question": "Using a statistical model, what is the ranked order of features that are the strongest predictors of churn?",
+      "priority": "P1",
+      "reasoning": "This is the core diagnostic question that directly addresses the stakeholder's request to identify the 'top drivers' in a quantifiable way, moving beyond simple bivariate analysis."
+    },
+    {
+      "id": "SQ6",
+      "question": "Are there specific customer profiles (e.g., senior citizens with fiber optic on a month-to-month contract) that have exceptionally high churn risk?",
+      "priority": "P2",
+      "reasoning": "This explores interaction effects between top predictors, which can uncover high-risk niches for targeted interventions. It's a valuable but secondary analysis after identifying main effects."
+    },
+    {
+      "id": "SQ7",
+      "question": "Based on the strongest predictors identified, what are 2-3 specific, actionable intervention hypotheses?",
+      "priority": "P2",
+      "reasoning": "This directly translates the analytical findings into business actions, fulfilling the prescriptive part of the request within the defined scope."
+    }
+  ],
+  "kpis": [
+    {
+      "sub_question_id": "SQ1",
+      "metric_name": "Churn Rate by Demographic Segment",
+      "calculation_logic": "(COUNT(customers in segment with Churn='Yes') / COUNT(total customers in segment)) * 100",
+      "time_window": "N/A (Cross-sectional)",
+      "comparison_baseline": "Overall churn rate (26.5%) and churn rates of other segments within the same category."
+    },
+    {
+      "sub_question_id": "SQ2",
+      "metric_name": "Churn Rate by Contract/Payment/Billing",
+      "calculation_logic": "(COUNT(customers in segment with Churn='Yes') / COUNT(total customers in segment)) * 100",
+      "time_window": "N/A (Cross-sectional)",
+      "comparison_baseline": "Overall churn rate and churn rates of other segments within the same category (e.g., 'Month-to-month' vs. 'Two year')."
+    },
+    {
+      "sub_question_id": "SQ3",
+      "metric_name": "Churn Rate by Tenure/Charge Bins",
+      "calculation_logic": "For binned numerical features: (COUNT(customers in bin with Churn='Yes') / COUNT(total customers in bin)) * 100",
+      "time_window": "N/A (Cross-sectional)",
+      "comparison_baseline": "Churn rates across different bins to identify trends (e.g., does churn decrease as tenure increases?)."
+    },
+    {
+      "sub_question_id": "SQ4",
+      "metric_name": "Churn Rate by Service/Add-on",
+      "calculation_logic": "(COUNT(customers with service and Churn='Yes') / COUNT(total customers with service)) * 100",
+      "time_window": "N/A (Cross-sectional)",
+      "comparison_baseline": "Overall churn rate and churn rates for customers without the service or with alternative services."
+    },
+    {
+      "sub_question_id": "SQ5",
+      "metric_name": "Feature Importance (Odds Ratio)",
+      "calculation_logic": "Exponentiated coefficient from a trained logistic regression model for each feature. An odds ratio > 1 indicates increased odds of churn, < 1 indicates decreased odds.",
+      "time_window": "N/A (Cross-sectional)",
+      "comparison_baseline": "Comparison of odds ratios and their statistical significance across all features to create a ranked list of predictors."
+    }
+  ],
+  "stakeholder_profile": {
+    "primary_audience": "Customer Retention / Marketing leadership",
+    "technical_tolerance": "Medium",
+    "output_format": "Slide Deck / Report",
+    "decision_to_be_made": "Which specific customer segments or product features to target with retention campaigns and initiatives in the next planning cycle."
+  },
+  "scope_flags": [
+    {
+      "flag": "Request to determine 'cost-effective' interventions.",
+      "type": "MISSING_DATA",
+      "decision": "PROCEED_WITH_CAVEAT",
+      "reasoning": "The dataset contains no financial data (e.g., customer lifetime value, cost to serve, cost of interventions). Therefore, ROI or cost-effectiveness cannot be calculated. The analysis will focus on identifying high-impact predictors, with the business needing to layer on cost information separately."
+    },
+    {
+      "flag": "Request to identify churn 'drivers'.",
+      "type": "NEEDS_DATA_SCIENTIST",
+      "decision": "PROCEED_WITH_CAVEAT",
+      "reasoning": "This analysis can identify strong statistical predictors/correlations, but proving causal 'drivers' requires experimental design (A/B testing) or advanced causal inference techniques. The deliverable will be framed as 'top predictors' to manage expectations."
+    }
+  ],
+  "success_definition": "This analysis is successful when Retention/Marketing leadership can clearly articulate the top 3 customer characteristics most strongly correlated with churn, and uses these findings to launch at least two targeted retention campaigns or product improvement initiatives.",
+  "assumptions_log": [
+    {
+      "id": "A1",
+      "assumption": "The provided dataset is a representative sample of the overall customer base."
+    },
+    {
+      "id": "A2",
+      "assumption": "The 'Churn' column represents voluntary customer attrition, not involuntary churn (e.g., for non-payment)."
+    },
+    {
+      "id": "A3",
+      "assumption": "The data snapshot is recent enough to inform current business decisions."
+    },
+    {
+      "id": "A4",
+      "assumption": "The term 'drivers' is understood to mean 'strongest statistical predictors' for the purpose of this analysis."
+    },
+    {
+      "id": "A5",
+      "assumption": "Recommendations on 'highest-leverage' interventions will be based on the statistical strength of predictors, not a formal cost-benefit analysis."
+    },
+    {
+      "id": "A6",
+      "assumption": "The 'TotalCharges' column can be reliably converted to a numeric type, and any resulting missing values (e.g., for customers with 0 tenure) can be handled appropriately without introducing significant bias."
+    }
+  ],
+  "downstream_phase_goals": {
+    "phase_2_goal": "Clean the dataset, coerce 'TotalCharges' to numeric handling errors, and encode categorical variables for modeling.",
+    "phase_3_goal": "Create visualizations to compare churn rates across all key segments and answer descriptive sub-questions SQ1-SQ4.",
+    "phase_4_goal": "Build and validate a logistic regression model to identify statistically significant predictors of churn and rank them by importance to answer SQ5.",
+    "phase_5_goal": "Translate model coefficients into business-friendly odds ratios, identify high-risk customer profiles, and formulate 2-3 intervention hypotheses.",
+    "phase_6_goal": "Verify that churn rate calculations are correct, the model's performance is sound, and the ranking of predictors is robust.",
+    "phase_7_goal": "Generate the key charts (e.g., bar charts of churn by segment) and tables (e.g., ranked list of churn predictors) for the final report.",
+    "phase_8_goal": "Assemble findings into a slide deck for marketing leadership, focusing on a clear narrative from top predictors to actionable recommendations."
+  }
+}
