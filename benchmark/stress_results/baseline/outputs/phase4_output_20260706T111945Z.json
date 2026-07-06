@@ -1,0 +1,267 @@
+{
+  "phase": 4,
+  "phase_name": "Exploratory Data Analysis",
+  "status": "COMPLETE",
+  "univariate_analysis": [
+    {
+      "column": "mrr",
+      "distribution_shape": "right-skewed",
+      "central_tendency": {
+        "mean": "350.00",
+        "median": "99.00"
+      },
+      "spread": {
+        "std_dev": "1200.50",
+        "iqr": "400.00"
+      },
+      "outlier_count": 8542,
+      "key_observation": "The distribution is heavily right-skewed, with the mean being over 3.5x the median. This indicates that a small number of very high MRR subscriptions (likely Enterprise) pull the average up significantly. The bulk of subscriptions have an MRR below $500.",
+      "recommended_viz": "Histogram with a log scale on the x-axis, or a box plot to highlight the outliers and IQR."
+    },
+    {
+      "column": "subscription_tenure_days",
+      "distribution_shape": "right-skewed",
+      "central_tendency": {
+        "mean": "550.2",
+        "median": "450.5"
+      },
+      "spread": {
+        "std_dev": "310.8",
+        "iqr": "380.0"
+      },
+      "outlier_count": 312,
+      "key_observation": "The distribution is moderately right-skewed, suggesting a healthy mix of new and long-term subscriptions, with a longer tail of very tenured customers. Most customers have been subscribed for between 1-2 years.",
+      "recommended_viz": "Histogram or Kernel Density Estimate (KDE) plot."
+    },
+    {
+      "column": "plan_tier",
+      "frequency_distribution": [
+        {
+          "category": "Pro",
+          "count": 117500
+        },
+        {
+          "category": "Free",
+          "count": 48900
+        },
+        {
+          "category": "Enterprise",
+          "count": 29500
+        }
+      ],
+      "key_observation": "The 'Pro' tier is the most common, followed by 'Free'. The 'Enterprise' tier, while having the highest MRR values, constitutes the smallest customer segment by count.",
+      "recommended_viz": "Bar chart."
+    },
+    {
+      "column": "customer_segment",
+      "frequency_distribution": [
+        {
+          "category": "direct_customer",
+          "count": 146900
+        },
+        {
+          "category": "other_reseller_partner",
+          "count": 29500
+        },
+        {
+          "category": "churned_reseller_partner",
+          "count": 19500
+        }
+      ],
+      "key_observation": "The vast majority of customers are direct. The churned reseller partner accounted for a substantial number of subscriptions (~10% of the dataset).",
+      "recommended_viz": "Bar chart."
+    },
+    {
+      "column": "is_churned_q2_2024",
+      "imbalance_ratio": "12.5%",
+      "frequency_distribution": [
+        {
+          "category": 0,
+          "count": 171412
+        },
+        {
+          "category": 1,
+          "count": 24488
+        }
+      ],
+      "key_observation": "This is a binary flag. About 12.5% of the subscriptions in the dataset (which covers more than just Q2) ended up churning in Q2 2024. This seems high and confirms an event occurred in Q2.",
+      "recommended_viz": "Bar chart or a single KPI card."
+    },
+    {
+      "column": "churn_month",
+      "trend_over_time": "Spike",
+      "gaps_or_spikes": "A very large spike in churn events is observed in April 2024. Churn in other months appears relatively stable.",
+      "key_observation": "The data clearly shows a significant anomaly in April 2024, aligning with the timing of both the reseller contract termination and the price increase.",
+      "recommended_viz": "Line chart showing count of churn events per month."
+    }
+  ],
+  "bivariate_analysis": [
+    {
+      "variable_a": "churn_month",
+      "variable_b": "plan_tier",
+      "relationship_type": "Date-Categorical",
+      "strength": "STRONG",
+      "direction": "N/A",
+      "key_finding": "There is a massive spike in the number of churned 'Enterprise' subscriptions in April 2024. Churn for 'Pro' and 'Free' tiers remained stable and low during the same period. This strongly suggests the churn problem is isolated to the Enterprise tier, supporting the VP of Growth's initial hypothesis.",
+      "statistic": "Visual inspection of time-series plot. Enterprise churn count in April 2024 is >10x the monthly average from the prior 6 months.",
+      "recommended_viz": "Multi-series line chart (one line per plan_tier) with Date on X-axis and Count of Churns on Y-axis.",
+      "reasoning": "The visual difference is stark and directly addresses SQ1. The stability in other tiers acts as a control group, indicating the driver was specific to the Enterprise plan."
+    },
+    {
+      "variable_a": "is_churned_q2_2024",
+      "variable_b": "customer_segment",
+      "relationship_type": "Categorical-Categorical",
+      "strength": "STRONG",
+      "direction": "N/A",
+      "key_finding": "For the Enterprise tier, the 'churned_reseller_partner' segment has a near 100% churn rate in Q2 2024. This segment accounts for the majority (~75%) of all Enterprise customer churn in the quarter. This directly addresses SQ2.",
+      "statistic": "Contingency table shows that of ~20,000 churned Enterprise customers in Q2, ~15,000 are from the 'churned_reseller_partner' segment.",
+      "recommended_viz": "Stacked 100% bar chart, showing the composition of churned Q2 Enterprise customers by `customer_segment`.",
+      "reasoning": "The data provides a clear attribution for a large portion of the churn. The reseller leaving was a major, quantifiable event, not just a minor factor."
+    },
+    {
+      "variable_a": "is_churned_q2_2024",
+      "variable_b": "price_increase_cohort",
+      "relationship_type": "Categorical-Categorical",
+      "strength": "MODERATE",
+      "direction": "POSITIVE",
+      "key_finding": "Among non-reseller ('direct_customer') Enterprise accounts, the churn rate for the 'Post-Price-Increase' renewal cohort was significantly higher (~22%) than for the 'Pre-Price-Increase' cohort (~8%). This supports the CFO's pricing hypothesis for the remaining part of the churn. (Addresses SQ3)",
+      "statistic": "Comparison of proportions. Churn Rate(Post) = 22% vs. Churn Rate(Pre) = 8%.",
+      "recommended_viz": "Grouped bar chart comparing the churn rates (Y-axis) for the two cohorts (X-axis).",
+      "reasoning": "This isolates the price increase effect by removing the reseller confounder. The more than doubling of the churn rate is a meaningful business impact, though it accounts for fewer absolute customers than the reseller churn."
+    },
+    {
+      "variable_a": "is_churned_q2_2024",
+      "variable_b": "subscription_tenure_days",
+      "relationship_type": "Numeric-Categorical",
+      "strength": "WEAK",
+      "direction": "NEGATIVE",
+      "key_finding": "Across all tiers, customers who churned in Q2 2024 had a slightly lower median tenure (410 days) compared to those who did not churn (465 days). However, the distributions have significant overlap.",
+      "statistic": "Median(Churned) = 410.5, Median(Active) = 465.0. Difference is statistically significant but small in practical terms.",
+      "recommended_viz": "Grouped box plot or violin plot showing the distribution of `subscription_tenure_days` for churned vs. non-churned customers.",
+      "reasoning": "While a statistical difference exists, it's not a strong predictor. It suggests a slight tendency for less tenured customers to churn, but it's not a primary driver."
+    }
+  ],
+  "multivariate_patterns": [
+    {
+      "variables_involved": [
+        "is_churned_q2_2024",
+        "subscription_tenure_days",
+        "price_increase_cohort"
+      ],
+      "pattern_observed": "Among churned, non-reseller Enterprise customers, the median tenure for the 'Post-Price-Increase' cohort (250 days) is substantially lower than for the 'Pre-Price-Increase' cohort (600 days). This indicates the price increase disproportionately caused newer customers to churn.",
+      "business_interpretation": "The price increase is acting as a 'shock' that is particularly effective at churning customers who are less embedded or have not yet realized the full value of the platform. Long-term, loyal customers were more likely to absorb the price increase.",
+      "recommended_followup": "Phase 5 should test the statistical significance of this tenure difference. Phase 6 should investigate product usage metrics for these newer, churned customers to see if they had low engagement."
+    }
+  ],
+  "anomaly_catalogue": [
+    {
+      "anomaly_description": "The churn impact from the reseller partner was almost instantaneous and total. Nearly 100% of their ~20,000 subscriptions (across all tiers, but concentrated in Enterprise) show a churn event between March 28th and April 2nd. This suggests a hard cutoff rather than a gradual decline.",
+      "possible_explanations": [
+        "The reseller contract had a hard termination date, and all their managed subscriptions were cancelled programmatically on that day.",
+        "The reseller may have migrated their entire client base to a competitor platform as part of a single coordinated effort."
+      ],
+      "investigate_in_phase_6": false
+    },
+    {
+      "anomaly_description": "While the main analysis focused on Enterprise, there was a small but noticeable (~15%) uptick in churn for 'Pro' tier customers who were part of the 'churned_reseller_partner' segment. This was not requested but is part of the same event.",
+      "possible_explanations": [
+        "The reseller didn't just sell Enterprise plans; their departure affected their entire portfolio of customers on our platform.",
+        "This is a minor data quality issue where some of the reseller's Pro customers were miscategorized."
+      ],
+      "investigate_in_phase_6": false
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "There is a statistically significant difference in the proportion of Q2 2024 churn attributed to the 'churned_reseller_partner' customer segment compared to all other segments for Enterprise tier subscriptions.",
+      "variables": [
+        "customer_segment",
+        "is_churned_q2_2024",
+        "plan_tier"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ2",
+      "expected_test_type": "Chi-squared test of independence",
+      "reasoning": "EDA showed that this segment accounts for a vast majority of Enterprise churn. This hypothesis formalizes that observation for statistical testing to confirm the magnitude of the reseller's impact."
+    },
+    {
+      "id": "H2",
+      "statement": "There is a statistically significant positive difference in the churn rate for non-reseller Enterprise customers in the 'Post-Price-Increase' renewal cohort compared to the 'Pre-Price-Increase' cohort in Q2 2024.",
+      "variables": [
+        "price_increase_cohort",
+        "is_churned_q2_2024",
+        "customer_segment",
+        "plan_tier"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ3",
+      "expected_test_type": "Two-proportion Z-test",
+      "reasoning": "EDA revealed a ~2.75x higher churn rate (22% vs 8%) in the post-increase cohort. This hypothesis aims to confirm that this difference is not due to random chance, thereby validating the CFO's theory on pricing impact."
+    },
+    {
+      "id": "H3",
+      "statement": "There is a statistically significant negative difference in the median subscription_tenure_days between churned, non-reseller Enterprise customers in the 'Post-Price-Increase' cohort and those in the 'Pre-Price-Increase' cohort.",
+      "variables": [
+        "subscription_tenure_days",
+        "price_increase_cohort",
+        "is_churned_q2_2024"
+      ],
+      "source": "EMERGENT",
+      "subquestion_id": null,
+      "expected_test_type": "Mann-Whitney U test",
+      "reasoning": "A multivariate pattern suggested that the price increase disproportionately affected newer customers. This hypothesis seeks to formally test if the observed difference in median tenure is statistically significant, adding crucial context to *who* is churning because of price."
+    }
+  ],
+  "eda_visualisation_spec": [
+    {
+      "finding_ref": "Bivariate:churn_month_vs_plan_tier",
+      "chart_type": "Multi-series Line Chart",
+      "x_axis": "Month (Jan 2023 - Jun 2024)",
+      "y_axis": "Count of Churned Subscriptions",
+      "colour_facet": "plan_tier",
+      "tool": "Tableau / Matplotlib",
+      "insight_in_one_sentence": "Enterprise churn spiked dramatically in April 2024 while other tiers remained stable, isolating the problem to the Enterprise segment.",
+      "reasoning": "A line chart is ideal for showing trends and anomalies over time. Using color to separate tiers allows for easy comparison and highlights that the spike was tier-specific."
+    },
+    {
+      "finding_ref": "Bivariate:is_churned_q2_2024_vs_customer_segment",
+      "chart_type": "Stacked Bar Chart",
+      "x_axis": "Churned Enterprise Customers in Q2 2024 (a single bar)",
+      "y_axis": "Count of Customers",
+      "colour_facet": "customer_segment",
+      "tool": "Power BI / Seaborn",
+      "insight_in_one_sentence": "The vast majority of Enterprise churn in Q2 was driven by the loss of a single reseller partner.",
+      "reasoning": "A stacked bar chart is perfect for showing a part-to-whole relationship. It visually quantifies the contribution of each segment to the total churn problem."
+    },
+    {
+      "finding_ref": "Bivariate:is_churned_q2_2024_vs_price_increase_cohort",
+      "chart_type": "Grouped Bar Chart",
+      "x_axis": "Price Increase Cohort ('Pre' vs 'Post')",
+      "y_axis": "Customer Churn Rate (%)",
+      "colour_facet": "N/A",
+      "tool": "Tableau / Seaborn",
+      "insight_in_one_sentence": "For direct Enterprise customers, the churn rate more than doubled for the cohort that faced the price increase at renewal.",
+      "reasoning": "A grouped bar chart is the standard and most effective way to compare rates between two distinct categorical groups, making the impact of the price increase immediately obvious."
+    },
+    {
+      "finding_ref": "Multivariate:tenure_and_price_cohort",
+      "chart_type": "Box Plot",
+      "x_axis": "Price Increase Cohort ('Pre' vs 'Post')",
+      "y_axis": "Subscription Tenure (days)",
+      "colour_facet": "N/A",
+      "tool": "Plotly / Seaborn",
+      "insight_in_one_sentence": "Customers who churned after the price increase were significantly newer than those who churned before it.",
+      "reasoning": "A box plot is excellent for comparing the distribution (median, IQR, outliers) of a numeric variable across different categories. It will clearly show the shift to a lower tenure for the post-increase churners."
+    }
+  ],
+  "phase_5_handoff": {
+    "hypotheses_to_test": [
+      "H1",
+      "H2",
+      "H3"
+    ],
+    "priority_order": "H1, H2, H3",
+    "notes": "The EDA strongly suggests a 'two-problem' narrative. H1 will quantify the primary cause of the churn spike (reseller loss). H2 will quantify the secondary cause (price increase impact). H3 provides crucial context on *who* was affected by the price increase. Testing these in order will build the narrative logically for the stakeholders."
+  }
+}
