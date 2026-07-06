@@ -6,7 +6,7 @@ import pytest
 from core.prompts import load_prompt
 
 
-@pytest.mark.parametrize("phase", [1, 2, 3, 4, 5, 6, 7, 8])
+@pytest.mark.parametrize("phase", [0, 1, 2, 3, 4, 5, 6, 6.5, 7, 8, 9])
 def test_phase_prompts_extract_complete_system_block(phase):
     prompt = load_prompt(phase)
     assert prompt.startswith("<system>")
