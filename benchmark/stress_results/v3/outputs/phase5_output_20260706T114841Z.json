@@ -1,0 +1,276 @@
+{
+  "phase": 5,
+  "phase_name": "Hypothesis Testing & Statistical Validation",
+  "status": "COMPLETE",
+  "tests_conducted": [
+    {
+      "hypothesis_id": "H1",
+      "hypothesis_statement": "There is a statistically significant higher churn rate in the Enterprise tier in Q2 2026 compared to all other tiers in the same period.",
+      "null_hypothesis": "H\u2080: There is no association between customer tier and churn status in Q2 2026; the churn rate is the same across all tiers.",
+      "alternative_hypothesis": "H\u2081: There is an association between customer tier and churn status in Q2 2026; the churn rate is not the same across all tiers.",
+      "test_selected": "Chi-squared test of independence",
+      "test_selection_reasoning": "This test is appropriate for determining if there is a statistically significant association between two categorical variables: 'plan_tier' (Enterprise, Pro, Basic) and 'churn_status' (Churned, Not Churned).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small (Cram\u00e9r's V = 0.1)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 7153.2",
+      "degrees_of_freedom": "2",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.082
+      },
+      "confidence_interval": {
+        "lower": 0.08,
+        "upper": 0.084,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "evidence_grade_reasoning": "This hypothesis was derived directly from sub-question SQ2, which was formulated before the data was analyzed in-depth, to address the VP of Growth's specific concern.",
+      "holdout_validation": "NONE",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The Enterprise churn rate (12.5%) was more than double that of the Basic tier (5.6%). This is a large, financially impactful difference, confirming the problem is concentrated in the highest-value tier.",
+      "linked_subquestion": "SQ2"
+    },
+    {
+      "hypothesis_id": "H2",
+      "hypothesis_statement": "There is a statistically significant higher Q2 2026 churn rate for the Enterprise reseller cohort compared to the non-reseller Enterprise cohort.",
+      "null_hypothesis": "H\u2080: The churn rate for the Enterprise reseller cohort is the same as the churn rate for the non-reseller Enterprise cohort in Q2 2026.",
+      "alternative_hypothesis": "H\u2081: The churn rate for the Enterprise reseller cohort is higher than the churn rate for the non-reseller Enterprise cohort in Q2 2026.",
+      "test_selected": "Two-proportion z-test",
+      "test_selection_reasoning": "This test is ideal for comparing the proportions (churn rates) of two independent groups (reseller vs. non-reseller).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Large (Cohen's h > 0.8)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-score = 119.4",
+      "degrees_of_freedom": "N/A",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Difference in Proportions",
+        "value": 0.682
+      },
+      "confidence_interval": {
+        "lower": 0.671,
+        "upper": 0.693,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "evidence_grade_reasoning": "This hypothesis was derived directly from sub-question SQ4 to isolate a major known confounding event (the reseller contract termination).",
+      "holdout_validation": "NONE",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The churn rate difference is massive (75% vs 6.8%). This one-off event is the single largest contributor to the Q2 Enterprise churn spike, accounting for 40% of all Enterprise churn despite the cohort's small size.",
+      "linked_subquestion": "SQ4"
+    },
+    {
+      "hypothesis_id": "H3",
+      "hypothesis_statement": "Among non-reseller Enterprise customers, there is a statistically significant higher churn rate for subscriptions starting after the April 1st, 2026 price increase compared to those starting before.",
+      "null_hypothesis": "H\u2080: For non-reseller Enterprise customers, the churn rate is the same for subscriptions starting post-price-increase as for those starting pre-price-increase.",
+      "alternative_hypothesis": "H\u2081: For non-reseller Enterprise customers, the churn rate is higher for subscriptions starting post-price-increase.",
+      "test_selected": "Two-proportion z-test",
+      "test_selection_reasoning": "This test is appropriate for comparing the churn proportions of two independent groups within the Enterprise tier (pre- vs. post-price hike), after controlling for the reseller confound.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small (Cohen's h = 0.2)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-score = 24.3",
+      "degrees_of_freedom": "N/A",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Difference in Proportions",
+        "value": 0.031
+      },
+      "confidence_interval": {
+        "lower": 0.028,
+        "upper": 0.034,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "evidence_grade_reasoning": "This hypothesis was derived from sub-question SQ5 to directly test the CFO's pricing theory while controlling for the major confound identified in SQ4.",
+      "holdout_validation": "NONE",
+      "practical_significance": "MEDIUM",
+      "practical_significance_reasoning": "While the absolute difference of 3.1 percentage points is small, it represents a ~60% relative increase in the 'organic' churn rate (from 5.1% to 8.2%). For high-value Enterprise customers, this is a financially meaningful indicator of price sensitivity.",
+      "linked_subquestion": "SQ5"
+    },
+    {
+      "hypothesis_id": "H4",
+      "hypothesis_statement": "There is no statistically significant change in the proportion of customer tiers (mix shift) between Q1 2026 and Q2 2026.",
+      "null_hypothesis": "H\u2080: The distribution of customers by tier in Q2 is the same as in Q1.",
+      "alternative_hypothesis": "H\u2081: The distribution of customers by tier in Q2 is different from that in Q1.",
+      "test_selected": "Chi-squared goodness-of-fit test",
+      "test_selection_reasoning": "This test compares an observed categorical distribution (tier mix in Q2) to an expected distribution (tier mix in Q1) to see if the difference is significant.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small (Cohen's w = 0.1)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 215.4",
+      "degrees_of_freedom": "2",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Cohen's w",
+        "value": 0.015
+      },
+      "confidence_interval": {
+        "lower": null,
+        "upper": null,
+        "level": "95%"
+      },
+      "result": "REJECTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "evidence_grade_reasoning": "This hypothesis was derived from SQ3 to test the CFO's mix-shift theory. We test the null hypothesis that the distributions are the same.",
+      "holdout_validation": "NONE",
+      "practical_significance": "NEGLIGIBLE",
+      "practical_significance_reasoning": "We rejected the null hypothesis, meaning there *is* a statistically significant difference in mix. However, the effect size is extremely small (w=0.015). The Enterprise tier mix changed by only +0.3 percentage points. This is a classic case of statistical significance without practical significance due to a very large sample size. The CFO's theory that mix shift explains the churn problem is not supported.",
+      "linked_subquestion": "SQ3"
+    },
+    {
+      "hypothesis_id": "H5",
+      "hypothesis_statement": "There is a statistically significant increase in the Q2 2026 churn rate for the Pro tier compared to Q1 2026.",
+      "null_hypothesis": "H\u2080: The churn rate for the Pro tier in Q2 2026 is the same as it was in Q1 2026.",
+      "alternative_hypothesis": "H\u2081: The churn rate for the Pro tier in Q2 2026 is higher than it was in Q1 2026.",
+      "test_selected": "Two-proportion z-test",
+      "test_selection_reasoning": "This test is appropriate for comparing the churn proportion of a single group (Pro tier) across two different time periods (Q1 vs. Q2).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small (Cohen's h = 0.2)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-score = 22.1",
+      "degrees_of_freedom": "N/A",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Difference in Proportions",
+        "value": 0.011
+      },
+      "confidence_interval": {
+        "lower": 0.01,
+        "upper": 0.012,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "DATA_DERIVED",
+      "evidence_grade": "EXPLORATORY",
+      "evidence_grade_reasoning": "This hypothesis was formed after observing a moderate increase in Pro tier churn during EDA. Because the hypothesis was generated from the same data used to test it, this finding is exploratory and requires confirmation on new data to be considered conclusive.",
+      "holdout_validation": "NONE",
+      "practical_significance": "LOW",
+      "practical_significance_reasoning": "The 1.1 percentage point increase (from 6.1% to 7.2%) is statistically significant but represents a relatively small change in absolute terms. It is a secondary finding that warrants monitoring but is not the primary driver of the Q2 churn problem.",
+      "linked_subquestion": null
+    }
+  ],
+  "multiple_testing_correction": {
+    "applied": true,
+    "method": "Bonferroni",
+    "adjusted_alpha": 0.01,
+    "hypotheses_surviving_correction": [
+      "H1",
+      "H2",
+      "H3",
+      "H5"
+    ]
+  },
+  "findings_summary": [
+    {
+      "hypothesis_id": "H1",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.082,
+      "evidence_grade": "CONFIRMATORY",
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ2",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H2",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.682,
+      "evidence_grade": "CONFIRMATORY",
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ4",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H3",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.031,
+      "evidence_grade": "CONFIRMATORY",
+      "practical_significance": "MEDIUM",
+      "subquestion_answered": "SQ5",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H4",
+      "result": "REJECTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.015,
+      "evidence_grade": "CONFIRMATORY",
+      "practical_significance": "NEGLIGIBLE",
+      "subquestion_answered": "SQ3",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H5",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.011,
+      "evidence_grade": "EXPLORATORY",
+      "practical_significance": "LOW",
+      "subquestion_answered": null,
+      "emergent": true
+    }
+  ],
+  "statistical_caveats": [
+    "Correlation vs. Causation: This is an observational study. While we found a statistically significant association between the price hike and increased churn (H3), we cannot definitively conclude a causal relationship without a controlled experiment.",
+    "Exploratory Finding: The finding of increased Pro tier churn (H5) was derived from and tested on the same dataset. It should be treated as a preliminary insight that requires validation with a new dataset (e.g., from Q3 data) before being considered confirmed.",
+    "Large Sample Size Effects: For the mix-shift hypothesis (H4), the massive sample size led to a statistically significant p-value even though the actual change in tier mix was practically meaningless. This highlights the importance of evaluating effect size alongside p-values.",
+    "Time Period Limitation: All findings are specific to the Q1 vs. Q2 2026 period and may not be generalizable to other timeframes."
+  ],
+  "phase_6_priority_insights": [
+    "The 'Enterprise churn problem' is actually two separate issues: a massive one-off churn event from the lost reseller (H2), and a smaller but significant underlying increase in organic churn among other Enterprise customers linked to the price hike (H3).",
+    "The CFO's hypothesis about mix shift being a major driver is not supported by the data (H4).",
+    "The VP of Growth's hypothesis that the problem is concentrated in the Enterprise tier is strongly supported (H1)."
+  ]
+}
