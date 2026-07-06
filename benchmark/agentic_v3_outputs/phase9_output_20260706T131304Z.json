@@ -1,0 +1,104 @@
+{
+  "phase": 9,
+  "phase_name": "Impact Tracking & Monitoring Handoff",
+  "status": "COMPLETE",
+  "success_metrics": [
+    {
+      "recommendation_ref": "1",
+      "metric": "Monthly Churn Rate for the cohort of targeted Month-to-Month customers who upgraded to a 12-month contract.",
+      "cadence": "Monthly",
+      "threshold": "The churn rate for the upgraded cohort is <1.0% on a monthly basis (annualized rate of ~11.3%), aligning it with the historical performance of existing 1-year contract customers.",
+      "check_in_date": "2026-10-06",
+      "owner": "Marketing",
+      "reasoning": "This is the primary lagging indicator. The recommendation's core hypothesis is that moving customers from a flexible to a committed contract will drastically reduce their churn. This metric directly measures that outcome. Hitting a churn rate comparable to existing 1-year contract holders would prove the intervention successfully changed the risk profile of this high-churn segment."
+    },
+    {
+      "recommendation_ref": "1",
+      "metric": "12-Month Contract Adoption Rate among the targeted segment (Month-to-Month customers with 3-12 months tenure).",
+      "cadence": "Weekly during campaign, then Monthly",
+      "threshold": ">15% of the targeted customer segment adopts the 12-month contract offer within 60 days of campaign launch.",
+      "check_in_date": "2026-09-06",
+      "owner": "Marketing",
+      "reasoning": "This is a critical leading indicator. It measures the effectiveness of the incentive offer itself. If adoption is low, the churn reduction goal will not be met regardless of the underlying hypothesis's validity. This metric provides an early warning if the campaign creative or offer is not compelling enough."
+    },
+    {
+      "recommendation_ref": "2",
+      "metric": "Monthly Churn Rate for the cohort of customers who switched from Electronic Check to an automatic payment method.",
+      "cadence": "Monthly",
+      "threshold": "The monthly churn rate for the switched cohort is at least 50% lower than the churn rate for Electronic Check users who did not switch.",
+      "check_in_date": "2026-10-06",
+      "owner": "Billing / Marketing",
+      "reasoning": "This lagging indicator validates the core hypothesis that payment friction was a primary driver of churn for this segment. A significant reduction in churn for those who switched, compared to those who didn't, provides strong evidence of a causal link and proves the intervention's ROI."
+    },
+    {
+      "recommendation_ref": "2",
+      "metric": "Adoption rate of automatic payments among the targeted 'Electronic check' customer base.",
+      "cadence": "Weekly during campaign, then Monthly",
+      "threshold": ">30% of the targeted 'Electronic check' customer base adopts an automatic payment method within 60 days of the program launch.",
+      "check_in_date": "2026-09-06",
+      "owner": "Billing / Marketing",
+      "reasoning": "This leading indicator measures the success of the incentive program. If customers are not converting to automatic payments, the friction point remains, and the expected churn reduction will not materialize. This provides a quick check on the program's viability."
+    }
+  ],
+  "monitoring_specs": [
+    {
+      "finding_ref": "Finding 1: Month-to-Month Contracts are the Epicenter of Churn",
+      "alert_condition": "Monthly Churn Rate for (Contract = 'Month-to-month') > 45%",
+      "evaluation_window": "Monthly",
+      "suggested_tool": "Tableau / Power BI Dashboard Alert",
+      "reasoning": "This is the single most important churn segment. The baseline churn rate is 42.7%. An increase to over 45% would indicate a significant worsening of the core business problem, potentially due to a new competitor offer targeting flexible-plan customers, and requires immediate investigation by the Retention team."
+    },
+    {
+      "finding_ref": "Finding 2: Paying by Electronic Check is a Major Flight Risk",
+      "alert_condition": "Monthly Churn Rate for (PaymentMethod = 'Electronic check') > 48%",
+      "evaluation_window": "Monthly",
+      "suggested_tool": "Tableau / Power BI Dashboard Alert",
+      "reasoning": "This is the second-most critical high-risk segment. With a baseline of 45.3%, a sustained rate above 48% would suggest that either our intervention is failing or an external factor is increasing friction for this payment method (e.g., changes by a payment processor). This alert should trigger a review by the Billing and Marketing teams."
+    },
+    {
+      "finding_ref": "Finding 3: The First Year is a Critical Retention Period",
+      "alert_condition": "Monthly Churn Rate for (tenure <= 12 months) > 50%",
+      "evaluation_window": "Monthly",
+      "suggested_tool": "Tableau / Power BI Dashboard Alert",
+      "reasoning": "This metric is a key indicator of onboarding health and acquisition quality. The baseline is 48.3%. If this rate crosses the 50% threshold, it means we are losing more than half of our new customers within a year, signaling a critical failure in either our acquisition targeting or the early customer experience."
+    },
+    {
+      "finding_ref": "Anomaly: Customers with no internet service are exceptionally loyal",
+      "alert_condition": "Monthly Churn Rate for (InternetService = 'No') > 10%",
+      "evaluation_window": "Monthly",
+      "suggested_tool": "Tableau / Power BI Dashboard Alert",
+      "reasoning": "This alert monitors for the erosion of a stable, loyal customer base. The baseline churn rate is a very low 7.4%. A jump to 10% (a >35% relative increase) would be a strong signal that market dynamics have changed for this legacy segment (e.g., a new competitor, a price change has made the service uncompetitive) and this previously safe revenue stream is now at risk."
+    }
+  ],
+  "knowledge_base_entry": {
+    "question": "What are the top drivers of customer churn in our telecom subscriber base, and which two or three interventions would most cost-effectively reduce it?",
+    "answer_one_paragraph": "Customer churn is overwhelmingly driven by customers on Month-to-Month contracts (42.7% churn rate), who account for 89% of all churn events. Other major risk factors include paying by Electronic Check (45.3% churn) and being a new customer in their first year of service (48.3% churn), particularly if they have Fiber Optic service. The highest-leverage interventions are to launch targeted campaigns to upgrade month-to-month customers to longer-term contracts and to incentivize customers to switch from manual Electronic Check payments to more reliable automatic methods.",
+    "data_sources": [
+      "IBM Telco Customer Churn dataset (Telco-Customer-Churn.csv), a static snapshot of 7,043 customer records."
+    ],
+    "gotchas_discovered": [
+      "TotalCharges Type Coercion: The `TotalCharges` column is stored as a string ('object') and contains empty strings (' ') for customers with 0 tenure. It must be coerced to numeric, creating NaNs, which must then be imputed with 0. Failure to do this correctly breaks any numerical analysis.",
+      "Multicollinearity: `tenure` and `TotalCharges` are highly correlated (Pearson's r > 0.8). Including both in a linear model (like logistic regression) will distort coefficient estimates. `TotalCharges` was dropped from the final model in favor of `tenure`.",
+      "Mix-Shift Trap: High early-life churn is primarily an artifact of most new customers being on Month-to-Month contracts. The root driver is the contract type, not tenure itself. Analyzing tenure without controlling for contract type is misleading.",
+      "Self-Selection Bias: Customers with add-on services like 'TechSupport' have much lower churn, but this is a strong correlation, not necessarily causation. Customers who opt-in are likely more engaged to begin with, so the causal impact of the service itself is much smaller than the observed correlation suggests.",
+      "Unmeasured Confound - Service Quality: High churn among Fiber Optic customers may be due to poor service reliability, not just price or customer fit. This could not be measured with the provided data and remains a major caveat on all Fiber-related findings."
+    ],
+    "reusable_queries": [
+      "Data Cleaning Snippet (Python/pandas): df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce'); df['TotalCharges'].fillna(0, inplace=True)",
+      "Pareto Analysis Logic: To find concentrated problem areas, group all churned customers by a key categorical feature (e.g., `Contract`) and calculate the percentage of total churn accounted for by each category. `df[df['Churn']=='Yes']['Contract'].value_counts(normalize=True)`"
+    ],
+    "confounds_checked": [
+      "Marketing Campaigns: Checked as a potential explanation for high early-life churn. Verdict: Plausible partial explanation, but data was not available to confirm.",
+      "Service Quality/Outages: Flagged as a critical unmeasured confound. The analysis could not distinguish between high churn on Fiber Optic being due to price/customer fit versus poor service reliability. This remains a major caveat on all findings related to Fiber Optic service."
+    ],
+    "tags": [
+      "churn",
+      "telecom",
+      "retention",
+      "logistic regression",
+      "customer segmentation",
+      "payment methods",
+      "contract analysis"
+    ]
+  }
+}
