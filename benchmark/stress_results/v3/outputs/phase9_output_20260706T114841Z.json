@@ -1,0 +1,66 @@
+{
+  "phase": 9,
+  "phase_name": "Impact Tracking & Monitoring Handoff",
+  "status": "COMPLETE",
+  "success_metrics": [
+    {
+      "recommendation_ref": "Recommendation #1: Conduct a qualitative study with recently churned/renewed Enterprise customers to identify value gaps.",
+      "metric": "Quarterly 'Organic' Enterprise Customer Churn Rate",
+      "cadence": "Quarterly",
+      "threshold": "< 6.0%",
+      "check_in_date": "2027-01-15",
+      "owner": "VP of Growth",
+      "reasoning": "The analysis found that the organic (non-reseller, post-price hike) Enterprise churn rate spiked to 8.2%, well above the 5.1% baseline and industry benchmarks. The recommendation is designed to generate insights to fix this. Success is defined as using those insights to reduce the churn rate back into the industry benchmark range (<6.0%). A check-in after Q4 2026 results are available allows sufficient time for the qualitative study, subsequent actions, and their impact to be observed."
+    }
+  ],
+  "monitoring_specs": [
+    {
+      "finding_ref": "Finding 2: Organic Enterprise churn is now above industry benchmarks, strongly associated with the recent price hike.",
+      "alert_condition": "Monthly 'Organic' Enterprise Customer Churn Rate > 2.8%",
+      "evaluation_window": "Monthly",
+      "suggested_tool": "Tableau Alerts / Power BI Alerts",
+      "reasoning": "The analysis identified a problematic quarterly organic churn rate of 8.2%. The equivalent monthly rate is ~2.8% (1 - (1 - 0.082)^(1/3)). This alert will fire if the monthly rate indicates the problem is worsening, providing an early warning before waiting for a full quarter of data."
+    },
+    {
+      "finding_ref": "Anomalies & Surprises: The Pro tier churn rate also saw a statistically significant increase from 6.1% to 7.2% in Q2.",
+      "alert_condition": "Quarterly Pro Tier Customer Churn Rate > 7.5%",
+      "evaluation_window": "Quarterly",
+      "suggested_tool": "Tableau Alerts / Power BI Alerts",
+      "reasoning": "This alert directly implements the monitoring action suggested in the final report for the emergent finding about the Pro tier. It provides an automated safety net to trigger a deeper investigation if this secondary issue escalates beyond the level observed in Q2."
+    }
+  ],
+  "knowledge_base_entry": {
+    "question": "What are the primary drivers of the observed change in customer churn in Q2 2026, and how do these drivers differ across our customer tiers? Specifically, was it an Enterprise-specific issue (VP Growth) or a broader pricing/mix-shift problem (CFO)?",
+    "answer_one_paragraph": "The sharp increase in Q2 2026 churn was almost entirely concentrated in the Enterprise tier, driven by two simultaneous events: a large, one-off churn event from a terminated reseller contract (40% of the impact) and a sustained increase in 'organic' churn associated with a 15% price hike rolled out on April 1st. The organic Enterprise churn rate for customers renewing post-hike (8.2%) is now above industry benchmarks, suggesting a value-to-price mismatch. The CFO's hypothesis that customer mix-shift was a driver was disproven by the data.",
+    "data_sources": [
+      "subscriptions (new system, post-April 2026)",
+      "billing (legacy system, pre-April 2026)",
+      "users"
+    ],
+    "gotchas_discovered": [
+      "Billing System Migration Artifact: The migration on 2026-04-01 created a large, artificial churn spike. Subscriptions from the legacy system that were not migrated were logged as churned on April 1st. These had to be manually re-attributed to March 31st to avoid polluting Q2 metrics. Any analysis of this period must account for this.",
+      "Conflated Root Causes: The headline Enterprise churn number was distorted by two simultaneous events (reseller contract termination and price hike). A naive analysis would misattribute the reseller churn to the price hike. It is critical to isolate the reseller cohort before analyzing other effects.",
+      "Missing Legacy MRR: The `billing` table (pre-April 2026) does not contain reliable MRR data. Any historical analysis requiring revenue (e.g., NRR, MRR Churn) cannot be reliably performed across the migration boundary. Use logo churn for historical comparisons.",
+      "Legacy Plan Name Mapping: The `plan_name` field in the legacy `billing` table is inconsistent (e.g., 'enterprise_annual'). It requires a mapping layer (e.g., a CASE statement) to align with modern `plan_tier` values for any combined analysis."
+    ],
+    "reusable_queries": [
+      "/* CONCEPT: Create a unified view of subscription history by using UNION ALL on the new `subscriptions` table and the legacy `billing` table. Key steps: 1) Select and rename columns from both tables to a standard schema (e.g., user_id, plan_tier, start_date, churn_date). 2) In the `billing` SELECT, use a CASE statement to map legacy `plan_name` to the standard `plan_tier`. 3) Reconcile the definition of `churn_date` (`end_date` in new system vs. `cancellation_date` in legacy). */"
+    ],
+    "confounds_checked": [
+      "Reseller Contract Termination: CONFIRMED as a major driver, explaining ~40% of Q2 Enterprise churn.",
+      "15% Price Increase: CONFIRMED strong association with higher organic churn.",
+      "Billing System Migration: CONFIRMED as a data artifact, corrected and ruled out as a business driver.",
+      "Business Seasonality: CHECKED and ruled out (YoY churn was down).",
+      "Customer Mix Shift: CHECKED and ruled out (negligible change).",
+      "Customer Tenure / Product Usage: NOT CHECKED. Identified as a gap; the observed price hike impact could be influenced by these unobserved factors."
+    ],
+    "tags": [
+      "churn",
+      "enterprise_tier",
+      "pricing",
+      "saas",
+      "billing_migration",
+      "reseller"
+    ]
+  }
+}
