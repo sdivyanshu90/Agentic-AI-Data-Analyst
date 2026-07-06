@@ -1,0 +1,44 @@
+{
+  "phase": 0,
+  "phase_name": "Intake Triage & Context Calendar Check",
+  "status": "COMPLETE",
+  "complexity": "DEEP_INVESTIGATION",
+  "complexity_reasoning": "The objective asks WHY churn changed (a causal claim, not a lookup), implies at least three sub-questions (channel, engagement, pricing), and root-cause work in Phase 6 will be required. A single query cannot answer it.",
+  "confound_candidates": [
+    {
+      "event": "Mid-quarter pricing change on the Pro tier",
+      "window": "2025-08-15 onward",
+      "source": "STATED_BY_USER",
+      "expected_signature": "Churn uplift concentrated in the Pro tier beginning the first billing cycle after 2025-08-15, roughly uniform across acquisition channels.",
+      "reasoning": "A stated pricing event overlapping the analysis window can fully explain a churn rise without any behavioural change; it must be checked against every finding before the finding is treated as organic."
+    }
+  ],
+  "calendar_questions_for_user": [
+    "Were there any product deploys, outages, or marketing campaign changes in Q3?",
+    "Did any partner, reseller, or enterprise contract start or end during the window?"
+  ],
+  "detected_stakeholder_conflicts": [],
+  "scope_and_feasibility": {
+    "deadline_stated": "none stated",
+    "deadline_feasibility": "FEASIBLE",
+    "feasibility_reasoning": "No deadline was stated; the full pipeline with root-cause investigation fits the request without descoping.",
+    "descope_proposal": [],
+    "checks_never_skipped": [
+      "known-event confound calendar",
+      "stakeholder conflict surfacing"
+    ]
+  },
+  "specialist_referrals": [
+    {
+      "implied_ask": "None detected beyond analyst-level methods",
+      "why_beyond_analyst_scope": "",
+      "referral": "NONE",
+      "analyst_level_partial_answer": ""
+    }
+  ],
+  "knowledge_base_hits": [],
+  "effort_estimate": "Full pipeline (Phases 1-9); Phase 6 root-cause and confound sweep are the heavy steps. Roughly a standard multi-day analyst engagement.",
+  "route": "FULL_PIPELINE",
+  "route_reasoning": "Causal question with multiple candidate drivers and a known confounding event — needs extraction, cleaning, EDA, formal testing, and a root-cause sweep, not a quick answer.",
+  "quick_answer_draft": ""
+}
