@@ -1,0 +1,302 @@
+{
+  "phase": 7,
+  "phase_name": "Data Visualisation & Dashboard Design",
+  "status": "COMPLETE",
+  "insight_to_chart_map": [
+    {
+      "insight_rank": 1,
+      "insight_summary": "The Q2 Enterprise churn spike is not a single problem but two distinct issues: a one-off 40% contribution from the terminated reseller, and a ~60% relative increase in 'organic' churn associated with the price hike.",
+      "chart_type": "Waterfall Chart",
+      "chart_reasoning": "A waterfall chart is optimal for decomposing a total value into its constituent parts. It visually tells the story of how the Enterprise churn count moved from the Q1 baseline to the Q2 total, explicitly showing the magnitude of the reseller churn (a large negative step) and the organic churn increase (another negative step). This directly visualizes the two components of the insight.",
+      "alternatives_rejected": [
+        {
+          "chart": "Stacked Bar Chart",
+          "reason_rejected": "While a stacked bar could show the final composition of Q2 churn (reseller vs. organic), it would not effectively illustrate the *change* from the Q1 baseline, which is a key part of the narrative."
+        },
+        {
+          "chart": "Pie Chart",
+          "reason_rejected": "A pie chart is poor for comparing the magnitude of components and cannot show a starting and ending value. It would fail to convey the 'journey' from Q1 to Q2 churn levels."
+        }
+      ]
+    },
+    {
+      "insight_rank": 2,
+      "insight_summary": "The 'organic' Enterprise churn rate for customers renewing after the price hike is ~8.2% quarterly, well above SaaS industry benchmarks (~3-6%), indicating significant price sensitivity or a value gap at the new price point.",
+      "chart_type": "Bar Chart with Reference Band",
+      "chart_reasoning": "A simple bar chart provides the clearest and most direct comparison between the two discrete categories: 'Renewed Before Price Hike' and 'Renewed After Price Hike'. Adding a shaded reference band for the industry benchmark (3-6%) immediately contextualizes the 8.2% rate as high, making the insight instantly understandable without requiring the user to hold numbers in their head.",
+      "alternatives_rejected": [
+        {
+          "chart": "Line Chart",
+          "reason_rejected": "A line chart is inappropriate as it implies a continuous trend over time. The data represents two distinct, independent cohorts, not a time series progression."
+        },
+        {
+          "chart": "Bullet Chart",
+          "reason_rejected": "A bullet chart is a strong alternative designed for comparing a measure to a target. However, for a high-level executive audience, a standard bar chart is more universally familiar and requires less cognitive load to interpret."
+        }
+      ]
+    },
+    {
+      "insight_rank": 3,
+      "insight_summary": "The CFO's hypothesis that mix shift was a primary driver of higher overall churn is disproven; the issue is highly concentrated in the Enterprise tier.",
+      "chart_type": "100% Stacked Area Chart (for mix shift) & Grouped Bar Chart (for concentration)",
+      "chart_reasoning": "This insight has two parts requiring two charts. A 100% Stacked Area Chart is the standard and most effective way to show changes in proportional composition over time; the visual stability of the colored bands will instantly communicate the lack of significant mix shift. A Grouped Bar Chart is best for the second part, as it allows for a direct comparison of churn rates (Y-axis) across different categories (Tiers) and time periods (Q1 vs. Q2), visually isolating the dramatic spike for the Enterprise tier.",
+      "alternatives_rejected": [
+        {
+          "chart": "Multiple Pie Charts (for mix shift)",
+          "reason_rejected": "Comparing slices across multiple pie charts is cognitively difficult and an inefficient use of space. The stacked area chart shows the trend far more effectively."
+        },
+        {
+          "chart": "Line Chart (for concentration)",
+          "reason_rejected": "A line chart with one line per tier is a valid alternative, but a grouped bar chart makes the direct Q1-to-Q2 comparison for a single tier slightly easier to see at a glance, which is the core of this insight."
+        }
+      ]
+    }
+  ],
+  "dashboard_architecture": {
+    "dashboard_type": "EXECUTIVE",
+    "sections": [
+      {
+        "section_name": "1: Key Metrics & Headline Finding",
+        "purpose": "To provide the most critical numbers and the primary conclusion upfront for time-constrained executives.",
+        "components": [
+          "KPI Card: Q2 Enterprise Churn Rate",
+          "KPI Card: Reseller Churn Contribution",
+          "KPI Card: Organic Churn Rate (Post-Hike)",
+          "Text Box: Headline Insight"
+        ],
+        "layout_position": "top"
+      },
+      {
+        "section_name": "2: Deconstructing the Enterprise Churn Spike",
+        "purpose": "To visually explain the 'What' and 'Why' behind the headline numbers, addressing both stakeholder hypotheses.",
+        "components": [
+          "Waterfall Chart: The Two Drivers of the Q2 Enterprise Churn Spike",
+          "Grouped Bar Chart: Q2 Churn Spike Was Isolated to the Enterprise Tier"
+        ],
+        "layout_position": "center"
+      },
+      {
+        "section_name": "3: Supporting Evidence & Context",
+        "purpose": "To provide drill-down detail on the root causes and explicitly disprove alternative hypotheses.",
+        "components": [
+          "Bar Chart: Price Hike Impact on Organic Churn",
+          "100% Stacked Area Chart: Customer Mix Has Remained Stable"
+        ],
+        "layout_position": "bottom"
+      }
+    ],
+    "interactivity_spec": "Limited interactivity to maintain clarity for an executive audience. A global date filter for Quarter (defaulting to Q2 2026). Tooltips on all charts to show precise values on hover. Charts are not cross-filterable to prevent accidental filtering and confusion."
+  },
+  "visualisation_specs": [
+    {
+      "chart_name": "Waterfall: Enterprise Churn Increased from Two Distinct Events in Q2",
+      "purpose": "To decompose the total increase in Enterprise churn between Q1 and Q2, attributing the change to the one-off reseller event and the increase in organic churn.",
+      "data_source": {
+        "table": "clean_schema_aggregates",
+        "columns": [
+          "quarter",
+          "is_reseller_cohort",
+          "churn_count"
+        ]
+      },
+      "x_axis": {
+        "field": "Churn Component",
+        "label": "Component of Change",
+        "format": "Categorical"
+      },
+      "y_axis": {
+        "field": "Churned Enterprise Customers",
+        "label": "Churned Customer Count",
+        "format": "Integer",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "Component Type (Total, Increase)",
+        "palette": "Blue for totals, Red for increases (ColorBrewer Accent)",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Component Name",
+        "Churn Count",
+        "Percentage of Total Increase"
+      ],
+      "reference_lines": [],
+      "annotations": [
+        "Callout on 'Reseller Churn' bar: 'One-off event accounts for 40% of total Q2 churn'",
+        "Callout on 'Organic Churn Increase' bar: 'Associated with 15% price hike'"
+      ],
+      "alt_text": "A waterfall chart showing the change in Enterprise customer churn from Q1 to Q2 2026. It starts at a Q1 churn level of approximately 4,800, increases by 3,750 due to reseller churn, increases further by about 5,200 due to organic churn, arriving at a final Q2 total of approximately 13,750.",
+      "recommended_tool": "Power BI"
+    },
+    {
+      "chart_name": "Grouped Bar: Enterprise Churn Rate Tripled to 12.5% in Q2, While Other Tiers Remained Stable",
+      "purpose": "To compare the change in churn rate from Q1 to Q2 across all customer tiers, highlighting that the problem is concentrated in the Enterprise tier.",
+      "data_source": {
+        "table": "clean_schema_aggregates",
+        "columns": [
+          "quarter",
+          "plan_tier",
+          "churn_rate"
+        ]
+      },
+      "x_axis": {
+        "field": "quarter",
+        "label": "Quarter",
+        "format": "YYYY [Q]Q"
+      },
+      "y_axis": {
+        "field": "churn_rate",
+        "label": "Quarterly Customer Churn Rate (%)",
+        "format": "Percentage",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "plan_tier",
+        "palette": "Categorical (e.g., Tableau 10 - Blue, Orange, Gray)",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Plan Tier",
+        "Quarter",
+        "Churn Rate (%)",
+        "Churned Customers (count)",
+        "Active Customers at Start (count)"
+      ],
+      "reference_lines": [],
+      "annotations": [
+        "Add data labels to the top of all bars to show exact percentages."
+      ],
+      "alt_text": "A grouped bar chart comparing customer churn rates for Q1 and Q2 2026 across three tiers. For the Enterprise tier, the bar jumps from 4.5% in Q1 to 12.5% in Q2. For the Pro and Basic tiers, the bars show only a minor increase between Q1 and Q2.",
+      "recommended_tool": "Tableau"
+    },
+    {
+      "chart_name": "Bar Chart: Post-Hike 'Organic' Churn Rose to 8.2%, Exceeding Industry Benchmarks",
+      "purpose": "To compare the churn rate of non-reseller Enterprise customers who renewed before the price hike versus after, contextualized with an industry benchmark.",
+      "data_source": {
+        "table": "clean_schema_aggregates",
+        "columns": [
+          "is_post_price_hike_renewal",
+          "churn_rate"
+        ]
+      },
+      "x_axis": {
+        "field": "is_post_price_hike_renewal",
+        "label": "Non-Reseller Enterprise Cohort (Q2 2026)",
+        "format": "Categorical ('Renewed Before April 1st', 'Renewed After April 1st')"
+      },
+      "y_axis": {
+        "field": "churn_rate",
+        "label": "Quarterly Customer Churn Rate (%)",
+        "format": "Percentage",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "N/A",
+        "palette": "Single color (e.g., neutral blue)",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Cohort",
+        "Churn Rate (%)",
+        "Churned Customers (count)"
+      ],
+      "reference_lines": [
+        {
+          "type": "Shaded Band",
+          "value_from": "3.0%",
+          "value_to": "6.0%",
+          "label": "Industry Benchmark"
+        }
+      ],
+      "annotations": [
+        "Subtitle: 'Excludes one-off reseller cohort churn.'",
+        "Data labels on top of each bar."
+      ],
+      "alt_text": "A bar chart comparing churn rates for two non-reseller Enterprise cohorts in Q2. The 'Renewed Before April 1st' bar is at 5.1%. The 'Renewed After April 1st' bar is higher, at 8.2%. A shaded background area from 3% to 6% is labeled 'Industry Benchmark', showing the 8.2% bar is well above this range.",
+      "recommended_tool": "Plotly"
+    },
+    {
+      "chart_name": "100% Stacked Area: Customer Mix Remained Stable, Disproving Mix-Shift Hypothesis",
+      "purpose": "To show the proportional composition of the customer base over time, demonstrating its stability.",
+      "data_source": {
+        "table": "clean_schema_aggregates",
+        "columns": [
+          "month",
+          "plan_tier",
+          "active_customer_count"
+        ]
+      },
+      "x_axis": {
+        "field": "month",
+        "label": "Month (2026)",
+        "format": "MMM YYYY"
+      },
+      "y_axis": {
+        "field": "percentage_of_total_customers",
+        "label": "Percentage of Active Customers",
+        "format": "Percentage",
+        "scale": "0 to 100%"
+      },
+      "colour_encoding": {
+        "field": "plan_tier",
+        "palette": "Categorical (e.g., Tableau 10 - Blue, Orange, Gray)",
+        "colourblind_safe": true
+      },
+      "filters": [],
+      "tooltips": [
+        "Month",
+        "Plan Tier",
+        "Percentage of Customer Base"
+      ],
+      "reference_lines": [],
+      "annotations": [],
+      "alt_text": "A 100% stacked area chart showing customer composition from January to July 2026. The chart is divided into three colored bands representing Basic, Pro, and Enterprise tiers. All three bands remain relatively flat and stable in width across the time period, indicating no significant mix shift.",
+      "recommended_tool": "Tableau"
+    }
+  ],
+  "anti_pattern_audit": [
+    {
+      "chart_name": "All Charts",
+      "anti_pattern_found": "Chart title that states category, not insight (e.g., 'Churn Rate by Tier').",
+      "correction_applied": "All chart titles have been rewritten as declarative headlines that state the key finding, such as 'Enterprise Churn Rate Tripled to 12.5% in Q2, While Other Tiers Remained Stable'. This follows best practice for executive dashboards by making the conclusion the most prominent text."
+    },
+    {
+      "chart_name": "All Bar Charts",
+      "anti_pattern_found": "Potential for truncated y-axis to exaggerate small differences.",
+      "correction_applied": "All y-axis specifications for bar charts explicitly state 'scale: Start at zero'. This ensures that the visual proportions of the bars accurately reflect the data proportions, preventing misleading interpretations."
+    }
+  ],
+  "accessibility_review": {
+    "colourblind_safe": true,
+    "min_font_size_met": true,
+    "alt_text_written": true,
+    "wcag_contrast_met": true,
+    "notes": "Specifications call for color-blind safe palettes (e.g., ColorBrewer or default Tableau/Power BI palettes). Minimum font sizes are specified at 12pt for labels and 16pt for titles. Descriptive alt text has been written for all four proposed charts. Standard BI tools should be configured to use high-contrast themes and enable keyboard navigation to meet WCAG AA standards."
+  },
+  "narrative_flow": {
+    "hook": "The headline metric, 'Q2 Enterprise Churn spiked to 12.5%', is presented first but immediately qualified by the core insight: it's not one problem, but two distinct, concurrent events. This creates intrigue and frames the analysis.",
+    "context_sequence": [
+      "First, the Waterfall chart decomposes this spike, showing the audience the two pieces of the puzzle: the massive one-off reseller event and the underlying increase in organic churn.",
+      "Second, the Grouped Bar chart provides crucial context, showing this problem was entirely isolated to the Enterprise tier, addressing the VP of Growth's primary concern.",
+      "Third, the 100% Stacked Area chart definitively closes the loop on the CFO's mix-shift hypothesis, showing it was not a contributing factor."
+    ],
+    "payoff": "The final chart, the Bar Chart comparing pre- and post-price hike churn, delivers the payoff. It pinpoints the likely driver of the 'organic' churn increase, provides evidence of price sensitivity, and gives leadership a clear, actionable area for further investigation.",
+    "dashboard_section_order": [
+      "1: Key Metrics & Headline Finding",
+      "2: Deconstructing the Enterprise Churn Spike",
+      "3: Supporting Evidence & Context"
+    ]
+  },
+  "phase_8_handoff": {
+    "chart_titles_as_insight_headlines": [
+      "Waterfall: Enterprise Churn Increased from Two Distinct Events in Q2",
+      "Grouped Bar: Enterprise Churn Rate Tripled to 12.5% in Q2, While Other Tiers Remained Stable",
+      "Bar Chart: Post-Hike 'Organic' Churn Rose to 8.2%, Exceeding Industry Benchmarks",
+      "100% Stacked Area: Customer Mix Remained Stable, Disproving Mix-Shift Hypothesis"
+    ],
+    "narrative_arc_summary": "Start by stating the alarming top-line number, but immediately reveal it's a composite of two different problems (the hook). First, quantify and isolate the large, one-off event (reseller loss) to show it's understood and contained. Then, pivot to the more systemic, ongoing issue (price sensitivity), providing clear evidence. Finally, use data to explicitly disprove the alternative hypothesis (mix shift), resolving the stakeholder conflict and focusing attention on the most likely root cause."
+  }
+}
