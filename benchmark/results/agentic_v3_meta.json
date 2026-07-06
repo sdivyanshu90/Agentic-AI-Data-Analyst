@@ -1,0 +1,47 @@
+{
+  "condition": "AGENTIC-v3 (11-phase pipeline + real code execution)",
+  "model": "gemini-2.5-pro",
+  "history": [
+    "run 1: BLOCKED at Phase 6.5 by red-team review (multicollinear regression, unchecked marketing-campaign confound, over-graded evidence, missing self-selection caveat)",
+    "run 2: resumed from Phase 5 with round-1 revisions; BLOCKED again at Phase 6.5 on new findings (H1 marginal p=0.032 failing MTC with wide CI, price-hike alternative for the M2M-Fiber root cause, Electronic-Check proxy explanation, sweep gaps)",
+    "run 3 (this): resumed from Phase 5 with cumulative round-1 + round-2 revisions and an explicit review protocol"
+  ],
+  "elapsed_seconds_resume": 885.6,
+  "blocked_phase": null,
+  "phases_run": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    6.5,
+    7,
+    8,
+    9
+  ],
+  "phase_status": {
+    "0": "COMPLETE",
+    "1": "COMPLETE",
+    "2": "COMPLETE",
+    "3": "COMPLETE",
+    "4": "COMPLETE",
+    "5": "COMPLETE",
+    "6": "COMPLETE",
+    "6.5": "COMPLETE",
+    "7": "COMPLETE",
+    "8": "COMPLETE",
+    "9": "COMPLETE"
+  },
+  "red_team_verdict": "PROCEED_WITH_REVISIONS",
+  "code_executing_phases": [
+    6
+  ],
+  "code_calls_per_phase": {
+    "6": 1
+  },
+  "total_code_executions": 1,
+  "has_final_report": true,
+  "final_report_chars": 11132
+}
