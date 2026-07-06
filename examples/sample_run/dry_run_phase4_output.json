@@ -2,13 +2,18 @@
   "phase": 4,
   "phase_name": "Exploratory Data Analysis",
   "status": "COMPLETE",
-
   "univariate_analysis": [
     {
       "column": "tenure_days",
       "distribution_shape": "right-skewed",
-      "central_tendency": { "mean": "412", "median": "284" },
-      "spread": { "std_dev": "318", "iqr": "165–598" },
+      "central_tendency": {
+        "mean": "412",
+        "median": "284"
+      },
+      "spread": {
+        "std_dev": "318",
+        "iqr": "165–598"
+      },
       "outlier_count": 412,
       "key_observation": "Right-skew driven by long-tenure enterprise users; median is the more representative central measure for churn modelling.",
       "recommended_viz": "histogram with log-x or violin plot, split by plan_tier"
@@ -16,8 +21,14 @@
     {
       "column": "acquisition_channel",
       "distribution_shape": "categorical-imbalanced",
-      "central_tendency": { "mean": "n/a", "median": "n/a" },
-      "spread": { "std_dev": "n/a", "iqr": "n/a" },
+      "central_tendency": {
+        "mean": "n/a",
+        "median": "n/a"
+      },
+      "spread": {
+        "std_dev": "n/a",
+        "iqr": "n/a"
+      },
       "outlier_count": 0,
       "key_observation": "organic (38.4%) and paid_search (27.1%) dominate; 'unknown_legacy' is the 5th-largest bucket — non-trivial.",
       "recommended_viz": "bar chart, percentage labels, ordered descending"
@@ -25,8 +36,14 @@
     {
       "column": "churn_type",
       "distribution_shape": "categorical-binary-skewed",
-      "central_tendency": { "mean": "n/a", "median": "n/a" },
-      "spread": { "std_dev": "n/a", "iqr": "n/a" },
+      "central_tendency": {
+        "mean": "n/a",
+        "median": "n/a"
+      },
+      "spread": {
+        "std_dev": "n/a",
+        "iqr": "n/a"
+      },
       "outlier_count": 0,
       "key_observation": "65% active / 22% voluntary / 13% involuntary — matches Phase 3's expected distribution.",
       "recommended_viz": "stacked bar by acquisition_channel"
@@ -34,14 +51,19 @@
     {
       "column": "event_count_30d",
       "distribution_shape": "heavily right-skewed (long-tail power-law)",
-      "central_tendency": { "mean": "47", "median": "12" },
-      "spread": { "std_dev": "118", "iqr": "4–38" },
+      "central_tendency": {
+        "mean": "47",
+        "median": "12"
+      },
+      "spread": {
+        "std_dev": "118",
+        "iqr": "4–38"
+      },
       "outlier_count": 982,
       "key_observation": "Median user generates 12 events in their first 30 days; top 1% generate >500. Use median in Phase 5 group comparisons.",
       "recommended_viz": "log-scale histogram or box plot capped at p99"
     }
   ],
-
   "bivariate_analysis": [
     {
       "variable_a": "acquisition_channel",
@@ -88,22 +110,28 @@
       "reasoning": "The discontinuity aligns with the pricing change (SQ3). Phase 5 should formally test this with an interrupted-time-series design rather than a simple t-test."
     }
   ],
-
   "multivariate_patterns": [
     {
-      "variables_involved": ["acquisition_channel", "event_count_30d", "churn_type"],
+      "variables_involved": [
+        "acquisition_channel",
+        "event_count_30d",
+        "churn_type"
+      ],
       "pattern_observed": "The negative event_count_30d ↔ voluntary churn relationship is sharpest for paid_search users (Cliff's δ = -0.55) and weakest for referral users (Cliff's δ = -0.18).",
       "business_interpretation": "Paid_search users who never engage churn fast; referral users seem to give the product more benefit of the doubt regardless of engagement.",
       "recommended_followup": "Phase 6 should investigate whether onboarding interventions targeted at low-engagement paid_search users could close the gap."
     },
     {
-      "variables_involved": ["plan_tier", "tenure_days", "churn_type"],
+      "variables_involved": [
+        "plan_tier",
+        "tenure_days",
+        "churn_type"
+      ],
       "pattern_observed": "Starter-tier voluntary churn concentrates at days 28–35 (a 'first-bill' cliff); Pro tier shows no such cluster.",
       "business_interpretation": "Starter users likely re-evaluate after their first credit-card statement; Pro users have already committed budget.",
       "recommended_followup": "Phase 6 root cause: is this a pricing-perception issue or an unmet-value issue at day-28?"
     }
   ],
-
   "anomaly_catalogue": [
     {
       "anomaly_description": "A single acquisition_channel value 'partner' has 4× the involuntary-churn rate of every other channel (47% vs 11–14%).",
@@ -122,46 +150,65 @@
       "investigate_in_phase_6": true
     }
   ],
-
   "hypotheses": [
     {
       "id": "H1",
       "statement": "There is a statistically significant difference in voluntary 90-day churn rate between paid_search and organic acquisition channels, with paid_search higher, in the Q3 cohort.",
-      "variables": ["acquisition_channel", "churn_type"],
+      "variables": [
+        "acquisition_channel",
+        "churn_type"
+      ],
       "source": "GENERATED_FROM_SUBQUESTION",
       "subquestion_id": "SQ1",
       "expected_test_type": "Two-proportion z-test (or χ² with effect size)",
-      "reasoning": "Bivariate analysis showed a large χ² effect concentrated in voluntary churn; this is the lead segment-level driver Phase 6 will need to trace to a root cause."
+      "reasoning": "Bivariate analysis showed a large χ² effect concentrated in voluntary churn; this is the lead segment-level driver Phase 6 will need to trace to a root cause.",
+      "provenance": "PRE_REGISTERED",
+      "known_event_check": "Hypothesis restates a Phase 1 sub-question framed before EDA; no Phase 0 confound candidate fully accounts for it, but the pricing change window overlaps and is flagged for the Phase 6 sweep."
     },
     {
       "id": "H2",
       "statement": "There is a statistically significant negative association between event_count_30d and 90-day voluntary churn among users acquired in Q2 2025.",
-      "variables": ["event_count_30d", "churn_type"],
+      "variables": [
+        "event_count_30d",
+        "churn_type"
+      ],
       "source": "GENERATED_FROM_SUBQUESTION",
       "subquestion_id": "SQ2",
       "expected_test_type": "Logistic regression with log(event_count) as predictor; Mann-Whitney U as the non-parametric confirmation",
-      "reasoning": "Cliff's δ of -0.42 indicates a large effect; logistic regression will let Phase 5 estimate a per-event odds ratio for downstream intervention sizing."
+      "reasoning": "Cliff's δ of -0.42 indicates a large effect; logistic regression will let Phase 5 estimate a per-event odds ratio for downstream intervention sizing.",
+      "provenance": "PRE_REGISTERED",
+      "known_event_check": "Hypothesis restates a Phase 1 sub-question framed before EDA; no Phase 0 confound candidate fully accounts for it, but the pricing change window overlaps and is flagged for the Phase 6 sweep."
     },
     {
       "id": "H3",
       "statement": "There is a statistically significant increase in weekly voluntary churn rate after 2025-07-15 vs the matching pre-period in the same Q3 cohort.",
-      "variables": ["end_date_week", "churn_type"],
+      "variables": [
+        "end_date_week",
+        "churn_type"
+      ],
       "source": "GENERATED_FROM_SUBQUESTION",
       "subquestion_id": "SQ3",
       "expected_test_type": "Interrupted-time-series with seasonal control (segmented regression)",
-      "reasoning": "Pre/post means differ but seasonal confounders cannot be ruled out by a naive t-test; segmented regression with a seasonal control isolates the pricing-change effect."
+      "reasoning": "Pre/post means differ but seasonal confounders cannot be ruled out by a naive t-test; segmented regression with a seasonal control isolates the pricing-change effect.",
+      "provenance": "PRE_REGISTERED",
+      "known_event_check": "Hypothesis restates a Phase 1 sub-question framed before EDA; no Phase 0 confound candidate fully accounts for it, but the pricing change window overlaps and is flagged for the Phase 6 sweep."
     },
     {
       "id": "H4",
       "statement": "There is a statistically significant interaction between acquisition_channel and event_count_30d in predicting voluntary churn (the engagement→retention slope is steeper for paid_search than for referral).",
-      "variables": ["acquisition_channel", "event_count_30d", "churn_type"],
+      "variables": [
+        "acquisition_channel",
+        "event_count_30d",
+        "churn_type"
+      ],
       "source": "EMERGENT",
       "subquestion_id": null,
       "expected_test_type": "Logistic regression with channel × log(events) interaction term",
-      "reasoning": "Multivariate analysis revealed channel-dependent slope differences (δ = -0.55 vs -0.18). Testing the interaction formally tells Phase 6 whether onboarding intervention should be channel-targeted."
+      "reasoning": "Multivariate analysis revealed channel-dependent slope differences (δ = -0.55 vs -0.18). Testing the interaction formally tells Phase 6 whether onboarding intervention should be channel-targeted.",
+      "provenance": "DATA_DERIVED",
+      "known_event_check": "Pattern emerged from this EDA; checked Phase 0 confound candidates — the mid-quarter pricing change could contribute and is added as a competing explanation for Phase 5/6."
     }
   ],
-
   "eda_visualisation_spec": [
     {
       "finding_ref": "Bivariate:acquisition_channel_vs_churn_type",
@@ -214,9 +261,13 @@
       "reasoning": "Establishes for the Phase 7 audience why we report medians and use non-parametric tests."
     }
   ],
-
   "phase_5_handoff": {
-    "hypotheses_to_test": ["H1", "H2", "H3", "H4"],
+    "hypotheses_to_test": [
+      "H1",
+      "H2",
+      "H3",
+      "H4"
+    ],
     "priority_order": "H3 (pricing change is time-sensitive) → H1 (largest segment-level effect) → H2 (behavioural lever) → H4 (interaction; only meaningful if H1 and H2 both supported)",
     "notes": "Multiple-testing correction will apply (4 hypotheses). Phase 5 should use Holm–Bonferroni at α=0.05. H3 requires a seasonal control series; the 2024 Q3 weekly churn series is the recommended baseline."
   }
