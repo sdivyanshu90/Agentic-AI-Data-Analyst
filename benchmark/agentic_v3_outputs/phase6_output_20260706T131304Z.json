@@ -1,0 +1,297 @@
+{
+  "phase": 6,
+  "phase_name": "Advanced Analysis & Root Cause Investigation",
+  "status": "COMPLETE",
+  "analyses": [
+    {
+      "subquestion_id": "SQ1",
+      "method_selected": "SEGMENTATION",
+      "method_reasoning": "this method is appropriate because it involves breaking down the overall churn rate into specific demographic groups to see if the outcome varies. This is a foundational descriptive analysis that directly answers the business question about how churn differs across key customer segments like Senior Citizens, Partners, and Dependents.",
+      "execution_steps": [
+        "Group the dataset by each demographic column ('SeniorCitizen', 'Partner', 'Dependents').",
+        "For each group, calculate the total number of customers and the number of churned customers.",
+        "Compute the churn rate for each segment by dividing churned customers by total customers.",
+        "Compare the segment-specific churn rates to the overall baseline churn rate."
+      ],
+      "results": {
+        "key_metric": "Churn Rate by Segment vs. Baseline",
+        "value": "Senior Citizens: 41.7%, No Partner: 33.0%, No Dependents: 31.3%",
+        "baseline_comparison": "The baseline churn rate is 26.5%. Senior Citizens churn at a rate 1.57x the baseline. Customers without partners or dependents also churn at significantly higher rates than those with them (19.7% and 15.5% respectively).",
+        "business_interpretation": "Demographics are a significant factor in churn risk. Senior citizens represent a high-risk group. Similarly, customers without social ties (partners or dependents) are less 'sticky' and more likely to leave. These groups may require targeted retention efforts."
+      }
+    },
+    {
+      "subquestion_id": "SQ2",
+      "method_selected": "PARETO ANALYSIS",
+      "method_reasoning": "this method is appropriate because it helps identify the vital few inputs that contribute most to an outcome. For the business question, it allows us to see if a small number of segments (by contract or payment method) are responsible for the majority of churn events, thus focusing intervention efforts.",
+      "execution_steps": [
+        "Identify all churned customers (1,869 total).",
+        "Group churned customers by 'Contract' type.",
+        "Count the number of churners in each group and calculate the percentage of total churn.",
+        "Sort the groups in descending order of churn contribution and calculate the cumulative percentage."
+      ],
+      "results": {
+        "key_metric": "Percentage of total churners from 'Month-to-month' contracts",
+        "value": "88.55%",
+        "baseline_comparison": "Customers on 'Month-to-month' contracts make up 55% of the customer base but account for nearly 89% of all churn.",
+        "business_interpretation": "The churn problem is overwhelmingly concentrated in the month-to-month customer segment. While other factors matter, addressing this single segment is the highest-leverage opportunity for churn reduction. This is a classic Pareto principle (80/20 rule) in action."
+      }
+    },
+    {
+      "subquestion_id": "SQ3",
+      "method_selected": "SEGMENTATION / COHORT ANALYSIS",
+      "method_reasoning": "this method is appropriate because it allows us to analyze how a key metric (churn rate) changes over the customer lifecycle (tenure). Using the engineered 'tenure_group' feature directly addresses the business question about the relationship between tenure and churn.",
+      "execution_steps": [
+        "Group the dataset by the engineered 'tenure_group' feature.",
+        "For each tenure group, calculate the churn rate.",
+        "Analyze the trend of churn rate as tenure increases.",
+        "Additionally, group by 'Churn' and describe the distributions of 'tenure' and 'MonthlyCharges' to compare averages for churners vs. non-churners."
+      ],
+      "results": {
+        "key_metric": "Churn Rate by Tenure Group",
+        "value": "0-12 Months: 48.3%, 13-24 Months: 29.5%, 25-48 Months: 20.9%, 49-72 Months: 9.6%",
+        "baseline_comparison": "The churn rate for the newest customers (0-12 months) is 1.8x the overall average of 26.5% and over 5x higher than the most loyal customers.",
+        "business_interpretation": "The first year is the most critical period for customer retention. Churn risk is extremely high at the beginning of the customer lifecycle and decreases steadily over time. Efforts should be focused on improving the onboarding and early-life experience."
+      }
+    },
+    {
+      "subquestion_id": "SQ4",
+      "method_selected": "SEGMENTATION",
+      "method_reasoning": "this method is appropriate because the question asks to compare churn rates across various services and add-ons. Segmentation allows for a direct, side-by-side comparison of churn for customers with and without specific services, which directly answers the question.",
+      "execution_steps": [
+        "For each service/add-on column (e.g., 'InternetService', 'TechSupport', 'OnlineSecurity'), group the data by the column's categories ('Yes', 'No', etc.).",
+        "Calculate the churn rate for each category.",
+        "Identify the services with the highest and lowest associated churn rates."
+      ],
+      "results": {
+        "key_metric": "Churn Rates for Key Services",
+        "value": "Fiber Optic: 41.9%, No Tech Support: 41.6%, No Online Security: 41.8%, No Internet Service: 7.4%",
+        "baseline_comparison": "Customers with Fiber Optic service and those without key protective add-ons (Tech Support, Online Security) churn at rates ~1.6x the baseline (26.5%). Conversely, customers with no internet are extremely loyal.",
+        "business_interpretation": "Fiber optic service is associated with a major churn problem. Additionally, a lack of protective add-on services like Tech Support and Online Security is a strong indicator of churn risk, suggesting these services provide significant value or are selected by more engaged customers."
+      }
+    },
+    {
+      "subquestion_id": "SQ5",
+      "method_selected": "REGRESSION ANALYSIS",
+      "method_reasoning": "this method is appropriate because it allows us to quantify the simultaneous impact of multiple customer attributes on a single binary outcome (Churn), controlling for confounding variables. This directly answers the business question of identifying the 'top drivers' by providing a ranked list of predictors based on their statistical significance and effect size.",
+      "execution_steps": [
+        "Select relevant features identified during EDA, excluding the target 'Churn', non-predictive IDs, and 'TotalCharges' (to avoid multicollinearity with 'tenure').",
+        "One-hot encode all categorical features and scale numerical features.",
+        "Train a logistic regression model on the preprocessed data with 'Churn' as the target.",
+        "Extract the coefficients for each feature and convert them to odds ratios for interpretation.",
+        "Rank features by the strength of their impact (deviation of odds ratio from 1)."
+      ],
+      "results": {
+        "key_metric": "Top 3 Predictors from Logistic Regression Model",
+        "value": "1. InternetService (Fiber optic vs DSL): OR 2.11, 2. Contract (Month-to-month vs. Two Year): OR ~4.96 (derived from 1/0.266 for Two Year vs 1 for M2M), 3. Tenure: OR 0.43 (per scaled unit)",
+        "baseline_comparison": "After controlling for all factors, contractual and service-level features have a much larger impact than demographic ones. The odds ratio for 'SeniorCitizen' is 1.24, while 'PaymentMethod_Electronic check' is 1.36.",
+        "business_interpretation": "Even after accounting for other factors, having Fiber Optic service more than doubles a customer's odds of churning compared to DSL. Being on a long-term contract and having a longer tenure are the strongest protective factors. This multivariate view confirms that contract, tenure, and internet service are the primary drivers."
+      }
+    }
+  ],
+  "root_cause_chains": [
+    {
+      "finding_ref": "H2 (High early-life churn)",
+      "symptom": "Overall churn rate is 26.5%, which is high for the industry.",
+      "proximate_cause": {
+        "description": "Churn is heavily concentrated among new customers. The churn rate for customers with 0-12 months tenure is 48.3%, nearly double the company average.",
+        "evidence": "Computed Evidence, Churn Rate by tenure_group: '0-12 Months' churn rate is 0.4828. Phase 5 test H2 confirms a statistically significant negative relationship between tenure and churn."
+      },
+      "contributing_factor": {
+        "description": "A mismatch between customer expectations and the service experience, particularly for high-cost services like Fiber Optic when not bundled with a long-term contract.",
+        "evidence": "Computed Evidence, Interaction Contract x Internet Service: 'Fiber optic' service churn rate is 54.6% for month-to-month customers. This suggests a common 'trial and reject' behavior."
+      },
+      "root_cause": {
+        "description": "The go-to-market strategy attracts low-intent customers (e.g., via aggressive but poorly targeted promotions) who are not a good long-term fit for the product's value proposition, leading to rapid churn post-acquisition.",
+        "evidence": "This is an inference based on the strong early-life churn pattern. The confound check for 'Marketing campaigns for acquisition' was deemed a plausible partial explanation in the confound sweep.",
+        "status": "HYPOTHESISED",
+        "data_needed_to_confirm": "Acquisition channel data for each customer. If churn is significantly higher for customers acquired through specific campaigns (e.g., 'First month free'), this hypothesis would be supported."
+      }
+    },
+    {
+      "finding_ref": "H3 (High churn for Electronic check)",
+      "symptom": "Overall churn rate is 26.5%.",
+      "proximate_cause": {
+        "description": "Customers using 'Electronic check' as their payment method have a churn rate of 45.3%, roughly 2.5-3x higher than automatic payment methods.",
+        "evidence": "Computed Evidence, Churn Rate by PaymentMethod: 'Electronic check' churn rate is 0.452854. Phase 5 test H3 confirms a statistically significant association, even after controlling for other factors."
+      },
+      "contributing_factor": {
+        "description": "This payment method introduces friction. It is a manual, non-recurring process that can lead to missed payments, failed transactions, or a regular decision point for the customer to reconsider the service.",
+        "evidence": "Computed Evidence, Interaction Paperless Billing x Payment Method: The combination of 'PaperlessBilling' (Yes) and 'Electronic check' has the highest churn rate of all (49.8%), suggesting that without a physical bill reminder, manual payments are frequently abandoned."
+      },
+      "root_cause": {
+        "description": "Two competing hypotheses exist: 1) The payment process itself is flawed, causing involuntary/frustration-driven churn. 2) 'Electronic check' is a non-causal proxy for a customer demographic that is inherently less stable or a poorer fit for the service.",
+        "evidence": "The available data only confirms a strong correlation. It cannot distinguish between direct causation and proxy effects. This addresses red-team feedback R2.4.",
+        "status": "HYPOTHESISED",
+        "data_needed_to_confirm": "Data on payment failure rates for this segment vs. others. Also, qualitative survey data from churned customers in this segment asking about their reasons for leaving."
+      }
+    }
+  ],
+  "segment_deep_dives": [
+    {
+      "finding_ref": "Bivariate:Contract_vs_Churn",
+      "segments_analysed": [
+        "InternetService",
+        "tenure_group"
+      ],
+      "finding_holds_across_segments": true,
+      "highest_impact_segment": "InternetService: Fiber optic",
+      "magnitude_in_segment": "For customers with Fiber optic service, the churn rate for 'Month-to-month' contracts is 54.6%, whereas for 'Two year' contracts it is only 7.2%. The difference in churn risk based on contract type is amplified for this service.",
+      "simpsons_paradox_detected": false,
+      "simpsons_paradox_description": ""
+    },
+    {
+      "finding_ref": "H3 (High churn for Electronic check)",
+      "segments_analysed": [
+        "tenure_group",
+        "InternetService"
+      ],
+      "finding_holds_across_segments": true,
+      "highest_impact_segment": "tenure_group: 0-12 Months",
+      "magnitude_in_segment": "The finding holds across all segments analyzed. For new customers (0-12 months tenure), using Electronic Check results in a churn rate of 63.1%, compared to 37.8% for automatic credit card payments in the same tenure group. The effect is persistent but most damaging early in the customer lifecycle.",
+      "simpsons_paradox_detected": false,
+      "simpsons_paradox_description": ""
+    }
+  ],
+  "confound_sweep": [
+    {
+      "finding_ref": "H2 (High early-life churn)",
+      "dimensions_swept": [
+        {
+          "dimension": "InternetService",
+          "outcome": "HOLDS",
+          "detail": "High early-life churn is present for both DSL and Fiber Optic customers, though it is more pronounced for Fiber."
+        },
+        {
+          "dimension": "Contract",
+          "outcome": "ATTENUATES",
+          "detail": "The finding is almost entirely driven by Month-to-Month contracts. For 1- and 2-year contracts, early life churn is very low. The high overall early-life churn is an artifact of the mix of contracts within that tenure group."
+        }
+      ],
+      "dimensions_not_sweepable": [],
+      "known_event_check": [
+        {
+          "confound_candidate": "Marketing campaigns for acquisition or upgrades",
+          "explains_finding": "PARTIALLY",
+          "evidence": "This pattern is highly consistent with acquisition campaigns that offer aggressive introductory pricing, attracting customers who churn quickly after the promotional period ends. Lacking specific campaign data, this remains a strong plausible explanation for the high volume of early churners. This check addresses red-team feedback R1.2."
+        }
+      ],
+      "post_sweep_verdict": "MIX_SHIFT",
+      "reasoning": "The finding of 'high early-life churn' is primarily an artifact of the high prevalence of month-to-month contracts among new customers. The true driver is the contract type, not tenure itself, although they are highly correlated."
+    },
+    {
+      "finding_ref": "H3 (High churn for Electronic check)",
+      "dimensions_swept": [
+        {
+          "dimension": "tenure_group",
+          "outcome": "HOLDS",
+          "detail": "The churn rate for Electronic Check users is significantly higher than other payment methods within every tenure group (Computed Evidence, sweep_h3_tenure)."
+        },
+        {
+          "dimension": "InternetService",
+          "outcome": "HOLDS",
+          "detail": "The churn rate for Electronic Check users is significantly higher for customers with DSL, Fiber Optic, and those with No internet service (Computed Evidence, sweep_h3_internet)."
+        },
+        {
+          "dimension": "Contract",
+          "outcome": "HOLDS",
+          "detail": "The high churn rate for Electronic Check persists across all contract types."
+        }
+      ],
+      "dimensions_not_sweepable": [],
+      "known_event_check": [
+        {
+          "confound_candidate": "Unspecified changes in pricing or plan structure",
+          "explains_finding": "NO",
+          "evidence": "There is no logical reason why a price change would disproportionately affect only customers using one specific payment method. The effect appears independent of this confounder."
+        }
+      ],
+      "post_sweep_verdict": "ORGANIC",
+      "reasoning": "The finding is remarkably consistent across all major customer segments, indicating it is a fundamental issue and not an artifact of a specific subgroup. This fulfills the red-team request R2.3."
+    }
+  ],
+  "sensitivity_analysis": [
+    {
+      "finding_ref": "SQ5 (Regression-based driver ranking)",
+      "cleaning_decision_varied": "Imputation of 'TotalCharges' for tenure=0 customers.",
+      "alternate_choice": "Drop the 11 rows with tenure=0 instead of imputing TotalCharges with 0.",
+      "finding_survives": true,
+      "robustness": "ROBUST",
+      "detail": "Removing these 11 rows (0.15% of data) has no material impact on the logistic regression model's coefficients or their significance. The top predictors and their odds ratios remain stable. The findings are not sensitive to this cleaning decision."
+    }
+  ],
+  "external_benchmarks": [
+    {
+      "finding_ref": "Overall Churn Rate",
+      "benchmark_metric": "Annualized Telecom Churn Rate",
+      "benchmark_value": "15-20%",
+      "source": "General industry knowledge (e.g., reports from Statista, Deloitte). This is a widely cited range for postpaid telecom carriers.",
+      "comparison": "The dataset's churn rate is 26.5% for the observed period. Whether this is monthly, quarterly, or annually is not specified, but in any common business context, this rate is alarmingly high and likely performing worse than industry averages."
+    }
+  ],
+  "impact_quantification": [
+    {
+      "finding": "H3: High churn for Electronic check users",
+      "current_state": "2,365 customers use Electronic check, churning at 45.3%. This results in ~1,071 churned customers from this segment per period.",
+      "opportunity_estimate": "If these customers could be converted to automatic payment methods (avg. churn rate 16.0%), we could potentially retain an estimated 693 customers per period (2365 * (0.4529 - 0.1598)).",
+      "confidence": "MEDIUM",
+      "key_assumption": "The relationship is largely causal (i.e., payment friction is a main driver). If it's mostly a proxy for a high-risk demographic, an intervention to change payment methods might have a much smaller effect."
+    },
+    {
+      "finding": "H2: High early-life churn (0-12 months)",
+      "current_state": "2,069 customers are in the 0-12 month tenure group, churning at 48.3%. This results in ~1,000 churned customers from this segment per period.",
+      "opportunity_estimate": "If a new onboarding program could reduce the first-year churn rate by one-third (from 48.3% to 32.2%), we would retain an estimated 333 customers per period (2069 * (0.4828 * 0.333)).",
+      "confidence": "MEDIUM",
+      "key_assumption": "The assumption is that a feasible onboarding program (e.g., welcome calls, proactive tech support, contract upgrade offers) can reduce churn by this magnitude. The true effect would need to be measured via an A/B test."
+    },
+    {
+      "finding": "H4: High churn for users without Tech Support",
+      "current_state": "3,473 customers without Tech Support churn at 41.6%.",
+      "opportunity_estimate": "Due to strong self-selection bias, a naive estimate is misleading. A conservative estimate: if the true causal effect is 1/4 of the observed correlational gap, offering the service might reduce churn in this group by ~6.6 percentage points ( (41.6-15.2)/4 ), retaining ~229 customers.",
+      "confidence": "LOW",
+      "key_assumption": "The largest uncertainty is the degree of self-selection bias. The observed correlation (41.6% churn vs 15.2%) is a vast over-estimate of the causal effect of providing Tech Support. This addresses red-team feedback R1.4."
+    }
+  ],
+  "insight_ranking": [
+    {
+      "rank": 1,
+      "insight": "Churn is overwhelmingly driven by customers on Month-to-Month contracts, who account for 89% of all churn. This is the single highest-leverage area for intervention, for example through campaigns to upgrade customers to longer-term contracts.",
+      "impact": "HIGH",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    },
+    {
+      "rank": 2,
+      "insight": "Customers paying by Electronic Check are a major flight risk, churning at a rate of 45.3%. This indicates a significant friction point that could be addressed by incentivizing a switch to more reliable automatic payment methods.",
+      "impact": "HIGH",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    },
+    {
+      "rank": 3,
+      "insight": "The first year of service is a critical churn period, especially for customers on high-cost services like Fiber Optic without a contract. A targeted onboarding program for these new, high-risk customers could significantly improve retention.",
+      "impact": "MEDIUM",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    }
+  ],
+  "unanswered_subquestions": [
+    {
+      "subquestion_id": "SQ6",
+      "reason": "The statistical test (H1) for the interaction effect between 'Contract' and 'InternetService' was inconclusive (p=0.032, failed multiple testing correction) with a very wide confidence interval. While EDA showed a strong pattern, the model could not confirm a statistically significant interaction after controlling for all other factors. This fulfills red-team feedback R2.1.",
+      "status": "DEFERRED",
+      "path_to_answer": "Collect more data to increase statistical power or run a targeted A/B test offering different contract incentives to new Fiber Optic customers to directly measure the causal effect."
+    },
+    {
+      "subquestion_id": "SQ7",
+      "reason": "The analysis identified strong predictors and proposed intervention hypotheses. However, the 'cost-effective' part of the question cannot be answered as the dataset contains no financial data (e.g., cost of intervention, customer lifetime value).",
+      "status": "REQUIRES_NEW_DATA",
+      "path_to_answer": "Answering this requires a separate analysis that combines these churn findings with financial data from the finance/accounting department to build a full business case for each proposed intervention."
+    }
+  ],
+  "phase_7_top_insights_for_visualisation": [
+    "Insight 1: Churn is overwhelmingly driven by customers on Month-to-Month contracts, who account for 89% of all churn. This is the single highest-leverage area for intervention.",
+    "Insight 2: Customers paying by Electronic Check are a major flight risk, churning at a rate of 45.3%. This indicates a significant friction point that could be addressed by incentivizing a switch to more reliable automatic payment methods.",
+    "Insight 3: The first year of service is a critical churn period, especially for customers on high-cost services like Fiber Optic without a contract. A targeted onboarding program could significantly improve retention."
+  ]
+}
