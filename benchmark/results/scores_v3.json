@@ -1,0 +1,210 @@
+{
+  "condition": "AGENTIC-v3 (11-phase pipeline + code execution)",
+  "rubric": {
+    "driver_coverage": "Identifies the true top churn drivers (tenure, Contract, InternetService, OnlineSecurity, TechSupport, PaymentMethod) and does NOT promote non-drivers (gender) as important. 0-10.",
+    "statistical_rigour": "Uses hypothesis tests, p-values, effect sizes (Cramer's V / Cohen's d), or significance reasoning rather than eyeballing raw rate spreads. Distinguishes signal strength. 0-10.",
+    "data_quality": "Catches the real data-quality issues: TotalCharges stored as text with 11 blank values (all tenure=0 new customers), SeniorCitizen's 0/1 encoding, the structural 'No internet service' levels. 0-10.",
+    "confounding_root_cause": "Recognises that the predictors are correlated (Contract / tenure / InternetService / add-on services overlap), avoids double-counting, and reasons about WHY churn happens, not just WHAT correlates. 0-10.",
+    "caveat_honesty": "States limitations, calibrates confidence, and flags that the analysis is observational/correlational, not causal. 0-10.",
+    "actionability": "Recommendations are specific, measurable, prioritised, tied to the identified drivers, and mindful of cost/leverage. 0-10.",
+    "traceability_comms": "Clear evidence chain from data to finding to recommendation; communication suited to a medium-technical business stakeholder. 0-10."
+  },
+  "deterministic_scan": {
+    "mentions_tenure": true,
+    "mentions_contract": true,
+    "mentions_internet_service": true,
+    "mentions_payment_method": true,
+    "mentions_security_support": true,
+    "significance_testing": true,
+    "effect_sizes": false,
+    "data_quality_totalcharges": true,
+    "confounding": true,
+    "causal_caveat": false,
+    "gender_distractor_handled": false,
+    "n_recommendations": 29,
+    "length_chars": 11132
+  },
+  "numbers_verification": {
+    "checks": [
+      {
+        "fact": "overall_churn_rate",
+        "expected": "\u224826.5%",
+        "present": false
+      },
+      {
+        "fact": "totalcharges_blanks",
+        "expected": "11 blank TotalCharges",
+        "present": true
+      },
+      {
+        "fact": "m2m_churn",
+        "expected": "month-to-month \u224842.7%",
+        "present": true
+      },
+      {
+        "fact": "two_year_churn",
+        "expected": "two-year \u22482.7%",
+        "present": true
+      },
+      {
+        "fact": "fiber_churn",
+        "expected": "fiber optic \u224841.9%",
+        "present": true
+      },
+      {
+        "fact": "electronic_check_churn",
+        "expected": "electronic check \u224845.3%",
+        "present": true
+      },
+      {
+        "fact": "contract_is_driver",
+        "expected": "Contract identified as a driver",
+        "present": true
+      },
+      {
+        "fact": "tenure_is_driver",
+        "expected": "tenure identified as a driver",
+        "present": true
+      }
+    ],
+    "passed": 7,
+    "total": 8,
+    "accuracy": 0.875
+  },
+  "execution_transcript_summary": {
+    "code_executing_phases": [
+      6.0
+    ],
+    "total_code_executions": 1,
+    "successful_executions": 1,
+    "sample_executed_code": [
+      {
+        "phase": 6.0,
+        "code": "import pandas as pd\nimport numpy as np\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.preprocessing import StandardScaler, OneHotEncoder\nfrom sklearn.compose import Colu"
+      }
+    ]
+  },
+  "process_audit": {
+    "phase0": {
+      "complexity": "STANDARD_ANALYSIS",
+      "route": "FULL_PIPELINE",
+      "confound_candidates": [
+        "Unspecified changes in pricing or plan structure",
+        "Localized or service-specific outages/quality issues",
+        "Marketing campaigns for acquisition or upgrades"
+      ],
+      "deadline_feasibility": "FEASIBLE_WITH_DESCOPING"
+    },
+    "provenance": {
+      "hypotheses": {
+        "H1": "DATA_DERIVED",
+        "H2": "PRE_REGISTERED",
+        "H3": "PRE_REGISTERED",
+        "H4": "DATA_DERIVED",
+        "H5": "PRE_REGISTERED"
+      },
+      "evidence_grades": {
+        "H1": "EXPLORATORY",
+        "H2": "EXPLORATORY",
+        "H3": "EXPLORATORY",
+        "H4": "EXPLORATORY",
+        "H5": "EXPLORATORY"
+      },
+      "exploratory_count": 5
+    },
+    "phase6": {
+      "confound_sweep_findings": [
+        "H2 (High early-life churn)",
+        "H3 (High churn for Electronic check)"
+      ],
+      "post_sweep_verdicts": {
+        "H2 (High early-life churn)": "MIX_SHIFT",
+        "H3 (High churn for Electronic check)": "ORGANIC"
+      },
+      "sensitivity_entries": 1,
+      "fragile_findings": [],
+      "external_benchmarks": [
+        {
+          "metric": "Annualized Telecom Churn Rate",
+          "value": "15-20%",
+          "source": "General industry knowledge (e.g., reports from Statista, Deloitte). This is a widely cited range for postpaid telecom carriers."
+        }
+      ]
+    },
+    "red_team": {
+      "verdict": "PROCEED_WITH_REVISIONS",
+      "alternatives_audited": 2,
+      "findings_killed": [
+        "The root cause of high early-life churn is a go-to-market strategy that attracts low-intent customers (H2)."
+      ],
+      "overclaim_flags": [
+        {
+          "finding": "Insight 3: The first year of service is a critical churn period...",
+          "stated": "HIGH",
+          "corrected": "MEDIUM"
+        },
+        {
+          "finding": "Insight 2: Customers paying by Electronic Check are a major flight risk...",
+          "stated": "HIGH",
+          "corrected": "HIGH"
+        }
+      ],
+      "required_revisions": [
+        "Rephrase Insight 3 and its associated narrative to reflect the Phase 6 confound sweep finding. The focus should be on the interaction between new customers and month-to-month contracts, not on 'tenure' as a standalone driver. The confidence level must be downgraded from HIGH to MEDIUM.",
+        "Add a prominent caveat to all findings related to 'Fiber optic' churn (especially Insights 1 and 3) stating that service quality/reliability issues, a known industry churn driver, could not be evaluated with this data but represent a strong alternative explanation for the observed high churn.",
+        "Ensure that the narrative for Insight 2 (Electronic Check) uses the more conservative odds ratio (1.36) from the final multivariate model in Phase 6, not the larger one from the initial bivariate test in Phase 5, to accurately represent the effect's magnitude."
+      ]
+    },
+    "phase9": {
+      "success_metrics": 4,
+      "check_in_dates": [
+        "2026-10-06",
+        "2026-09-06",
+        "2026-10-06",
+        "2026-09-06"
+      ],
+      "monitoring_specs": 4,
+      "kb_gotchas": [
+        "TotalCharges Type Coercion: The `TotalCharges` column is stored as a string ('object') and contains empty strings (' ') for customers with 0 tenure. It must be coerced to numeric, creating NaNs, which must then be imputed with 0. Failure to do this correctly breaks any numerical analysis.",
+        "Multicollinearity: `tenure` and `TotalCharges` are highly correlated (Pearson's r > 0.8). Including both in a linear model (like logistic regression) will distort coefficient estimates. `TotalCharges` was dropped from the final model in favor of `tenure`.",
+        "Mix-Shift Trap: High early-life churn is primarily an artifact of most new customers being on Month-to-Month contracts. The root driver is the contract type, not tenure itself. Analyzing tenure without controlling for contract type is misleading.",
+        "Self-Selection Bias: Customers with add-on services like 'TechSupport' have much lower churn, but this is a strong correlation, not necessarily causation. Customers who opt-in are likely more engaged to begin with, so the causal impact of the service itself is much smaller than the observed correlation suggests.",
+        "Unmeasured Confound - Service Quality: High churn among Fiber Optic customers may be due to poor service reliability, not just price or customer fit. This could not be measured with the provided data and remains a major caveat on all Fiber-related findings."
+      ]
+    }
+  },
+  "llm_judge": {
+    "scores": {
+      "driver_coverage": {
+        "score": 8,
+        "justification": "Identifies the most important drivers like Contract and Tenure. However, it misses highlighting other key factors like OnlineSecurity and TechSupport in the main findings, making the coverage good but incomplete."
+      },
+      "statistical_rigour": {
+        "score": 4,
+        "justification": "Relies on comparing raw churn rates. While it mentions models in the appendix, the main report lacks effect sizes or test statistics, weakening the claims of significance and driver strength."
+      },
+      "data_quality": {
+        "score": 10,
+        "justification": "Excellent. Correctly identifies and handles all key data quality issues, including TotalCharges' string type and blank values for new customers, and the SeniorCitizen integer encoding."
+      },
+      "confounding_root_cause": {
+        "score": 10,
+        "justification": "Excellent. Acknowledges and clearly explains confounding between tenure and contract type. Also correctly identifies self-selection bias for service add-ons, showing deep understanding of the data's structure."
+      },
+      "caveat_honesty": {
+        "score": 10,
+        "justification": "Perfect. Provides a comprehensive section on limitations including correlation vs. causation and unmeasured factors. Appropriately calibrates confidence in findings."
+      },
+      "actionability": {
+        "score": 10,
+        "justification": "Perfect. Recommendations are specific, prioritized, and directly tied to findings with clear evidence chains and success metrics. The proposed interventions are concrete and well-reasoned."
+      },
+      "traceability_comms": {
+        "score": 10,
+        "justification": "Perfect. The report is exceptionally well-structured for a business audience, with a clear flow from data to insight to action. The 'evidence chain' section is a model of clarity."
+      }
+    },
+    "overall_weighted": 8.86,
+    "one_line_verdict": "A brilliantly communicated and actionable report, let down only by a lack of surfaced statistical evidence."
+  }
+}
