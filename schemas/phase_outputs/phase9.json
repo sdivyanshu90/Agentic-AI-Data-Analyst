@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase9.json",
+  "title": "Phase 9 Output — Impact Tracking & Monitoring Handoff",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "success_metrics",
+    "monitoring_specs",
+    "knowledge_base_entry"
+  ],
+  "properties": {
+    "phase": { "const": 9 },
+    "phase_name": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "NEEDS_RETRY"]
+    },
+    "success_metrics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "recommendation_ref",
+          "metric",
+          "cadence",
+          "threshold",
+          "check_in_date",
+          "reasoning"
+        ],
+        "properties": {
+          "recommendation_ref": { "type": "string", "minLength": 1 },
+          "metric": { "type": "string", "minLength": 1 },
+          "cadence": { "type": "string", "minLength": 1 },
+          "threshold": { "type": "string", "minLength": 1 },
+          "check_in_date": { "type": "string", "minLength": 1 },
+          "owner": { "type": "string" },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "monitoring_specs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["finding_ref", "alert_condition", "suggested_tool"],
+        "properties": {
+          "finding_ref": { "type": "string", "minLength": 1 },
+          "alert_condition": { "type": "string", "minLength": 1 },
+          "evaluation_window": { "type": "string" },
+          "suggested_tool": { "type": "string", "minLength": 1 },
+          "reasoning": { "type": "string" }
+        }
+      }
+    },
+    "knowledge_base_entry": {
+      "type": "object",
+      "required": [
+        "question",
+        "answer_one_paragraph",
+        "data_sources",
+        "gotchas_discovered"
+      ],
+      "properties": {
+        "question": { "type": "string", "minLength": 1 },
+        "answer_one_paragraph": { "type": "string", "minLength": 1 },
+        "data_sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "gotchas_discovered": { "type": "array", "items": { "type": "string" } },
+        "reusable_queries": { "type": "array", "items": { "type": "string" } },
+        "confounds_checked": { "type": "array", "items": { "type": "string" } },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
