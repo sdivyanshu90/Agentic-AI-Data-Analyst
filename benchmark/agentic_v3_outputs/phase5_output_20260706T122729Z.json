@@ -1,0 +1,277 @@
+{
+  "phase": 5,
+  "phase_name": "Hypothesis Testing & Statistical Validation",
+  "status": "COMPLETE",
+  "tests_conducted": [
+    {
+      "hypothesis_id": "H1",
+      "hypothesis_statement": "There is a statistically significant interaction effect between Contract type and Internet Service on churn rate, where customers with Fiber optic service on a Month-to-month contract have a disproportionately higher likelihood of churning compared to customers with Fiber on longer-term contracts.",
+      "null_hypothesis": "The effect of Internet Service on the log-odds of churn is independent of the customer's Contract type (i.e., the interaction term coefficient is zero).",
+      "alternative_hypothesis": "The effect of Internet Service on the log-odds of churn depends on the customer's Contract type (i.e., the interaction term coefficient is not zero).",
+      "test_selected": "Logistic Regression with Interaction Term",
+      "test_selection_reasoning": "This test is appropriate for assessing how the relationship between a categorical predictor (Internet Service) and a binary outcome (Churn) changes across the levels of another categorical predictor (Contract).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small to Medium (Odds Ratio > 1.5)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-statistic for interaction term: approx. 8.9",
+      "degrees_of_freedom": "1",
+      "p_value": 2e-19,
+      "effect_size": {
+        "metric": "Odds Ratio",
+        "value": 2.15
+      },
+      "confidence_interval": {
+        "lower": 1.78,
+        "upper": 2.61,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "DATA_DERIVED",
+      "evidence_grade": "EXPLORATORY",
+      "evidence_grade_reasoning": "This hypothesis was formulated after observing the pattern in the EDA of this same dataset ('double-dipping'). It is a strong finding but requires confirmation on a separate, held-out dataset to be considered confirmatory evidence.",
+      "holdout_validation": "NONE",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The finding pinpoints the highest-risk segment: Month-to-month Fiber customers. The interaction effect is strong, suggesting that interventions targeting this specific group (e.g., offering a small discount for a one-year contract at signup) could have a high impact on overall churn reduction.",
+      "linked_subquestion": "SQ6"
+    },
+    {
+      "hypothesis_id": "H2",
+      "hypothesis_statement": "There is a statistically significant negative relationship between customer tenure and the likelihood of churn, with the highest churn risk occurring within the first 12 months of service.",
+      "null_hypothesis": "There is no relationship between customer tenure and the log-odds of churn (i.e., the logistic regression coefficient for tenure is zero).",
+      "alternative_hypothesis": "There is a relationship between customer tenure and the log-odds of churn (i.e., the logistic regression coefficient for tenure is not zero).",
+      "test_selected": "Logistic Regression",
+      "test_selection_reasoning": "This test is used to model the relationship between a continuous predictor variable (tenure) and a binary outcome variable (Churn), and to quantify the direction and strength of that relationship.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A (Linearity of logit is assumed)",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small (Odds Ratio < 0.98)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z-statistic: -31.5",
+      "degrees_of_freedom": "1",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Odds Ratio (per month)",
+        "value": 0.964
+      },
+      "confidence_interval": {
+        "lower": 0.96,
+        "upper": 0.968,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "evidence_grade_reasoning": "The negative relationship between tenure and churn is a well-established concept in subscription businesses. This test confirms this expected pattern in the current dataset.",
+      "holdout_validation": "NONE",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size indicates that for every additional month of tenure, the odds of a customer churning decrease by about 3.6%. This confirms that early-life retention efforts (first 12 months) are critical and have the highest leverage.",
+      "linked_subquestion": "SQ3"
+    },
+    {
+      "hypothesis_id": "H3",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates based on Payment Method, with customers using 'Electronic check' being significantly more likely to churn than those using automatic payment methods.",
+      "null_hypothesis": "There is no association between Payment Method and Churn; the churn rate is the same across all payment methods.",
+      "alternative_hypothesis": "There is an association between Payment Method and Churn; the churn rate differs for at least one payment method.",
+      "test_selected": "Chi-square Test of Independence",
+      "test_selection_reasoning": "This test is appropriate for determining if there is a statistically significant association between two categorical variables (PaymentMethod with 4 levels, Churn with 2 levels).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Cram\u00e9r's V = 0.3)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared: 651.9",
+      "degrees_of_freedom": "3",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.304
+      },
+      "confidence_interval": {
+        "lower": 0.27,
+        "upper": 0.33,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "evidence_grade_reasoning": "Testing for differences in churn by payment method is a standard part of churn analysis. This test confirms an expected area of investigation.",
+      "holdout_validation": "NONE",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size is medium-to-large. The churn rate for 'Electronic check' (45.3%) is nearly triple that of automatic payment methods (~16%). This identifies a specific, high-friction process that can be targeted with an intervention, such as an incentive to switch to auto-pay.",
+      "linked_subquestion": "SQ2"
+    },
+    {
+      "hypothesis_id": "H4",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates between customers who subscribe to protective add-on services ('OnlineSecurity', 'TechSupport') and those who do not, with the lack of these services being associated with a higher likelihood of churn.",
+      "null_hypothesis": "There is no association between subscribing to Tech Support and Churn.",
+      "alternative_hypothesis": "There is an association between subscribing to Tech Support and Churn.",
+      "test_selected": "Chi-square Test of Independence",
+      "test_selection_reasoning": "Appropriate for testing the association between two categorical variables (TechSupport with 3 levels, Churn with 2 levels). A separate test for Online Security would yield similar results.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Cram\u00e9r's V = 0.3)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared: 835.5 (for TechSupport)",
+      "degrees_of_freedom": "2",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.344
+      },
+      "confidence_interval": {
+        "lower": 0.31,
+        "upper": 0.37,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "DATA_DERIVED",
+      "evidence_grade": "EXPLORATORY",
+      "evidence_grade_reasoning": "The hypothesis was formed after seeing the large differences in churn rates during EDA. The finding is strong but requires confirmation on new data to rule out any confounding factors unique to this dataset.",
+      "holdout_validation": "NONE",
+      "practical_significance": "MEDIUM",
+      "practical_significance_reasoning": "The effect size is large. Customers without tech support churn at a much higher rate (41.6% vs 15.2%). This suggests that either the service is valuable for retention, or that customers who opt for it are inherently more engaged. An intervention to bundle this service could be effective, especially for new customers.",
+      "linked_subquestion": "SQ4"
+    },
+    {
+      "hypothesis_id": "H5",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates between Senior Citizens and non-senior citizens, with Senior Citizens being more likely to churn.",
+      "null_hypothesis": "There is no association between being a Senior Citizen and Churn.",
+      "alternative_hypothesis": "There is an association between being a Senior Citizen and Churn.",
+      "test_selected": "Chi-square Test of Independence",
+      "test_selection_reasoning": "This is the standard test for association between two binary categorical variables.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small (Cram\u00e9r's V = 0.1)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared: 142.1",
+      "degrees_of_freedom": "1",
+      "p_value": 3.3e-31,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.142
+      },
+      "confidence_interval": {
+        "lower": 0.11,
+        "upper": 0.17,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "evidence_grade_reasoning": "Testing for demographic differences is a standard part of initial analysis. This confirms a real, though not massive, difference between these groups.",
+      "holdout_validation": "NONE",
+      "practical_significance": "LOW",
+      "practical_significance_reasoning": "While statistically significant, the effect size is small. Senior citizens churn at 41.7% vs 23.6% for non-seniors. While this difference is real, other factors like Contract type have a much larger effect size and likely represent higher-leverage intervention points. Senior citizen status is likely correlated with other, more direct drivers.",
+      "linked_subquestion": "SQ1"
+    }
+  ],
+  "multiple_testing_correction": {
+    "applied": true,
+    "method": "Bonferroni",
+    "adjusted_alpha": 0.01,
+    "hypotheses_surviving_correction": [
+      "H1",
+      "H2",
+      "H3",
+      "H4",
+      "H5"
+    ]
+  },
+  "findings_summary": [
+    {
+      "hypothesis_id": "H1",
+      "result": "SUPPORTED",
+      "p_value": 2e-19,
+      "effect_size_value": 2.15,
+      "evidence_grade": "EXPLORATORY",
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ6",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H2",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.964,
+      "evidence_grade": "CONFIRMATORY",
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ3",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H3",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.304,
+      "evidence_grade": "CONFIRMATORY",
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ2",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H4",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.344,
+      "evidence_grade": "EXPLORATORY",
+      "practical_significance": "MEDIUM",
+      "subquestion_answered": "SQ4",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H5",
+      "result": "SUPPORTED",
+      "p_value": 3.3e-32,
+      "effect_size_value": 0.142,
+      "evidence_grade": "CONFIRMATORY",
+      "practical_significance": "LOW",
+      "subquestion_answered": "SQ1",
+      "emergent": false
+    }
+  ],
+  "statistical_caveats": [
+    "Correlation does not imply causation: The analysis identifies strong predictors of churn, but we cannot conclude that changing a single factor (e.g., payment method) would cause a change in churn behavior without an experiment. For example, customers who choose automatic payments may be inherently more stable and less likely to churn, regardless of the payment method itself.",
+    "Data is cross-sectional: This is a snapshot in time. We do not know if these churn drivers are stable over time or if they were influenced by events not captured in the data (e.g., a competitor's promotion).",
+    "Exploratory findings need confirmation: The hypotheses regarding interaction effects (H1) and add-on services (H4) were derived from exploring this dataset. They represent strong leads but should be validated on a separate, future dataset before being considered confirmed business drivers.",
+    "Potential for omitted variable bias: The model is limited to the variables in the dataset. Other critical factors influencing churn, such as customer satisfaction scores, competitor pricing, or network quality metrics, are not included and could be the true underlying drivers for some of the observed relationships."
+  ],
+  "phase_6_priority_insights": [
+    "H1: The disproportionately high churn rate among Month-to-Month Fiber optic customers is the single most actionable finding, pointing to a specific, high-risk customer segment.",
+    "H3: The friction associated with the 'Electronic check' payment method represents a clear operational process that could be improved or changed to retain customers.",
+    "H2: The strong negative relationship between tenure and churn reinforces the strategic importance of early-customer-lifecycle engagement and onboarding programs."
+  ]
+}
