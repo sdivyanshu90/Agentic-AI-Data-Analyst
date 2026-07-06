@@ -14,16 +14,19 @@ from typing import Union
 
 PROMPT_FILE = Path(__file__).resolve().parents[1] / "PROMPT.md"
 
-_SECTION_HEADERS: dict[Union[int, str], str] = {
+_SECTION_HEADERS: dict[Union[int, float, str], str] = {
     "orchestrator": "MASTER ORCHESTRATOR PROMPT",
+    0: "PHASE 0 AGENT PROMPT",
     1: "PHASE 1 AGENT PROMPT",
     2: "PHASE 2 AGENT PROMPT",
     3: "PHASE 3 AGENT PROMPT",
     4: "PHASE 4 AGENT PROMPT",
     5: "PHASE 5 AGENT PROMPT",
     6: "PHASE 6 AGENT PROMPT",
+    6.5: "PHASE 6.5 AGENT PROMPT",
     7: "PHASE 7 AGENT PROMPT",
     8: "PHASE 8 AGENT PROMPT",
+    9: "PHASE 9 AGENT PROMPT",
 }
 
 
@@ -32,7 +35,7 @@ def _read_prompt_file() -> str:
 
 
 @lru_cache(maxsize=16)
-def load_prompt(phase: Union[int, str]) -> str:
+def load_prompt(phase: Union[int, float, str]) -> str:
     if phase not in _SECTION_HEADERS:
         raise KeyError(f"Unknown prompt section: {phase!r}")
 
@@ -45,7 +48,10 @@ def load_prompt(phase: Union[int, str]) -> str:
         raise ValueError(f"Header `# {header}` not found in PROMPT.md")
 
     start = match.end()
-    next_header_re = re.compile(r"^# (?:PHASE \d AGENT PROMPT|MASTER ORCHESTRATOR PROMPT)\s*$", re.MULTILINE)
+    next_header_re = re.compile(
+        r"^# (?:PHASE \d+(?:\.\d+)? AGENT PROMPT|MASTER ORCHESTRATOR PROMPT)\s*$",
+        re.MULTILINE,
+    )
     next_match = next_header_re.search(text, pos=start)
     end = next_match.start() if next_match else len(text)
 
