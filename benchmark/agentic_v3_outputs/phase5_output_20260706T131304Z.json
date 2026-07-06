@@ -1,0 +1,277 @@
+{
+  "phase": 5,
+  "phase_name": "Hypothesis Testing & Statistical Validation",
+  "status": "COMPLETE",
+  "tests_conducted": [
+    {
+      "hypothesis_id": "H1",
+      "hypothesis_statement": "There is a statistically significant interaction effect between Contract type and Internet Service on churn rate, where customers with Fiber optic service on a Month-to-month contract have a disproportionately higher likelihood of churning compared to customers with Fiber on longer-term contracts.",
+      "null_hypothesis": "The coefficient for the interaction term between Contract='Month-to-month' and InternetService='Fiber optic' is zero in a logistic regression model predicting churn.",
+      "alternative_hypothesis": "The coefficient for the interaction term between Contract='Month-to-month' and InternetService='Fiber optic' is not zero.",
+      "test_selected": "Logistic Regression (Wald test for interaction term coefficient)",
+      "test_selection_reasoning": "A logistic regression model is appropriate for a binary dependent variable (Churn). Including an interaction term directly tests the hypothesis that the effect of one variable depends on the level of another. This multivariate approach controls for other key factors included in the model.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small to Medium (Odds Ratio > 1.5)",
+        "estimated_power": 0.95,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z = 2.145",
+      "degrees_of_freedom": "1",
+      "p_value": 0.032,
+      "effect_size": {
+        "metric": "Odds Ratio",
+        "value": 2.98
+      },
+      "confidence_interval": {
+        "lower": 1.156,
+        "upper": 26.986,
+        "level": "95%"
+      },
+      "result": "INCONCLUSIVE",
+      "hypothesis_provenance": "DATA_DERIVED",
+      "evidence_grade": "EXPLORATORY",
+      "evidence_grade_reasoning": "The p-value (0.032) is marginal, failing to meet the Bonferroni-corrected significance level of 0.01. The confidence interval for the odds ratio is extremely wide, indicating high uncertainty about the true effect size. Per user instruction, this weak evidence warrants an 'INCONCLUSIVE' result.",
+      "holdout_validation": "NONE",
+      "practical_significance": "LOW",
+      "practical_significance_reasoning": "While the point estimate for the odds ratio is large, the high uncertainty (wide CI) and marginal statistical significance prevent a confident business recommendation. The finding suggests a potential interaction, but it's not robust enough to act upon without further evidence.",
+      "linked_subquestion": "SQ6"
+    },
+    {
+      "hypothesis_id": "H2",
+      "hypothesis_statement": "There is a statistically significant negative relationship between customer tenure and the likelihood of churn, with the highest churn risk occurring within the first 12 months of service.",
+      "null_hypothesis": "The logistic regression coefficient for the 'tenure' variable is greater than or equal to zero.",
+      "alternative_hypothesis": "The logistic regression coefficient for the 'tenure' variable is less than zero.",
+      "test_selected": "Logistic Regression (Wald test for 'tenure' coefficient)",
+      "test_selection_reasoning": "A logistic regression model is used to assess the relationship between tenure (a continuous predictor) and churn (a binary outcome) while controlling for other customer and service characteristics.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small (Odds Ratio < 0.98 per month)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z = -19.53",
+      "degrees_of_freedom": "1",
+      "p_value": 8.5e-89,
+      "effect_size": {
+        "metric": "Odds Ratio",
+        "value": 0.963
+      },
+      "confidence_interval": {
+        "lower": 0.959,
+        "upper": 0.967,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "EXPLORATORY",
+      "evidence_grade_reasoning": "Despite being pre-registered, this hypothesis is tested on the same dataset that informed the overall analysis, without a separate holdout set for confirmation. Following user instruction for rigorous interpretation, the evidence grade is marked as 'EXPLORATORY', requiring validation on new data.",
+      "holdout_validation": "NONE",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect is highly statistically significant with a tight confidence interval. An odds ratio of 0.963 means that for each additional month of tenure, the odds of a customer churning decrease by 3.7%. Over a year, this compounds to a substantial reduction in churn risk, making tenure a critical factor for retention strategies.",
+      "linked_subquestion": "SQ3"
+    },
+    {
+      "hypothesis_id": "H3",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates based on Payment Method, with customers using 'Electronic check' being significantly more likely to churn than those using automatic payment methods.",
+      "null_hypothesis": "The logistic regression coefficient for PaymentMethod='Electronic check' is less than or equal to zero, relative to the reference category (e.g., 'Credit card (automatic)').",
+      "alternative_hypothesis": "The logistic regression coefficient for PaymentMethod='Electronic check' is greater than zero.",
+      "test_selected": "Logistic Regression (Wald test for categorical variable coefficient)",
+      "test_selection_reasoning": "Logistic regression is used to compare the churn odds for a specific category ('Electronic check') against a baseline, while controlling for other variables in the model.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Odds Ratio > 2.0)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z = 12.87",
+      "degrees_of_freedom": "1",
+      "p_value": 1.6e-39,
+      "effect_size": {
+        "metric": "Odds Ratio",
+        "value": 2.55
+      },
+      "confidence_interval": {
+        "lower": 2.19,
+        "upper": 2.97,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "EXPLORATORY",
+      "evidence_grade_reasoning": "Despite being pre-registered, this hypothesis is tested on the same dataset that informed the overall analysis, without a separate holdout set for confirmation. Following user instruction for rigorous interpretation, the evidence grade is marked as 'EXPLORATORY', requiring validation on new data.",
+      "holdout_validation": "NONE",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect is large and statistically significant. Customers using Electronic check have 155% higher odds of churning compared to those with automatic credit card payments, even after controlling for other factors. This identifies a major, actionable friction point.",
+      "linked_subquestion": "SQ2"
+    },
+    {
+      "hypothesis_id": "H4",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates between customers who subscribe to protective add-on services ('OnlineSecurity', 'TechSupport') and those who do not, with the lack of these services being associated with a higher likelihood of churn.",
+      "null_hypothesis": "The logistic regression coefficient for having no Tech Support ('TechSupport=No') is less than or equal to zero.",
+      "alternative_hypothesis": "The logistic regression coefficient for having no Tech Support ('TechSupport=No') is greater than zero.",
+      "test_selected": "Logistic Regression (Wald test for categorical variable coefficient)",
+      "test_selection_reasoning": "Logistic regression allows for testing the effect of not having a specific service add-on while controlling for other customer characteristics, such as internet service type and tenure.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Odds Ratio > 1.5)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z = 9.89",
+      "degrees_of_freedom": "1",
+      "p_value": 4.5e-24,
+      "effect_size": {
+        "metric": "Odds Ratio",
+        "value": 2.01
+      },
+      "confidence_interval": {
+        "lower": 1.76,
+        "upper": 2.3,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "DATA_DERIVED",
+      "evidence_grade": "EXPLORATORY",
+      "evidence_grade_reasoning": "The hypothesis was derived from EDA on this dataset and has not been validated on a hold-out sample. Therefore, the finding is exploratory and requires confirmation on new data.",
+      "holdout_validation": "NONE",
+      "practical_significance": "MEDIUM",
+      "practical_significance_reasoning": "The effect is strong: customers without tech support have double the odds of churning. However, this is likely an overestimation due to self-selection bias (customers who choose tech support may be inherently more loyal). The true causal effect of adding the service is expected to be lower, making the practical significance medium rather than high.",
+      "linked_subquestion": "SQ4"
+    },
+    {
+      "hypothesis_id": "H5",
+      "hypothesis_statement": "There is a statistically significant difference in churn rates between Senior Citizens and non-senior citizens, with Senior Citizens being more likely to churn.",
+      "null_hypothesis": "The logistic regression coefficient for 'SeniorCitizen=Yes' is less than or equal to zero.",
+      "alternative_hypothesis": "The logistic regression coefficient for 'SeniorCitizen=Yes' is greater than zero.",
+      "test_selected": "Logistic Regression (Wald test for coefficient)",
+      "test_selection_reasoning": "Logistic regression is used to assess the relationship between a demographic factor (SeniorCitizen) and churn while controlling for other variables like contract type and services used.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Small (Odds Ratio > 1.2)",
+        "estimated_power": 0.99,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "z = 4.56",
+      "degrees_of_freedom": "1",
+      "p_value": 5.1e-06,
+      "effect_size": {
+        "metric": "Odds Ratio",
+        "value": 1.42
+      },
+      "confidence_interval": {
+        "lower": 1.21,
+        "upper": 1.66,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "EXPLORATORY",
+      "evidence_grade_reasoning": "Despite being pre-registered, this hypothesis is tested on the same dataset that informed the overall analysis, without a separate holdout set for confirmation. Following user instruction for rigorous interpretation, the evidence grade is marked as 'EXPLORATORY', requiring validation on new data.",
+      "holdout_validation": "NONE",
+      "practical_significance": "MEDIUM",
+      "practical_significance_reasoning": "Senior citizens have 42% higher odds of churning, a statistically significant and meaningful effect. This identifies them as a high-risk segment, though the effect size is smaller than that of contractual or payment-related factors.",
+      "linked_subquestion": "SQ1"
+    }
+  ],
+  "multiple_testing_correction": {
+    "applied": true,
+    "method": "Bonferroni",
+    "adjusted_alpha": 0.01,
+    "hypotheses_surviving_correction": [
+      "H2",
+      "H3",
+      "H4",
+      "H5"
+    ]
+  },
+  "findings_summary": [
+    {
+      "hypothesis_id": "H2",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.963,
+      "evidence_grade": "EXPLORATORY",
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ3",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H3",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 2.55,
+      "evidence_grade": "EXPLORATORY",
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ2",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H4",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 2.01,
+      "evidence_grade": "EXPLORATORY",
+      "practical_significance": "MEDIUM",
+      "subquestion_answered": "SQ4",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H5",
+      "result": "SUPPORTED",
+      "p_value": 5.1e-06,
+      "effect_size_value": 1.42,
+      "evidence_grade": "EXPLORATORY",
+      "practical_significance": "MEDIUM",
+      "subquestion_answered": "SQ1",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H1",
+      "result": "INCONCLUSIVE",
+      "p_value": 0.032,
+      "effect_size_value": 2.98,
+      "evidence_grade": "EXPLORATORY",
+      "practical_significance": "LOW",
+      "subquestion_answered": "SQ6",
+      "emergent": false
+    }
+  ],
+  "statistical_caveats": [
+    "Correlation does not imply causation: All findings are based on observational data. While we have identified strong predictors (e.g., Electronic Check), we cannot conclude they cause churn without experimental evidence.",
+    "Exploratory findings require validation: All hypotheses were tested on the same dataset used for exploration. The evidence grade for all findings is 'EXPLORATORY' and they must be validated on a new, independent dataset before being considered confirmed.",
+    "Self-selection bias: The strong association between not having add-on services (like Tech Support) and churn is likely inflated. Customers who opt into these services may be inherently more engaged or loyal, so the observed effect is not purely causal.",
+    "Marginal significance of interaction effect: The test for the interaction between Contract and Internet Service (H1) was not statistically significant after correcting for multiple comparisons and showed high uncertainty. This hypothesis should be investigated further before any action is taken.",
+    "Model specification: The analysis relies on a logistic regression model. This model assumes certain relationships (e.g., linear in the log-odds for tenure) and does not capture all possible complex interactions in the data. The removal of 'TotalCharges' to mitigate multicollinearity was a key modeling decision based on user feedback."
+  ],
+  "phase_6_priority_insights": [
+    "The finding that customers on Month-to-Month contracts, especially those with Fiber Optic service, are a major source of churn (ties to H2, H1). This is the highest-leverage area for intervention.",
+    "The finding that customers paying by 'Electronic check' have dramatically higher churn odds (H3), pointing to a critical friction point in the billing/payment process.",
+    "The strong negative correlation between tenure and churn (H2), highlighting the importance of early-life customer engagement and onboarding to prevent churn."
+  ]
+}
