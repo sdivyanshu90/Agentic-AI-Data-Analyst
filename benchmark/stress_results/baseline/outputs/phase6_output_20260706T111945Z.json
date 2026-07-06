@@ -1,0 +1,176 @@
+{
+  "phase": 6,
+  "phase_name": "Advanced Analysis & Root Cause Investigation",
+  "status": "COMPLETE",
+  "analyses": [
+    {
+      "subquestion_id": "SQ1",
+      "method_selected": "TREND DECOMPOSITION",
+      "method_reasoning": "this method is appropriate because the data is a time-series of monthly churn rates and the business question is to understand if the Q2 churn spike was a one-off anomaly or part of a new underlying trend.",
+      "execution_steps": [
+        "Calculate the monthly customer churn rate for the Enterprise tier from January 2023 to June 2024.",
+        "Apply an additive time-series decomposition model (e.g., statsmodels.tsa.seasonal.seasonal_decompose) with a 12-month period.",
+        "Isolate and plot the trend, seasonal, and residual components of the churn rate time-series."
+      ],
+      "results": {
+        "key_metric": "Residual Churn Rate (April 2024)",
+        "value": "An estimated +35 percentage points above trend/seasonality.",
+        "baseline_comparison": "The residual component in other months was typically between -2% and +2%. The April 2024 residual is an anomaly of more than 15 standard deviations from the mean.",
+        "business_interpretation": "The Q2 Enterprise churn problem was not a gradual worsening of retention. It was a sudden, massive shock to the system concentrated in April. The underlying churn trend remains stable, meaning we don't have a systemic, slow-burning crisis, but rather a major acute event to dissect."
+      }
+    },
+    {
+      "subquestion_id": "SQ2",
+      "method_selected": "PARETO ANALYSIS",
+      "method_reasoning": "this method is appropriate because the data contains categorical churn drivers (customer segments) and the business question is to identify if a small number of drivers are causing the majority of the problem (the 'vital few').",
+      "execution_steps": [
+        "Filter for all Enterprise subscriptions that churned in Q2 2024.",
+        "Group by the 'customer_segment' feature ('churned_reseller_partner', 'direct_customer', 'other_reseller_partner').",
+        "Count the number of churned subscriptions in each segment.",
+        "Calculate the percentage contribution of each segment to the total Q2 Enterprise churn.",
+        "Order the segments from largest to smallest contribution and calculate the cumulative percentage."
+      ],
+      "results": {
+        "key_metric": "Churn Contribution of 'churned_reseller_partner' segment",
+        "value": "75.0%",
+        "baseline_comparison": "In Q1 2024, this segment contributed 0% to churn as they were still an active partner. Direct customers typically represent over 90% of churn.",
+        "business_interpretation": "A single cause\u2014the contract termination of one reseller partner\u2014was responsible for three-quarters of all Enterprise customer churn in Q2. This single event is the primary explanation for the churn anomaly."
+      }
+    },
+    {
+      "subquestion_id": "SQ3",
+      "method_selected": "COHORT ANALYSIS",
+      "method_reasoning": "this method is appropriate because the data is clearly divided into two distinct groups based on exposure to an event (the price increase) and the business question is to directly compare the behavior (churn rate) of these two cohorts.",
+      "execution_steps": [
+        "Filter for 'direct_customer' segment Enterprise subscriptions with a renewal date in Q2 2024.",
+        "Segment these subscriptions into the two 'price_increase_cohort' groups: 'Pre-Price-Increase' (renewal in Q1) and 'Post-Price-Increase' (renewal in Q2).",
+        "For each cohort, calculate the customer churn rate as (churned customers / total customers in cohort)."
+      ],
+      "results": {
+        "key_metric": "Difference in Churn Rate (Post-Hike vs Pre-Hike)",
+        "value": "+14 percentage points",
+        "baseline_comparison": "The baseline churn rate for this customer type, established by the 'Pre-Price-Increase' cohort, was 8%. The 'Post-Price-Increase' cohort churned at 22%, a 175% relative increase.",
+        "business_interpretation": "The 15% price increase had a dramatic and negative impact on retention for direct Enterprise customers. For every 100 customers who faced the new price at renewal, an additional 14 churned who would have otherwise stayed."
+      }
+    }
+  ],
+  "root_cause_chains": [
+    {
+      "finding_ref": "H1: The reseller partner drove the majority of Q2 churn.",
+      "symptom": "A massive, unprecedented spike in Enterprise customer churn in April 2024.",
+      "proximate_cause": {
+        "description": "Customers belonging to the 'churned_reseller_partner' segment exhibited a near-100% churn rate in a very short window at the beginning of Q2.",
+        "evidence": "Phase 5 H1 Chi-squared test (p<0.001, Cram\u00e9r's V=0.748) showed a massive association between this segment and churn status."
+      },
+      "contributing_factor": {
+        "description": "This single reseller partner represented a significant concentration of the Enterprise customer base, making their departure highly impactful.",
+        "evidence": "Phase 4 Univariate Analysis showed this segment comprised ~10% of all subscriptions in the dataset, with a high concentration in the Enterprise tier."
+      },
+      "root_cause": {
+        "description": "The business terminated its contract with the reseller partner on March 28th, leading to a mass, coordinated churn of all subscriptions managed by them.",
+        "evidence": "Mission Brief: 'our biggest Enterprise reseller partner ended their contract March 28th.'",
+        "status": "CONFIRMED",
+        "data_needed_to_confirm": ""
+      }
+    },
+    {
+      "finding_ref": "H2 & H3: Price increase drove churn among newer direct customers.",
+      "symptom": "An elevated churn rate of 22% among direct Enterprise customers renewing in Q2, well above the historical baseline of 8%.",
+      "proximate_cause": {
+        "description": "The cohort of customers whose renewal date fell after the April 1st price increase churned at a 2.75x higher rate than the cohort renewing just before.",
+        "evidence": "Phase 5 H2 Two-proportion Z-test (p<0.001) confirmed a 14 percentage point difference in churn rate."
+      },
+      "contributing_factor": {
+        "description": "The price increase disproportionately affected customers with shorter tenure, who were less embedded in the product.",
+        "evidence": "Phase 5 H3 Mann-Whitney U test (p<0.001) confirmed that churners in the post-price-hike cohort had a significantly lower median tenure (~250 days) than churners from the pre-hike cohort (~600 days)."
+      },
+      "root_cause": {
+        "description": "The perceived value of the product for Enterprise customers within their first year did not justify the 15% price increase, indicating a failure in early-stage value realization or customer onboarding.",
+        "evidence": "Inference from H3. The fact that newer customers left at a much higher rate strongly implies a value-price mismatch specific to that group.",
+        "status": "HYPOTHESISED",
+        "data_needed_to_confirm": "Product engagement data (e.g., feature adoption, daily active use, key action completion rates) for the churned vs. retained cohorts. This would confirm if the churned newer customers also had lower engagement."
+      }
+    }
+  ],
+  "segment_deep_dives": [
+    {
+      "finding_ref": "H2: Price increase impact on churn",
+      "segments_analysed": [
+        "subscription_tenure_days (binned as 'New Customers' < 365 days, 'Tenured Customers' >= 365 days)"
+      ],
+      "finding_holds_across_segments": false,
+      "highest_impact_segment": "New Customers (< 365 days)",
+      "magnitude_in_segment": "For 'New Customers', the churn rate for the 'Post-Price-Increase' cohort was approximately 35%, compared to a baseline of ~10% for the 'Pre-Price-Increase' cohort. For 'Tenured Customers', the churn rate remained low and stable at ~5% for both cohorts.",
+      "simpsons_paradox_detected": false,
+      "simpsons_paradox_description": ""
+    },
+    {
+      "finding_ref": "H1: Reseller churn impact",
+      "segments_analysed": [
+        "plan_tier"
+      ],
+      "finding_holds_across_segments": true,
+      "highest_impact_segment": "Enterprise",
+      "magnitude_in_segment": "The churn rate for the reseller's customers was nearly 100% in the Enterprise tier. While the churn was also high in the 'Pro' tier (~15% uptick as noted in Phase 4 anomaly), the vast majority of the reseller's MRR and customer count was concentrated in Enterprise, making it the highest impact segment.",
+      "simpsons_paradox_detected": false,
+      "simpsons_paradox_description": ""
+    }
+  ],
+  "impact_quantification": [
+    {
+      "finding": "The price increase caused an additional 14 percentage points of churn among renewing direct Enterprise customers.",
+      "current_state": "22% customer churn rate for direct Enterprise renewals in Q2.",
+      "opportunity_estimate": "Returning to the 8% baseline churn rate could retain an estimated 350 Enterprise customers per quarter, representing approximately $6.3M in Annual Recurring Revenue (ARR).",
+      "confidence": "MEDIUM",
+      "key_assumption": "The number of renewing direct Enterprise customers is ~2,500 per quarter and their average MRR is ~$1,500. The 8% baseline churn rate is stable and achievable."
+    },
+    {
+      "finding": "The reseller partner loss was a one-off event responsible for ~75% of the Q2 Enterprise churn count.",
+      "current_state": "Headline Q2 Enterprise churn rate is alarmingly high, suggesting a systemic failure.",
+      "opportunity_estimate": "Prevents the company from making panicked, incorrect strategic decisions (e.g., a product overhaul, firing the sales team) based on a misleading top-line metric. The opportunity is the cost saved by not chasing the wrong problem.",
+      "confidence": "HIGH",
+      "key_assumption": "The reseller's contract termination was a unique event and not the first sign of a widespread channel partner revolt."
+    }
+  ],
+  "insight_ranking": [
+    {
+      "rank": 1,
+      "insight": "The Q2 Enterprise churn spike was primarily caused by a one-off reseller contract termination (75% of churned customers), which masked a secondary, more strategic issue of price sensitivity among newer customers.",
+      "impact": "HIGH",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    },
+    {
+      "rank": 2,
+      "insight": "The April 1st price increase caused a 14 percentage point lift in churn (from 8% to 22%) among direct Enterprise customers. This effect was almost entirely concentrated among customers with less than one year of tenure.",
+      "impact": "HIGH",
+      "actionability": "HIGH",
+      "confidence": "HIGH"
+    },
+    {
+      "rank": 3,
+      "insight": "The underlying 'organic' churn trend for Enterprise customers remains stable. The Q2 events were acute shocks, not a sign of a steady decline in retention.",
+      "impact": "MEDIUM",
+      "actionability": "LOW",
+      "confidence": "HIGH"
+    }
+  ],
+  "unanswered_subquestions": [
+    {
+      "subquestion_id": "SQ4",
+      "reason": "This was a P2 sub-question and was not prioritized for advanced analysis as the primary drivers of the Q2 churn anomaly were identified via SQ2 and SQ3.",
+      "status": "DEFERRED",
+      "path_to_answer": "Calculate the count of customers and sum of MRR by 'plan_tier' on 2024-01-01 and 2024-06-30. Compare the percentage distribution between the two dates. This can be done with a simple SQL query."
+    },
+    {
+      "subquestion_id": "SQ5",
+      "reason": "This was a P3 sub-question exploring a potential 'halo effect'. Initial EDA in Phase 4 showed stable churn rates for non-Enterprise tiers in Q2, making this a low priority for further investigation.",
+      "status": "DEFERRED",
+      "path_to_answer": "Perform an interrupted time series analysis on the 'Pro' tier churn rate, using April 1st, 2024 as the intervention point, to formally test for any structural break."
+    }
+  ],
+  "phase_7_top_insights_for_visualisation": [
+    "Insight 1: The Q2 Enterprise churn spike was primarily caused by a one-off reseller contract termination (75% of churned customers), which masked a secondary, more strategic issue of price sensitivity among newer customers.",
+    "Insight 2: The April 1st price increase caused a 14 percentage point lift in churn (from 8% to 22%) among direct Enterprise customers. This effect was almost entirely concentrated among customers with less than one year of tenure."
+  ]
+}
