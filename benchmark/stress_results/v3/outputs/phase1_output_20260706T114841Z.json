@@ -1,0 +1,155 @@
+{
+  "phase": 1,
+  "phase_name": "Stakeholder Requirement Gathering",
+  "status": "COMPLETE",
+  "clarification_needed": null,
+  "stakeholder_decoding": {
+    "stated_problem": "Determine who is right about the Q2 churn issue: the VP of Growth (it's an Enterprise tier-specific problem) or the CFO (it's a pricing problem across all tiers, amplified by mix shift). Also, check if support ticket volume is a driver and recommend what to do.",
+    "implied_business_problem": "A potential increase in high-value customer churn threatens revenue goals, but leadership is misaligned on the cause (product/service issue vs. pricing vs. one-off event), which prevents targeted corrective action.",
+    "root_question": "What are the primary drivers of the observed change in customer churn in Q2 2026, and how do these drivers differ across our customer tiers?",
+    "gap_analysis": "The stated problem is a conflict-oriented 'who is right?' framing. The root question reframes it as a neutral, diagnostic investigation into all potential drivers. The 'what to do' (prescriptive) and 'check support tickets' parts are out of scope for the initial analysis due to complexity and data unavailability, respectively, and must be deferred.",
+    "reasoning": "This decoding translates the stakeholder's business problem and competing hypotheses into a testable analytical question, while acknowledging and structuring the out-of-scope components based on the context provided in Phase 0."
+  },
+  "analysis_classification": {
+    "types": [
+      "Descriptive",
+      "Diagnostic",
+      "Prescriptive"
+    ],
+    "reasoning": "The request 'Figure out what's actually going on' requires Descriptive analysis (What happened to churn?) and Diagnostic analysis (Why did it happen?). The request 'tell us what to do' is Prescriptive. Per the Phase 0 feasibility assessment, the immediate focus for the 'by Friday' deadline will be on the Descriptive and Diagnostic parts, with the Prescriptive part deferred."
+  },
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "question": "How has the overall customer churn rate changed in Q2 2026 compared to Q1 2026 and Q2 2025?",
+      "priority": "P1",
+      "reasoning": "This establishes the fundamental fact base: is there an anomalous change in churn in Q2? Comparing sequentially (vs. Q1) and year-over-year (vs. Q2'25) controls for recent trends and seasonality."
+    },
+    {
+      "id": "SQ2",
+      "question": "How do Q2 2026 churn rates break down by customer tier, and how does this compare to previous periods (Q1 2026, Q2 2025)?",
+      "priority": "P1",
+      "reasoning": "This directly tests the VP of Growth's hypothesis that the problem is specific to the Enterprise tier."
+    },
+    {
+      "id": "SQ3",
+      "question": "Has the composition (% of total customers) of our customer base changed across tiers between Q1 and Q2 2026 (i.e., mix shift)?",
+      "priority": "P1",
+      "reasoning": "This directly tests the CFO's hypothesis that a mix shift towards a higher-churn tier could be exaggerating the overall churn rate."
+    },
+    {
+      "id": "SQ4",
+      "question": "What was the churn rate for the specific cohort of Enterprise customers managed by the reseller whose contract ended March 28th, and what was their contribution to total Enterprise churn in Q2?",
+      "priority": "P1",
+      "reasoning": "This isolates a major confounding event identified in Phase 0. Understanding its impact is critical to avoid misattributing this one-off churn spike to other causes."
+    },
+    {
+      "id": "SQ5",
+      "question": "For the Enterprise tier, what is the churn rate for customers whose contracts renewed *after* the April 1st price increase vs. those who renewed before?",
+      "priority": "P2",
+      "reasoning": "This provides a preliminary, descriptive answer to the CFO's pricing hypothesis. While not a causal analysis, it's a vital directional indicator achievable by an analyst."
+    },
+    {
+      "id": "SQ6",
+      "question": "Is there a detectable data artifact in churn metrics that coincides with the April billing system migration (e.g., a single-day spike/dip)?",
+      "priority": "P2",
+      "reasoning": "This is a critical data validation step. The entire analysis is invalid if the observed change in churn is due to a data migration issue rather than real business activity."
+    },
+    {
+      "id": "SQ7",
+      "question": "What is the Monthly Recurring Revenue (MRR) churn impact associated with the customer churn changes, segmented by tier?",
+      "priority": "P3",
+      "reasoning": "This adds the financial context that is crucial for the CFO and helps prioritize the problem based on revenue impact, not just customer count."
+    }
+  ],
+  "kpis": [
+    {
+      "sub_question_id": "SQ1",
+      "metric_name": "Overall Customer Churn Rate (Logo Churn)",
+      "calculation_logic": "(Number of customers who cancelled in period) / (Total customers at start of period)",
+      "time_window": "Quarterly (Q2'26, Q1'26, Q2'25)",
+      "comparison_baseline": "Q2'26 vs Q1'26 (sequential) and Q2'26 vs Q2'25 (year-over-year)"
+    },
+    {
+      "sub_question_id": "SQ2",
+      "metric_name": "Customer Churn Rate by Tier",
+      "calculation_logic": "For each tier: (Number of customers in tier who cancelled in period) / (Total customers in tier at start of period)",
+      "time_window": "Quarterly (Q2'26, Q1'26, Q2'25)",
+      "comparison_baseline": "Enterprise churn vs. Non-Enterprise churn within Q2'26; Enterprise churn in Q2'26 vs. prior periods."
+    },
+    {
+      "sub_question_id": "SQ3",
+      "metric_name": "Tier Mix Percentage (by Customer Count)",
+      "calculation_logic": "(Number of customers in a specific tier at start of period) / (Total customers at start of period)",
+      "time_window": "Start of Month (Jan-July 2026)",
+      "comparison_baseline": "Tier mix on April 1st vs. January 1st."
+    },
+    {
+      "sub_question_id": "SQ4",
+      "metric_name": "Reseller Cohort Churn Rate",
+      "calculation_logic": "(Number of churned customers from reseller cohort in Q2) / (Total customers in reseller cohort at start of Q2)",
+      "time_window": "Q2 2026",
+      "comparison_baseline": "Churn rate of reseller cohort vs. churn rate of non-reseller Enterprise cohort in Q2."
+    }
+  ],
+  "stakeholder_profile": {
+    "primary_audience": "Executive Leadership (VP of Growth, CFO)",
+    "technical_tolerance": "Low",
+    "output_format": "Email Brief with embedded charts (for initial 'by Friday' deadline), followed by a summary slide deck.",
+    "decision_to_be_made": "Agree on the primary source of the churn problem (e.g., tier-specific issue, one-off event, pricing sensitivity) in order to allocate resources for a targeted solution or a deeper, causal follow-up analysis."
+  },
+  "scope_flags": [
+    {
+      "flag": "Analysis of support ticket volume impact on churn.",
+      "type": "MISSING_DATA",
+      "decision": "BLOCK",
+      "reasoning": "Stakeholder confirmed that support ticket data is not available in the data warehouse. This question cannot be answered without a separate data engineering project to ingest the data."
+    },
+    {
+      "flag": "Prescriptive recommendation of 'what to do'.",
+      "type": "OUT_OF_SCOPE",
+      "decision": "DESCOPE",
+      "reasoning": "Providing a robust recommendation requires causal analysis (e.g., proving price elasticity) that is beyond the scope of a rapid diagnostic and may require a data scientist. This part of the request is descoped from the initial delivery."
+    },
+    {
+      "flag": "Causal impact analysis of the 15% price increase.",
+      "type": "NEEDS_DATA_SCIENTIST",
+      "decision": "DESCOPE",
+      "reasoning": "Properly isolating the price change effect from confounding events (reseller loss, migration) requires advanced statistical modeling. An analyst-level descriptive comparison will be provided instead (SQ5)."
+    },
+    {
+      "flag": "Consistency of metrics pre/post billing system migration.",
+      "type": "MISSING_DATA",
+      "decision": "PROCEED_WITH_CAVEAT",
+      "reasoning": "The April billing system migration is a major risk to data integrity. The analysis will proceed under the assumption that data can be reconciled, but Phase 2 must heavily focus on validating this. Findings will carry a caveat until validation is complete."
+    }
+  ],
+  "success_definition": "This analysis is successful when the VP of Growth and CFO receive a clear, data-supported narrative by Friday that quantifies the Q2 churn change, validates or refutes their respective hypotheses (Enterprise-specific vs. mix shift), and isolates the impact of confounding events (reseller loss), allowing them to agree on the primary nature of the problem and commission a targeted follow-up analysis.",
+  "assumptions_log": [
+    {
+      "id": "A1",
+      "assumption": "A reliable attribute exists in the data warehouse to identify the cohort of customers previously managed by the terminated reseller partner."
+    },
+    {
+      "id": "A2",
+      "assumption": "The definition and logging of 'churn' and 'active customer' are consistent or can be reconciled between the old and new billing systems following the April 2026 migration."
+    },
+    {
+      "id": "A3",
+      "assumption": "The primary churn metric of concern is customer count (logo churn), not revenue churn, though revenue churn will be a secondary metric."
+    },
+    {
+      "id": "A4",
+      "assumption": "Q2 is defined as the calendar quarter from April 1st to June 30th, 2026."
+    }
+  ],
+  "downstream_phase_goals": {
+    "phase_2_goal": "Extract subscription and user data for 2025-2026, and critically validate the consistency of churn event logging before and after the April 2026 billing migration.",
+    "phase_3_goal": "Create a unified analysis dataset with consistent definitions for churn, customer tiers, and key cohorts (reseller, post-price-hike).",
+    "phase_4_goal": "Execute queries to calculate the metrics for all P1/P2 sub-questions, segmenting results by tier, time period, and relevant cohorts.",
+    "phase_5_goal": "Synthesize query results into a cohesive narrative that directly adjudicates the VP vs. CFO hypotheses by quantifying the impact of each factor.",
+    "phase_6_goal": "Perform a quality assurance check on all key figures and ensure the narrative is a robust, unbiased interpretation of the data.",
+    "phase_7_goal": "Create a small set of clear, executive-friendly visualizations (line/bar charts) that illustrate the key findings from the synthesis.",
+    "phase_8_goal": "Draft a concise executive summary that clearly answers the core diagnostic questions and proposes specific, data-driven next steps for a deeper causal analysis."
+  }
+}
