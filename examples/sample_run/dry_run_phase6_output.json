@@ -2,7 +2,6 @@
   "phase": 6,
   "phase_name": "Advanced Analysis & Root Cause Investigation",
   "status": "COMPLETE",
-
   "analyses": [
     {
       "subquestion_id": "SQ1",
@@ -53,7 +52,6 @@
       }
     }
   ],
-
   "root_cause_chains": [
     {
       "finding_ref": "H1+H2",
@@ -92,11 +90,15 @@
       }
     }
   ],
-
   "segment_deep_dives": [
     {
       "finding_ref": "H1 (paid_search vs organic voluntary churn)",
-      "segments_analysed": ["Google non-brand", "Google brand", "Bing", "Facebook"],
+      "segments_analysed": [
+        "Google non-brand",
+        "Google brand",
+        "Bing",
+        "Facebook"
+      ],
       "finding_holds_across_segments": false,
       "highest_impact_segment": "Google non-brand (47% of paid_search voluntary churn volume)",
       "magnitude_in_segment": "Voluntary churn = 41% (vs 14% organic baseline; absolute gap of 27pp)",
@@ -105,7 +107,11 @@
     },
     {
       "finding_ref": "H2 (engagement vs voluntary churn)",
-      "segments_analysed": ["Starter", "Pro", "Enterprise"],
+      "segments_analysed": [
+        "Starter",
+        "Pro",
+        "Enterprise"
+      ],
       "finding_holds_across_segments": true,
       "highest_impact_segment": "Starter (largest n × largest base churn rate)",
       "magnitude_in_segment": "OR per +1 log(events) = 0.61 in Starter vs 0.78 in Enterprise",
@@ -113,7 +119,6 @@
       "simpsons_paradox_description": ""
     }
   ],
-
   "impact_quantification": [
     {
       "finding": "Intent-segmented onboarding for paid_search (especially Google non-brand)",
@@ -137,7 +142,6 @@
       "key_assumption": "H2's logistic relationship extrapolates linearly in the relevant range — supported by the within-tier replication."
     }
   ],
-
   "insight_ranking": [
     {
       "rank": 1,
@@ -161,7 +165,6 @@
       "confidence": "HIGH"
     }
   ],
-
   "unanswered_subquestions": [
     {
       "subquestion_id": "SQ4",
@@ -176,10 +179,98 @@
       "path_to_answer": "Pull support-ticket categories joined to subscription end_date in a follow-up Phase 2 pass."
     }
   ],
-
   "phase_7_top_insights_for_visualisation": [
     "Paid_search sub-channel churn ranking + Pareto cumulative-share curve (rank #1)",
     "Pre/post-pricing residual by plan_tier (rank #2)",
     "Activation funnel: retained vs voluntary-churn cohorts (rank #3)"
+  ],
+  "confound_sweep": [
+    {
+      "finding_ref": "H1 (paid_search vs organic voluntary churn)",
+      "dimensions_swept": [
+        {
+          "dimension": "plan_tier",
+          "outcome": "HOLDS",
+          "detail": "Gap present in every tier; largest in Pro (11.2pp)."
+        },
+        {
+          "dimension": "signup_month_cohort",
+          "outcome": "HOLDS",
+          "detail": "Direction stable across all three Q3 monthly cohorts."
+        },
+        {
+          "dimension": "region",
+          "outcome": "ATTENUATES",
+          "detail": "Gap narrows to 3.1pp in EMEA but does not reverse."
+        }
+      ],
+      "dimensions_not_sweepable": [
+        {
+          "dimension": "device_type",
+          "reason": "Column not captured in the extraction scope for this run."
+        }
+      ],
+      "known_event_check": [
+        {
+          "confound_candidate": "Mid-quarter pricing change",
+          "explains_finding": "NO",
+          "evidence": "Channel gap predates the change and is flat across the change date."
+        }
+      ],
+      "post_sweep_verdict": "ORGANIC",
+      "reasoning": "Finding holds across every sweepable dimension and no known event matches its timing; treated as an organic channel-quality effect."
+    },
+    {
+      "finding_ref": "H3 (pricing change)",
+      "dimensions_swept": [
+        {
+          "dimension": "plan_tier",
+          "outcome": "DISAPPEARS",
+          "detail": "Effect concentrates entirely in the tier whose price changed."
+        },
+        {
+          "dimension": "acquisition_channel",
+          "outcome": "HOLDS",
+          "detail": "Post-change churn uplift similar across channels."
+        }
+      ],
+      "dimensions_not_sweepable": [],
+      "known_event_check": [
+        {
+          "confound_candidate": "Mid-quarter pricing change",
+          "explains_finding": "FULLY",
+          "evidence": "Churn uplift begins the billing cycle after the change and only in the affected tier."
+        }
+      ],
+      "post_sweep_verdict": "EVENT_DRIVEN",
+      "reasoning": "Timing and tier concentration match the pricing change signature exactly — this is an event effect, not an organic trend."
+    }
+  ],
+  "sensitivity_analysis": [
+    {
+      "finding_ref": "H1 (paid_search vs organic voluntary churn)",
+      "cleaning_decision_varied": "Dropped rows with null acquisition_channel",
+      "alternate_choice": "Impute nulls as 'unknown' channel and retain rows",
+      "finding_survives": true,
+      "robustness": "ROBUST",
+      "detail": "Gap moves from 8.4pp to 7.9pp under imputation — conclusion unchanged."
+    },
+    {
+      "finding_ref": "H2 (engagement vs voluntary churn)",
+      "cleaning_decision_varied": "Winsorised event_count_30d at the 99th percentile",
+      "alternate_choice": "No winsorisation (keep raw outliers)",
+      "finding_survives": true,
+      "robustness": "ROBUST",
+      "detail": "Odds ratio shifts from 0.78 to 0.80 per doubling of events — conclusion unchanged."
+    }
+  ],
+  "external_benchmarks": [
+    {
+      "finding_ref": "H1 (paid_search vs organic voluntary churn)",
+      "benchmark_metric": "SaaS monthly gross churn (SMB segment)",
+      "benchmark_value": "NONE_AVAILABLE",
+      "source": "",
+      "comparison": "No credible public benchmark for channel-level churn deltas; none quoted."
+    }
   ]
 }
