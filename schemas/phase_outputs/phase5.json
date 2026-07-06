@@ -14,13 +14,20 @@
     "phase_6_priority_insights"
   ],
   "properties": {
-    "phase": { "const": 5 },
-    "phase_name": { "type": "string" },
+    "phase": {
+      "const": 5
+    },
+    "phase_name": {
+      "type": "string"
+    },
     "status": {
       "type": "string",
-      "enum": ["COMPLETE", "NEEDS_RETRY", "PARTIAL"]
+      "enum": [
+        "COMPLETE",
+        "NEEDS_RETRY",
+        "PARTIAL"
+      ]
     },
-
     "tests_conducted": {
       "type": "array",
       "minItems": 1,
@@ -39,93 +46,215 @@
           "effect_size",
           "result",
           "practical_significance",
-          "practical_significance_reasoning"
+          "practical_significance_reasoning",
+          "hypothesis_provenance",
+          "evidence_grade"
         ],
         "properties": {
-          "hypothesis_id": { "type": "string", "pattern": "^H\\d+$" },
-          "hypothesis_statement": { "type": "string", "minLength": 1 },
-          "null_hypothesis": { "type": "string", "minLength": 1 },
-          "alternative_hypothesis": { "type": "string", "minLength": 1 },
-          "test_selected": { "type": "string", "minLength": 1 },
-          "test_selection_reasoning": { "type": "string", "minLength": 1 },
+          "hypothesis_id": {
+            "type": "string",
+            "pattern": "^H\\d+$"
+          },
+          "hypothesis_statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "null_hypothesis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alternative_hypothesis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "test_selected": {
+            "type": "string",
+            "minLength": 1
+          },
+          "test_selection_reasoning": {
+            "type": "string",
+            "minLength": 1
+          },
           "assumptions_checked": {
             "type": "object",
-            "required": ["sample_size_adequate", "independence"],
+            "required": [
+              "sample_size_adequate",
+              "independence"
+            ],
             "properties": {
-              "sample_size_adequate": { "type": "boolean" },
+              "sample_size_adequate": {
+                "type": "boolean"
+              },
               "normality": {
                 "type": "string",
-                "enum": ["Assumed", "Tested", "Violated", "N/A"]
+                "enum": [
+                  "Assumed",
+                  "Tested",
+                  "Violated",
+                  "N/A"
+                ]
               },
               "independence": {
                 "type": "string",
-                "enum": ["Met", "At-risk", "Violated"]
+                "enum": [
+                  "Met",
+                  "At-risk",
+                  "Violated"
+                ]
               },
               "variance_homogeneity": {
                 "type": "string",
-                "enum": ["Met", "Violated", "N/A"]
+                "enum": [
+                  "Met",
+                  "Violated",
+                  "N/A"
+                ]
               }
             }
           },
           "power_analysis": {
             "type": "object",
-            "required": ["estimated_power", "power_flag"],
+            "required": [
+              "estimated_power",
+              "power_flag"
+            ],
             "properties": {
-              "effect_size_target": { "type": "string" },
-              "estimated_power": { "type": "number", "minimum": 0, "maximum": 1 },
-              "power_flag": { "type": "string", "enum": ["ADEQUATE", "UNDERPOWERED"] }
+              "effect_size_target": {
+                "type": "string"
+              },
+              "estimated_power": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "power_flag": {
+                "type": "string",
+                "enum": [
+                  "ADEQUATE",
+                  "UNDERPOWERED"
+                ]
+              }
             }
           },
           "test_statistic": {},
           "degrees_of_freedom": {},
-          "p_value": { "type": "number", "minimum": 0, "maximum": 1 },
+          "p_value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
           "effect_size": {
             "type": "object",
-            "required": ["metric", "value"],
+            "required": [
+              "metric",
+              "value"
+            ],
             "properties": {
-              "metric": { "type": "string", "minLength": 1 },
-              "value": { "type": "number" }
+              "metric": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "number"
+              }
             }
           },
           "confidence_interval": {
             "type": "object",
             "properties": {
-              "lower": { "type": "number" },
-              "upper": { "type": "number" },
-              "level": { "type": "string" }
+              "lower": {
+                "type": "number"
+              },
+              "upper": {
+                "type": "number"
+              },
+              "level": {
+                "type": "string"
+              }
             }
           },
           "result": {
             "type": "string",
-            "enum": ["SUPPORTED", "REJECTED", "INCONCLUSIVE"]
+            "enum": [
+              "SUPPORTED",
+              "REJECTED",
+              "INCONCLUSIVE"
+            ]
           },
           "practical_significance": {
             "type": "string",
-            "enum": ["HIGH", "MEDIUM", "LOW", "NEGLIGIBLE"]
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW",
+              "NEGLIGIBLE"
+            ]
           },
-          "practical_significance_reasoning": { "type": "string", "minLength": 1 },
-          "linked_subquestion": { "type": ["string", "null"] }
+          "practical_significance_reasoning": {
+            "type": "string",
+            "minLength": 1
+          },
+          "linked_subquestion": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hypothesis_provenance": {
+            "type": "string",
+            "enum": [
+              "PRE_REGISTERED",
+              "DATA_DERIVED"
+            ]
+          },
+          "evidence_grade": {
+            "type": "string",
+            "enum": [
+              "CONFIRMATORY",
+              "EXPLORATORY"
+            ]
+          },
+          "evidence_grade_reasoning": {
+            "type": "string"
+          },
+          "holdout_validation": {
+            "type": "string"
+          }
         }
       }
     },
-
     "multiple_testing_correction": {
       "type": "object",
-      "required": ["applied"],
+      "required": [
+        "applied"
+      ],
       "properties": {
-        "applied": { "type": "boolean" },
+        "applied": {
+          "type": "boolean"
+        },
         "method": {
           "type": "string",
-          "enum": ["Bonferroni", "Benjamini-Hochberg", "Holm-Bonferroni", "None"]
+          "enum": [
+            "Bonferroni",
+            "Benjamini-Hochberg",
+            "Holm-Bonferroni",
+            "None"
+          ]
         },
-        "adjusted_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
+        "adjusted_alpha": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
         "hypotheses_surviving_correction": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^H\\d+$" }
+          "items": {
+            "type": "string",
+            "pattern": "^H\\d+$"
+          }
         }
       }
     },
-
     "findings_summary": {
       "type": "array",
       "minItems": 1,
@@ -138,31 +267,67 @@
           "practical_significance"
         ],
         "properties": {
-          "hypothesis_id": { "type": "string", "pattern": "^H\\d+$" },
+          "hypothesis_id": {
+            "type": "string",
+            "pattern": "^H\\d+$"
+          },
           "result": {
             "type": "string",
-            "enum": ["SUPPORTED", "REJECTED", "INCONCLUSIVE"]
+            "enum": [
+              "SUPPORTED",
+              "REJECTED",
+              "INCONCLUSIVE"
+            ]
           },
-          "p_value": { "type": "number", "minimum": 0, "maximum": 1 },
-          "effect_size_value": { "type": "number" },
+          "p_value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "effect_size_value": {
+            "type": "number"
+          },
           "practical_significance": {
             "type": "string",
-            "enum": ["HIGH", "MEDIUM", "LOW", "NEGLIGIBLE"]
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW",
+              "NEGLIGIBLE"
+            ]
           },
-          "subquestion_answered": { "type": ["string", "null"] },
-          "emergent": { "type": "boolean" }
+          "subquestion_answered": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "emergent": {
+            "type": "boolean"
+          },
+          "evidence_grade": {
+            "type": "string",
+            "enum": [
+              "CONFIRMATORY",
+              "EXPLORATORY"
+            ]
+          }
         }
       }
     },
-
     "statistical_caveats": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 }
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     },
-
     "phase_6_priority_insights": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 }
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     }
   },
   "additionalProperties": true
