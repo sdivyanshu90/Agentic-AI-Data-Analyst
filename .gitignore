@@ -5,8 +5,8 @@ __pycache__/
 *.pyo
 .pytest_cache/
 .benchmarks/
-logs/
-outputs/
+/logs/
+/outputs/
 .venv/
 venv/
 .DS_Store
