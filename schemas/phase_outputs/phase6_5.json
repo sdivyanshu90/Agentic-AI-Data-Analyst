@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase6_5.json",
+  "title": "Phase 6.5 Output — Independent Red-Team Peer Review",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "alternative_explanations",
+    "confound_sweep_verification",
+    "circular_reasoning_flags",
+    "overclaim_flags",
+    "verdict",
+    "verdict_reasoning",
+    "required_revisions"
+  ],
+  "properties": {
+    "phase": { "const": 6.5 },
+    "phase_name": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "NEEDS_RETRY"]
+    },
+    "alternative_explanations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "original_finding",
+          "strongest_alt_explanation",
+          "evidence_weighed",
+          "original_survives",
+          "reasoning"
+        ],
+        "properties": {
+          "original_finding": { "type": "string", "minLength": 1 },
+          "finding_ref": { "type": "string" },
+          "strongest_alt_explanation": { "type": "string", "minLength": 1 },
+          "evidence_weighed": { "type": "string", "minLength": 1 },
+          "original_survives": { "type": "boolean" },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "confound_sweep_verification": {
+      "type": "object",
+      "required": ["confound_sweep_gaps"],
+      "properties": {
+        "dimensions_covered_by_phase_6": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "confound_sweep_gaps": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "known_event_candidates_all_checked": { "type": "boolean" },
+        "verification_notes": { "type": "string" }
+      }
+    },
+    "circular_reasoning_flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["phase", "field", "issue"],
+        "properties": {
+          "phase": { "type": ["string", "number"] },
+          "field": { "type": "string", "minLength": 1 },
+          "quoted_reasoning": { "type": "string" },
+          "issue": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "overclaim_flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["finding", "stated_confidence", "corrected_confidence"],
+        "properties": {
+          "finding": { "type": "string", "minLength": 1 },
+          "stated_confidence": { "type": "string", "minLength": 1 },
+          "actual_support": { "type": "string" },
+          "corrected_confidence": { "type": "string", "minLength": 1 },
+          "reasoning": { "type": "string" }
+        }
+      }
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["PROCEED", "PROCEED_WITH_REVISIONS", "BLOCK"]
+    },
+    "verdict_reasoning": { "type": "string", "minLength": 1 },
+    "required_revisions": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}
