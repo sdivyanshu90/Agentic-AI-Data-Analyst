@@ -1,14 +1,14 @@
 # CLAUDE.md — Agentic AI Data Analyst Pipeline
-## Claude Code Project Memory · Claude Opus 4 · 8-Phase Agentic System
+## Claude Code Project Memory · Gemini 2.5 Pro · 11-Phase Agentic System
 
 ---
 
 ## Project Overview
 
-This project is a fully agentic, multi-phase Data Analyst pipeline where Claude Opus acts as **every role** a junior data analyst performs — from stakeholder requirement gathering through to final report delivery. It is not a single prompt; it is an orchestrated system of 9 Claude instances (1 Orchestrator + 8 Phase Agents) that pass structured context packets between each other and iterate autonomously.
+This project is a fully agentic, multi-phase Data Analyst pipeline where the LLM acts as **every role** a senior analyst / analytics lead performs — from intake triage through stakeholder requirement gathering to final report delivery, independent red-team review, and post-delivery monitoring. It is not a single prompt; it is an orchestrated system of 12 agent roles (1 Orchestrator + 11 Phase Agents) that pass structured context packets between each other and iterate autonomously.
 
-**Model:** `claude-opus-4-6`
-**Thinking:** Extended thinking enabled on all agents (`budget_tokens: 4096`)
+**Model:** `gemini-2.5-pro` (via `google-genai`; override with `LLM_MODEL`)
+**Thinking:** Extended thinking enabled on all agents (`thinking_config`, budget 4096)
 **Source of truth for all prompts:** `PROMPT.md` in project root
 
 ---
@@ -18,18 +18,21 @@ This project is a fully agentic, multi-phase Data Analyst pipeline where Claude 
 ```
 /
 ├── CLAUDE.md                        ← You are here
-├── PROMPT.md                        ← All 9 system prompts (master source)
+├── PROMPT.md                        ← All 12 system prompts (master source)
 ├── orchestrator/
 │   └── orchestrator.py              ← Master Orchestrator logic
 ├── agents/
+│   ├── phase0_triage.py             ← Intake Triage & Context Calendar Check
 │   ├── phase1_requirements.py       ← Stakeholder Requirement Gathering
 │   ├── phase2_extraction.py         ← Data Identification & Extraction
 │   ├── phase3_cleaning.py           ← Data Quality & Cleaning
 │   ├── phase4_eda.py                ← Exploratory Data Analysis
 │   ├── phase5_hypothesis.py         ← Hypothesis Testing & Validation
 │   ├── phase6_advanced.py           ← Advanced Analysis & Root Cause
+│   ├── phase65_redteam.py           ← Independent Red-Team Peer Review
 │   ├── phase7_visualisation.py      ← Visualisation & Dashboard Design
-│   └── phase8_reporting.py          ← Storytelling, Reporting & Handoff
+│   ├── phase8_reporting.py          ← Storytelling, Reporting & Handoff
+│   └── phase9_monitoring.py         ← Impact Tracking & Monitoring Handoff
 ├── core/
 │   ├── context_packet.py            ← Context packet builder & validator
 │   ├── quality_gates.py             ← Per-phase quality gate logic
@@ -50,20 +53,23 @@ This project is a fully agentic, multi-phase Data Analyst pipeline where Claude 
 
 ---
 
-## The 8-Phase Pipeline at a Glance
+## The 11-Phase Pipeline at a Glance
 
 | # | Phase | Agent Role | Key Output |
 |---|---|---|---|
+| 0 | Intake Triage & Context Calendar | Senior Analyst on intake duty | Complexity triage, Confound calendar, Route decision |
 | 1 | Stakeholder Requirement Gathering | Business + Data Analyst hybrid | Mission Brief + Sub-questions + KPIs |
 | 2 | Data Identification & Extraction | Data Engineer + Analyst | Schema, SQL queries, Data Dictionary |
 | 3 | Data Quality & Cleaning | Detail-obsessed QA Analyst | Change Log, Clean Schema, Validation Report |
-| 4 | Exploratory Data Analysis | Investigative Detective Analyst | EDA findings, Viz Specs, Hypotheses |
-| 5 | Hypothesis Testing & Validation | Statistical Conscience | Test results, p-values, Effect sizes |
-| 6 | Advanced Analysis & Root Cause | Senior Analyst Mentor | Root Cause Chains, Impact Quantification |
+| 4 | Exploratory Data Analysis | Investigative Detective Analyst | EDA findings, Viz Specs, Hypotheses (with provenance) |
+| 5 | Hypothesis Testing & Validation | Statistical Conscience | Test results, p-values, Effect sizes, Evidence grades |
+| 6 | Advanced Analysis & Root Cause | Senior Analyst Mentor | Root Cause Chains, Confound Sweep, Sensitivity Analysis |
+| 6.5 | Independent Red-Team Review | Adversarial Peer Reviewer | Alternative explanations, Overclaim flags, GO/NO-GO verdict |
 | 7 | Visualisation & Dashboard Design | BI + Accessibility Expert | Dashboard Architecture, Chart Specs |
 | 8 | Storytelling, Reporting & Handoff | Executive Communicator | Final Markdown Report + JSON Summary |
+| 9 | Impact Tracking & Monitoring | Analytics Lead closing the loop | Success metrics, Drift alerts, Knowledge-base entry |
 
-**Orchestrator** sits above all 8 phases: routes context, enforces quality gates, manages retries (max 3 per phase), maintains the PIPELINE STATE LOG.
+**Orchestrator** sits above all 11 phases: routes context, enforces quality gates, manages retries (max 3 per phase), maintains the PIPELINE STATE LOG, answers QUICK_LOOKUP requests directly (Phase 0 route), halts on a Phase 6.5 BLOCK verdict, and persists Phase 9 knowledge-base entries to `knowledge_base/entries.jsonl` for recall in future runs.
 
 ---
 
@@ -283,6 +289,14 @@ Every phase output JSON must contain a `"status"` field. Valid values:
 
 ## Phase-Specific Notes
 
+### Phase 0 — Intake Triage & Context Calendar
+- Runs before everything. If `route == "SKIP_TO_QUICK_ANSWER"`, the Orchestrator answers directly from `quick_answer_draft` and skips the pipeline entirely.
+- `confound_candidates` is the change calendar (deploys, pricing changes, partner events, migrations). Phases 4 and 6 MUST check every candidate against every finding before treating a pattern as novel. This check is free — it is never skipped, even under deadline pressure.
+- `detected_stakeholder_conflicts` become explicit sub-questions in Phase 1 — never let one stakeholder's framing silently win.
+- `deadline_feasibility != FEASIBLE` requires a concrete `descope_proposal`; the Orchestrator surfaces it as a warning in the Transition Card.
+- `specialist_referrals` (e.g. NEEDS_DATA_SCIENTIST for elasticity modelling) descope explicitly and state the analyst-level partial answer that IS deliverable.
+- Receives `knowledge_base_recall` — entries persisted by Phase 9 in previous runs.
+
 ### Phase 1 — Requirement Gathering
 - If `status == "CLARIFICATION_NEEDED"`, read `output["clarification_needed"]` and ask the user. Do not advance until answered.
 - Sub-questions must be labelled P1/P2/P3. Only P1 questions are mandatory for downstream phases.
@@ -300,18 +314,30 @@ Every phase output JSON must contain a `"status"` field. Valid values:
 
 ### Phase 4 — EDA
 - Hypotheses formed here are passed as `phase_5_handoff.hypotheses_to_test` — preserve the exact H[n] ID format.
+- Every hypothesis carries `provenance`: `PRE_REGISTERED` (restates a Phase 1 sub-question) or `DATA_DERIVED` (formed after seeing the pattern). EMERGENT hypotheses are always DATA_DERIVED — the gate enforces this.
+- Every hypothesis records a `known_event_check` against Phase 0's confound candidates.
 - `eda_visualisation_spec` entries are consumed verbatim by Phase 7 — do not transform them.
 - If `status == "PARTIAL"`, list which variables were not profiled and why in the Transition Card.
 
 ### Phase 5 — Hypothesis Testing
 - If `multiple_testing_correction.applied == true`, Phase 6 should only investigate hypotheses in `hypotheses_surviving_correction`.
+- Double-dipping guard: a `DATA_DERIVED` hypothesis without documented `holdout_validation` must be graded `evidence_grade: "EXPLORATORY"` — never presented with pre-registered confidence. The gate blocks provenance drift from Phase 4's labels.
 - `statistical_caveats` array feeds Phase 8 Caveats section — preserve order.
 - Never let Phase 8 present a finding as HIGH confidence if Phase 5 rated it MEDIUM or LOW.
 
 ### Phase 6 — Advanced Analysis
+- `confound_sweep` re-runs EVERY headline finding across EVERY available segmenting dimension (not just the top 2) and weighs every Phase 0 confound candidate against it; unsweepable dimensions are documented with reasons — silence reads as "checked and clean".
+- `sensitivity_analysis` re-derives every HIGH-impact finding under alternate Phase 3 cleaning choices; FRAGILE findings carry that label into Phase 8.
+- `external_benchmarks` must name a source or say NONE_AVAILABLE — the gate rejects a quoted value with no source.
 - `simpson_paradox_detected: true` must always escalate to the user via Transition Card with explicit warning.
 - `root_cause_chains` where `root_cause.status == "HYPOTHESISED"` must be labelled as such in Phase 8 findings.
 - `unanswered_subquestions` must appear in Phase 8 Next Steps section.
+
+### Phase 6.5 — Independent Red-Team Review
+- A separate adversarial invocation that did NOT produce the analysis; it attacks Phases 4–6 before anything reaches a stakeholder.
+- `verdict == "BLOCK"` halts the pipeline (PhaseBlockedError) and surfaces `required_revisions` to the user.
+- `verdict == "PROCEED_WITH_REVISIONS"` advances, but Phases 7/8 must apply every revision — Phase 8's self-check verifies this.
+- The gate rejects rubber stamps: a review that killed a finding or flagged an overclaim cannot conclude plain PROCEED.
 
 ### Phase 7 — Visualisation
 - Anti-pattern audit is non-optional. Any `anti_pattern_found` entry must have a corresponding `correction_applied`.
@@ -319,9 +345,16 @@ Every phase output JSON must contain a `"status"` field. Valid values:
 - `accessibility_review.wcag_contrast_met: false` blocks Phase 8 — fix the palette before advancing.
 
 ### Phase 8 — Reporting
-- Run the 9-point self-check quality gate before generating any output. Failures are fixed inline.
+- Run the 11-point self-check quality gate before generating any output. Failures are fixed inline.
 - Tone calibration is driven by Phase 1's `stakeholder_profile.technical_tolerance`. Match it strictly.
-- The JSON summary block at the end of Phase 8 output is the final entry in the PIPELINE STATE LOG.
+- EXPLORATORY-graded findings (Phase 5) and FRAGILE findings (Phase 6 sensitivity analysis) must be presented as such — never as confirmed.
+- Every Phase 6.5 `required_revision` must be applied before the report ships.
+- The JSON summary block at the end of Phase 8 output feeds the PIPELINE STATE LOG.
+
+### Phase 9 — Impact Tracking & Monitoring
+- Every Phase 8 recommendation gets a success metric with a concrete `check_in_date` computed from the mission brief's `run_date` — never "next quarter".
+- Every key finding gets a drift-alert condition precise enough for a BI developer to implement without questions.
+- The `knowledge_base_entry` is appended to `knowledge_base/entries.jsonl` (institutional memory); Phase 0 recalls it in future runs. Gotchas (migration null semantics, mix-shift traps) must not be lost.
 
 ---
 
@@ -353,13 +386,15 @@ ADVANCING TO: Phase [N+1] — [Next Phase Name]
 ## Environment Variables
 
 ```bash
-ANTHROPIC_API_KEY=sk-...         # Required
+GEMINI_API_KEY=...               # Required
 PIPELINE_LOG_DIR=./logs          # Where PIPELINE STATE LOGs are saved
 PIPELINE_OUTPUT_DIR=./outputs    # Where final reports are written
 MAX_RETRIES_PER_PHASE=3          # Default: 3
 THINKING_BUDGET_TOKENS=4096      # Default: 4096
 MAX_TOKENS_PER_CALL=8192         # Default: 8192
 ROW_LOSS_ALERT_THRESHOLD=0.20    # Phase 3: alert user if >20% rows dropped
+KNOWLEDGE_BASE_DIR=./knowledge_base  # Phase 9 entries.jsonl (institutional memory)
+LLM_MODEL=gemini-2.5-pro         # Provider model (google-genai)
 ```
 
 ---
@@ -384,16 +419,23 @@ pytest tests/test_phase_outputs.py -v
 
 | Phase | Critical test | Why |
 |---|---|---|
+| 0 | Known-event check never skipped (candidates OR questions) | The free check that catches spurious findings |
+| 0 | QUICK_LOOKUP route requires a drafted answer | Triage is a decision, not a label |
 | 1 | `reasoning` present on all decisions | Audit trail requirement |
 | 2 | No SQL query without a comment block | Reproducibility |
 | 3 | `change_log` entry count ≥ cleaning decision count | Every change must be logged |
 | 3 | `row_loss_pct` computed correctly | Data integrity |
 | 4 | Every hypothesis has `expected_test_type` | Handoff to Phase 5 |
+| 4 | Every hypothesis has `provenance`; EMERGENT ⇒ DATA_DERIVED | Double-dipping guard |
 | 5 | p-values are floats, not strings | Parsing robustness |
 | 5 | `multiple_testing_correction.applied` when n > 3 | Statistical rigour |
+| 5 | DATA_DERIVED without holdout ⇒ EXPLORATORY grade | Confirmatory vs exploratory honesty |
 | 6 | Root cause chain has ≥ 3 links | SYMPTOM → PROXIMATE → ROOT minimum |
+| 6 | Confound sweep covers every finding; known events weighed | Exhaustive where humans are selective |
+| 6.5 | Review with kills/overclaims cannot verdict plain PROCEED | No rubber stamps |
 | 7 | All charts pass anti-pattern audit | Visualisation integrity |
 | 8 | Every P1 sub-question appears in findings | Completeness gate |
+| 9 | Every recommendation has a concrete check-in date | Follow-through, not fire-and-forget |
 
 ---
 
@@ -411,6 +453,10 @@ These are hard rules. If code or prompts you write would break one, stop and fin
 8. **Never disable extended thinking.** It is core to reasoning quality across all phases.
 9. **Never use a pie chart with >4 slices** in Phase 7 visualisation specs.
 10. **Never overwrite a pipeline state log entry.** The log is append-only.
+11. **Never skip the Phase 0 known-event check.** It is free and catches most spurious findings — deadline pressure changes scope, never this.
+12. **Never present a DATA_DERIVED finding with confirmatory confidence** without documented holdout validation.
+13. **Never advance past a Phase 6.5 BLOCK verdict** without user input.
+14. **Never quote an external benchmark without a named source.**
 
 ---
 
