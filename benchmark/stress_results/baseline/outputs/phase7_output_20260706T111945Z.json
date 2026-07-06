@@ -1,0 +1,231 @@
+{
+  "phase": 7,
+  "phase_name": "Data Visualisation & Dashboard Design",
+  "status": "COMPLETE",
+  "insight_to_chart_map": [
+    {
+      "insight_rank": 1,
+      "insight_summary": "The Q2 Enterprise churn spike was primarily caused by a one-off reseller contract termination (75% of churned customers), masking a secondary, more strategic issue.",
+      "chart_type": "Stacked Bar Chart",
+      "chart_reasoning": "This insight is about a part-to-whole relationship: what components make up the total churn? A stacked bar chart is the most effective way to visually represent the absolute contribution of each component (reseller loss vs. other churn) to the total, making the 75% contribution immediately obvious.",
+      "alternatives_rejected": [
+        {
+          "chart": "Pie Chart",
+          "reason_rejected": "Humans are poor at accurately comparing angles and areas, making it difficult to judge proportions precisely. With three segments (reseller, price-hike, baseline), a pie chart would be more cluttered and less clear than a bar chart where length is easily compared."
+        },
+        {
+          "chart": "Treemap",
+          "reason_rejected": "While also a part-to-whole chart, a treemap is less intuitive for a simple, one-dimensional breakdown. A simple stacked bar is more direct and requires less cognitive load for an executive audience."
+        }
+      ]
+    },
+    {
+      "insight_rank": 2,
+      "insight_summary": "The April 1st price increase caused a 14 percentage point lift in churn (from 8% to 22%) among direct Enterprise customers, concentrated among customers with less than one year of tenure.",
+      "chart_type": "Grouped Bar Chart",
+      "chart_reasoning": "This insight involves comparing a rate (churn rate) across two different categorical variables (price increase cohort AND tenure). A grouped bar chart is the ideal choice as it allows for easy comparison of the 'Pre' vs. 'Post' bars within each tenure group, clearly visualizing the interaction effect.",
+      "alternatives_rejected": [
+        {
+          "chart": "Line Chart",
+          "reason_rejected": "A line chart would incorrectly imply a continuous trend between the tenure categories, which are discrete groups. It is not suitable for comparing rates between distinct categories."
+        },
+        {
+          "chart": "Stacked 100% Bar Chart",
+          "reason_rejected": "This would show the proportion of churned vs. retained customers within each cohort, but it would make it harder to directly compare the absolute churn rates between the 'Pre' and 'Post' groups, which is the core message of the insight."
+        }
+      ]
+    }
+  ],
+  "dashboard_architecture": {
+    "dashboard_type": "EXECUTIVE",
+    "sections": [
+      {
+        "section_name": "Headline KPIs",
+        "purpose": "To provide a high-level summary of the Q2 churn event with the most critical metrics.",
+        "components": [
+          "KPI Card: Q2 Enterprise Churn Rate",
+          "KPI Card: Total Churned Enterprise MRR",
+          "KPI Card: Reseller Contribution to Churn",
+          "KPI Card: Price Increase Churn Lift"
+        ],
+        "layout_position": "top"
+      },
+      {
+        "section_name": "Root Cause: The One-Off Event",
+        "purpose": "To immediately address the largest driver of the churn spike and show it was a known, one-off event, answering the VP of Growth's primary concern.",
+        "components": [
+          "Chart: Reseller Loss Drove 75% of Q2 Enterprise Churn"
+        ],
+        "layout_position": "center"
+      },
+      {
+        "section_name": "Strategic Insight: The Pricing Impact",
+        "purpose": "To show the secondary, but more strategically important, driver of churn and answer the CFO's hypothesis.",
+        "components": [
+          "Chart: Price Increase Caused 175% Higher Churn in Newer Customers"
+        ],
+        "layout_position": "right"
+      },
+      {
+        "section_name": "Summary & Recommendations",
+        "purpose": "To synthesize the findings into plain English and provide clear, data-driven next steps.",
+        "components": [
+          "Text Box: Key Takeaways"
+        ],
+        "layout_position": "bottom"
+      }
+    ],
+    "interactivity_spec": "Minimal interactivity is recommended for this executive audience. Tooltips on all charts should be enabled to show precise values on hover. A single, optional dropdown filter for 'Plan Tier' could be included but should default to 'Enterprise' to maintain focus on the core narrative."
+  },
+  "visualisation_specs": [
+    {
+      "chart_name": "Reseller Loss Drove 75% of Q2 Enterprise Churn",
+      "purpose": "To decompose total Q2 Enterprise churn into its primary drivers, showing the overwhelming impact of the one-off reseller event versus other causes.",
+      "data_source": {
+        "table": "clean_schema",
+        "columns": [
+          "customer_segment",
+          "is_churned_q2_2024",
+          "plan_tier",
+          "user_id"
+        ]
+      },
+      "x_axis": {
+        "field": "churn_drivers",
+        "label": "",
+        "format": "Categorical"
+      },
+      "y_axis": {
+        "field": "COUNTD(user_id)",
+        "label": "Number of Churned Customers",
+        "format": "Integer",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "customer_segment (grouped into 'Reseller Partner', 'Direct Customer - Price Impact', 'Direct Customer - Baseline')",
+        "palette": "Categorical 3-Color (e.g., Blue, Orange, Grey)",
+        "colourblind_safe": true
+      },
+      "filters": [
+        "plan_tier = 'Enterprise'",
+        "is_churned_q2_2024 = 1"
+      ],
+      "tooltips": [
+        "Churn Driver",
+        "Number of Customers",
+        "Percent of Total Churn"
+      ],
+      "reference_lines": [],
+      "annotations": [
+        {
+          "type": "Data Label",
+          "location": "On each segment of the stacked bar",
+          "text": "Display count and percentage of total for each segment."
+        },
+        {
+          "type": "Text Callout",
+          "location": "Pointing to the 'Reseller Partner' segment",
+          "text": "75% of total churn from a single, one-off event."
+        }
+      ],
+      "alt_text": "A single stacked bar chart showing the composition of the 20,000 Enterprise customers who churned in Q2 2024. The largest segment, colored blue and labeled 'Reseller Partner', makes up 15,000 customers, or 75% of the total. The remaining 25% is attributed to 'Direct Customer' churn.",
+      "recommended_tool": "Tableau / Power BI"
+    },
+    {
+      "chart_name": "Price Increase Caused 175% Higher Churn in Newer Customers",
+      "purpose": "To demonstrate the impact of the price increase on churn, and to show how this impact was concentrated in the 'Newer Customers' (<1 year tenure) segment.",
+      "data_source": {
+        "table": "clean_schema",
+        "columns": [
+          "price_increase_cohort",
+          "is_churned_q2_2024",
+          "subscription_tenure_days",
+          "customer_segment",
+          "plan_tier"
+        ]
+      },
+      "x_axis": {
+        "field": "tenure_bin ('< 1 Year', '>= 1 Year')",
+        "label": "Customer Tenure at Renewal",
+        "format": "Categorical"
+      },
+      "y_axis": {
+        "field": "AVG(is_churned_q2_2024)",
+        "label": "Customer Churn Rate",
+        "format": "Percentage",
+        "scale": "Start at zero"
+      },
+      "colour_encoding": {
+        "field": "price_increase_cohort ('Pre-Price Increase', 'Post-Price Increase')",
+        "palette": "Categorical 2-Color (e.g., Grey, Orange)",
+        "colourblind_safe": true
+      },
+      "filters": [
+        "plan_tier = 'Enterprise'",
+        "customer_segment = 'direct_customer'"
+      ],
+      "tooltips": [
+        "Customer Tenure",
+        "Price Increase Cohort",
+        "Churn Rate (%)",
+        "Number of Customers in Cohort"
+      ],
+      "reference_lines": [
+        {
+          "type": "Horizontal Line",
+          "value": "8%",
+          "label": "Baseline Churn Rate"
+        }
+      ],
+      "annotations": [
+        {
+          "type": "Text Callout",
+          "location": "Above the '< 1 Year' group of bars",
+          "text": "Churn rate jumped from 8% to 22% for newer customers after the price increase."
+        }
+      ],
+      "alt_text": "A grouped bar chart comparing churn rates for direct Enterprise customers by tenure. For customers with less than one year of tenure, the churn rate for those renewing after the price increase was 22%, compared to 8% for those renewing before. For customers with more than one year of tenure, the churn rates were similar and low for both groups, around 5%.",
+      "recommended_tool": "Tableau / Power BI"
+    }
+  ],
+  "anti_pattern_audit": [
+    {
+      "chart_name": "All Charts",
+      "anti_pattern_found": "Chart title that states category, not insight. (Potential anti-pattern)",
+      "correction_applied": "Chart titles are written as insightful headlines (e.g., 'Reseller Loss Drove 75% of Q2 Enterprise Churn') rather than descriptive labels (e.g., 'Q2 Churn by Segment') to accelerate comprehension."
+    },
+    {
+      "chart_name": "All Charts",
+      "anti_pattern_found": "Truncated y-axis. (Potential anti-pattern)",
+      "correction_applied": "The Y-axis for all bar charts is specified to start at zero to avoid exaggerating differences and ensure honest visual representation of the data."
+    }
+  ],
+  "accessibility_review": {
+    "colourblind_safe": true,
+    "min_font_size_met": true,
+    "alt_text_written": true,
+    "wcag_contrast_met": true,
+    "notes": "All palettes are specified as colour-blind safe. Alt text has been provided for all charts. Font sizes should be set to a minimum of 16pt for titles and 12pt for labels and annotations. A high-contrast theme (dark text on light background) should be used to meet WCAG AA contrast ratios (4.5:1)."
+  },
+  "narrative_flow": {
+    "hook": "Start with the high-level KPI cards showing the alarming top-line Q2 Enterprise churn rate. This creates immediate engagement and establishes the problem.",
+    "context_sequence": [
+      "Immediately follow the hook with the 'Churn Breakdown' chart. This explains the primary driver (the reseller loss), de-escalates the initial alarm, and validates the VP of Growth's perception that something specific happened.",
+      "Then, present the 'Price Increase Impact' chart. This isolates the remaining churn, addresses the CFO's hypothesis, and reveals the more subtle, strategic issue with newer customers."
+    ],
+    "payoff": "Conclude with the 'Summary & Recommendations' text box. This provides the final, synthesized answer: Both executives were partially right. The analysis resolves their conflict and points to a clear action: re-evaluating the pricing and value proposition for newer Enterprise customers.",
+    "dashboard_section_order": [
+      "Headline KPIs",
+      "Root Cause: The One-Off Event",
+      "Strategic Insight: The Pricing Impact",
+      "Summary & Recommendations"
+    ]
+  },
+  "phase_8_handoff": {
+    "chart_titles_as_insight_headlines": [
+      "Reseller Loss Drove 75% of Q2 Enterprise Churn",
+      "Price Increase Caused 175% Higher Churn in Newer Customers"
+    ],
+    "narrative_arc_summary": "The visual story starts with a big, alarming number to hook the audience. It then immediately explains away the largest, non-actionable part of the problem (the reseller), calming fears of systemic failure. Finally, it pivots to the smaller but more important strategic issue (price sensitivity of new customers), providing a clear, actionable insight for leadership to focus on."
+  }
+}
