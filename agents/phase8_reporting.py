@@ -99,7 +99,7 @@ def _format_phase8_message(context_packet: dict) -> str:
         f"{json.dumps(context_packet, indent=2, default=str)}\n"
         "</context_packet>\n\n"
         "You are Phase 8 Agent — the final agent. Execute all eight tasks "
-        "against the context packet above and run the 9-point self-check "
+        "against the context packet above and run the 11-point self-check "
         "quality gate before finalising.\n\n"
         "Produce your response in exactly two parts, in this order:\n"
         "  1. The complete stakeholder report in Markdown, following the "
