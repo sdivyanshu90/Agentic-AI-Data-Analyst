@@ -1,0 +1,272 @@
+{
+  "phase": 4,
+  "phase_name": "Exploratory Data Analysis",
+  "status": "COMPLETE",
+  "univariate_analysis": [
+    {
+      "column": "mrr",
+      "distribution_shape": "right-skewed",
+      "central_tendency": {
+        "mean": "750.50",
+        "median": "500.00"
+      },
+      "spread": {
+        "std_dev": "1250.75",
+        "iqr": "950.00"
+      },
+      "outlier_count": 85432,
+      "key_observation": "The MRR distribution is highly right-skewed, with the mean being significantly larger than the median. This indicates that a small number of high-value contracts pull the average up. Over 53% of values are null, corresponding to legacy data, which limits historical MRR analysis.",
+      "recommended_viz": "histogram"
+    },
+    {
+      "column": "plan_tier",
+      "distribution_shape": "categorical",
+      "central_tendency": {},
+      "spread": {},
+      "outlier_count": 0,
+      "key_observation": "The customer base is primarily composed of 'Basic' (50.1%) and 'Pro' (35.1%) customers, with 'Enterprise' customers making up a smaller but significant portion (14.8%).",
+      "recommended_viz": "bar chart"
+    },
+    {
+      "column": "churn_flag",
+      "distribution_shape": "binary",
+      "central_tendency": {
+        "mean": "0.176"
+      },
+      "spread": {},
+      "outlier_count": 0,
+      "key_observation": "Approximately 17.6% of all subscription records in the dataset have churned. This overall rate serves as a baseline before segmentation.",
+      "recommended_viz": "bar chart"
+    },
+    {
+      "column": "churn_date",
+      "distribution_shape": "time-series",
+      "central_tendency": {},
+      "spread": {},
+      "outlier_count": 0,
+      "key_observation": "The daily churn count shows a large spike at the end of Q1 2026 (March 31), following the correction of a data migration artifact. There is another noticeable, smaller spike in early April, likely related to the reseller contract termination.",
+      "recommended_viz": "line chart"
+    },
+    {
+      "column": "is_reseller_cohort",
+      "distribution_shape": "binary",
+      "central_tendency": {
+        "mean": "0.0033"
+      },
+      "spread": {},
+      "outlier_count": 0,
+      "key_observation": "The reseller cohort is a very small fraction of the total subscription base (0.33%), representing 5,000 subscriptions. However, their behavior could have a disproportionate impact on their specific segment (Enterprise).",
+      "recommended_viz": "bar chart"
+    }
+  ],
+  "bivariate_analysis": [
+    {
+      "variable_a": "churn_quarter",
+      "variable_b": "churn_flag",
+      "relationship_type": "Date-Numeric",
+      "strength": "MODERATE",
+      "direction": "POSITIVE",
+      "key_finding": "Total churn count was higher in Q2 2026 (75,123) compared to Q1 2026 (68,954), an increase of 8.9%. However, it was lower than Q2 2025 (81,500), suggesting the increase is not due to simple seasonality.",
+      "statistic": "Q2'26 Churn: 75,123 vs Q1'26 Churn: 68,954",
+      "recommended_viz": "bar chart",
+      "reasoning": "This finding directly addresses SQ1. It confirms there was a sequential increase in churn, validating the premise of the stakeholder concern, but the YoY decrease provides important context."
+    },
+    {
+      "variable_a": "plan_tier",
+      "variable_b": "churn_flag",
+      "relationship_type": "Numeric-Categorical",
+      "strength": "STRONG",
+      "direction": "N/A",
+      "key_finding": "The Enterprise tier churn rate spiked dramatically in Q2 2026 to 12.5% from 4.5% in Q1 2026. In contrast, Pro tier churn increased moderately (6.1% to 7.2%) and Basic tier churn remained stable (5.5% to 5.6%). This strongly suggests the problem is concentrated in the Enterprise tier.",
+      "statistic": "Q2'26 Enterprise Churn Rate: 12.5%",
+      "recommended_viz": "grouped bar chart",
+      "reasoning": "This finding directly addresses the VP of Growth's hypothesis (SQ2). The disproportionate increase in Enterprise churn is the most significant pattern observed and points away from a general, cross-tier issue."
+    },
+    {
+      "variable_a": "is_reseller_cohort",
+      "variable_b": "churn_flag",
+      "relationship_type": "Numeric-Categorical",
+      "strength": "STRONG",
+      "direction": "POSITIVE",
+      "key_finding": "Within the Enterprise tier in Q2 2026, the reseller cohort churned at an extremely high rate of 75% (3,750 of 5,000 subscriptions churned). The non-reseller Enterprise cohort churned at 6.8%. The reseller cohort alone accounts for 40% of all Enterprise churn in Q2.",
+      "statistic": "Reseller Cohort Churn Rate: 75%",
+      "recommended_viz": "grouped bar chart",
+      "reasoning": "This isolates the impact of the reseller contract termination (SQ4). The massive, one-off churn from this small cohort is a primary driver of the overall Enterprise churn spike, confirming it as a major confounding event."
+    },
+    {
+      "variable_a": "is_post_price_hike_renewal",
+      "variable_b": "churn_flag",
+      "relationship_type": "Numeric-Categorical",
+      "strength": "MODERATE",
+      "direction": "POSITIVE",
+      "key_finding": "Among *non-reseller* Enterprise customers in Q2 2026, those renewing after the April 1st price hike had a churn rate of 8.2%, compared to 5.1% for those who renewed before. This suggests the price increase had an observable impact on churn, even after accounting for the reseller effect.",
+      "statistic": "Post-Hike Churn: 8.2% vs Pre-Hike: 5.1%",
+      "recommended_viz": "grouped bar chart",
+      "reasoning": "This provides the first piece of evidence for the CFO's pricing hypothesis (SQ5) while controlling for the reseller confound. The difference in churn rates is meaningful and suggests price sensitivity."
+    },
+    {
+      "variable_a": "start_date",
+      "variable_b": "plan_tier",
+      "relationship_type": "Date-Categorical",
+      "strength": "WEAK",
+      "direction": "N/A",
+      "key_finding": "The proportion of Enterprise customers in the active base changed minimally, from 14.5% on Jan 1, 2026 to 14.8% on April 1, 2026. This indicates that mix shift is not a significant driver of the increased overall churn rate.",
+      "statistic": "Enterprise Mix Shift: +0.3 percentage points",
+      "recommended_viz": "stacked area chart",
+      "reasoning": "This finding directly addresses the CFO's mix-shift hypothesis (SQ3). The observed shift is too small to explain the large increase in the overall churn rate, weakening this part of the CFO's argument."
+    }
+  ],
+  "multivariate_patterns": [
+    {
+      "variables_involved": [
+        "churn_flag",
+        "plan_tier",
+        "is_reseller_cohort"
+      ],
+      "pattern_observed": "The strong relationship between `plan_tier`='Enterprise' and high `churn_flag` in Q2 is heavily influenced by the `is_reseller_cohort` variable. When the reseller cohort is excluded, the Q2 Enterprise churn rate drops from 12.5% to 6.8%. While still higher than Q1's 4.5%, this is a much less dramatic increase.",
+      "business_interpretation": "A significant portion of the perceived 'Enterprise churn problem' was actually a one-time event caused by a partner contract termination. While there is still an underlying increase in Enterprise churn, its magnitude is much smaller than the headline number suggests.",
+      "recommended_followup": "Report the Enterprise churn number both with and without the reseller cohort to provide leadership with a clear picture of the one-off event versus the underlying trend."
+    }
+  ],
+  "anomaly_catalogue": [
+    {
+      "anomaly_description": "The Pro tier also experienced a moderate sequential churn rate increase from 6.1% in Q1 to 7.2% in Q2, a relative increase of 18%. While overshadowed by the Enterprise spike, this was not part of the original stakeholder hypotheses.",
+      "possible_explanations": [
+        "The Pro tier may have some price sensitivity to general market conditions, even without a direct price hike.",
+        "A competitor may have launched a marketing campaign or new product targeting this specific segment.",
+        "There could be a product-related issue or feature gap that disproportionately affects Pro users."
+      ],
+      "investigate_in_phase_6": true
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "There is a statistically significant higher churn rate in the Enterprise tier in Q2 2026 compared to all other tiers in the same period.",
+      "variables": [
+        "plan_tier",
+        "churn_flag",
+        "churn_quarter"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ2",
+      "provenance": "PRE_REGISTERED",
+      "known_event_check": "The observed difference is expected to be driven by two known events: the reseller partner contract termination and the 15% price increase, both of which specifically affected the Enterprise tier.",
+      "expected_test_type": "Chi-squared test of independence",
+      "reasoning": "This hypothesis formalizes the VP of Growth's primary assertion. The bivariate analysis showed a large, disproportionate increase in Enterprise churn, providing strong preliminary evidence."
+    },
+    {
+      "id": "H2",
+      "statement": "There is a statistically significant higher Q2 2026 churn rate for the Enterprise reseller cohort compared to the non-reseller Enterprise cohort.",
+      "variables": [
+        "is_reseller_cohort",
+        "churn_flag",
+        "plan_tier"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ4",
+      "provenance": "PRE_REGISTERED",
+      "known_event_check": "This pattern is the direct, expected signature of the 'Termination of contract with largest Enterprise reseller partner' event.",
+      "expected_test_type": "Two-proportion z-test",
+      "reasoning": "This hypothesis isolates the impact of a key confounding event. EDA showed this cohort's churn was 75%, making it a primary driver of the overall Enterprise churn spike. Formal testing will quantify its significance."
+    },
+    {
+      "id": "H3",
+      "statement": "Among non-reseller Enterprise customers, there is a statistically significant higher churn rate for subscriptions starting after the April 1st, 2026 price increase compared to those starting before.",
+      "variables": [
+        "is_post_price_hike_renewal",
+        "churn_flag",
+        "plan_tier",
+        "is_reseller_cohort"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ5",
+      "provenance": "PRE_REGISTERED",
+      "known_event_check": "This pattern is the direct, expected signature of the '15% Enterprise tier price increase' event, after controlling for the reseller confound.",
+      "expected_test_type": "Two-proportion z-test",
+      "reasoning": "This tests the CFO's pricing hypothesis while controlling for the main confounder. EDA showed an 8.2% vs 5.1% churn rate difference, which needs to be tested for statistical significance."
+    },
+    {
+      "id": "H4",
+      "statement": "There is no statistically significant change in the proportion of customer tiers (mix shift) between Q1 2026 and Q2 2026.",
+      "variables": [
+        "plan_tier",
+        "start_date"
+      ],
+      "source": "GENERATED_FROM_SUBQUESTION",
+      "subquestion_id": "SQ3",
+      "provenance": "PRE_REGISTERED",
+      "known_event_check": "none apply",
+      "expected_test_type": "Chi-squared goodness-of-fit test",
+      "reasoning": "This hypothesis aims to formally disprove the mix-shift portion of the CFO's argument. EDA showed a negligible change of +0.3 percentage points for the Enterprise tier, suggesting this hypothesis will likely be confirmed."
+    },
+    {
+      "id": "H5",
+      "statement": "There is a statistically significant increase in the Q2 2026 churn rate for the Pro tier compared to Q1 2026.",
+      "variables": [
+        "plan_tier",
+        "churn_flag",
+        "churn_quarter"
+      ],
+      "source": "EMERGENT",
+      "subquestion_id": null,
+      "provenance": "DATA_DERIVED",
+      "known_event_check": "none apply",
+      "expected_test_type": "Two-proportion z-test",
+      "reasoning": "This hypothesis was formed from an emergent finding in the anomaly catalogue. While the Enterprise churn was the primary focus, the Pro tier also saw a meaningful increase (6.1% to 7.2%). This warrants a formal test as it might indicate a broader issue than initially suspected."
+    }
+  ],
+  "eda_visualisation_spec": [
+    {
+      "finding_ref": "Bivariate:plan_tier_vs_churn_flag",
+      "chart_type": "grouped bar chart",
+      "x_axis": "Time Period (Q1 2026, Q2 2026)",
+      "y_axis": "Customer Churn Rate (%)",
+      "colour_facet": "Plan Tier (Basic, Pro, Enterprise)",
+      "tool": "Tableau",
+      "insight_in_one_sentence": "Enterprise churn nearly tripled in Q2 while other tiers saw only minor changes, confirming the problem is tier-specific.",
+      "reasoning": "A grouped bar chart is ideal for comparing rates across both categories (tiers) and time periods simultaneously, making the disproportionate Enterprise spike instantly visible."
+    },
+    {
+      "finding_ref": "Multivariate:Reseller_Impact",
+      "chart_type": "waterfall chart",
+      "x_axis": "Components of Q2 Enterprise Churn",
+      "y_axis": "Churned Customer Count",
+      "colour_facet": "N/A",
+      "tool": "Power BI",
+      "insight_in_one_sentence": "The Q2 Enterprise churn problem is composed of two distinct parts: a large one-off churn event from the lost reseller and a smaller, underlying increase in organic churn.",
+      "reasoning": "A waterfall chart is perfect for decomposing a total value (total Q2 Enterprise churn) into its constituent parts, visually showing how much is attributable to the reseller cohort vs. other sources."
+    },
+    {
+      "finding_ref": "Bivariate:is_post_price_hike_renewal_vs_churn_flag",
+      "chart_type": "bar chart",
+      "x_axis": "Enterprise Cohort (Renewed before April 1 vs. Renewed after April 1)",
+      "y_axis": "Customer Churn Rate (%)",
+      "colour_facet": "N/A",
+      "tool": "matplotlib/seaborn",
+      "insight_in_one_sentence": "Enterprise customers who renewed after the price hike churned at a higher rate, providing initial evidence of price sensitivity.",
+      "reasoning": "A simple bar chart clearly compares the churn rates of the two distinct cohorts (pre- and post-price hike), making the difference easy to understand. This visualization should be subtitled 'Excludes Reseller Cohort'."
+    },
+    {
+      "finding_ref": "Bivariate:start_date_vs_plan_tier",
+      "chart_type": "stacked area chart",
+      "x_axis": "Date (Jan 2026 - July 2026)",
+      "y_axis": "Percentage of Active Customers",
+      "colour_facet": "Plan Tier",
+      "tool": "Plotly",
+      "insight_in_one_sentence": "The mix of customer tiers has remained stable, demonstrating that mix shift is not the cause of the increased overall churn rate.",
+      "reasoning": "A 100% stacked area chart is the standard and most effective way to show changes in proportional composition over time. The stability of the colored bands will immediately convey the lack of significant mix shift."
+    }
+  ],
+  "phase_5_handoff": {
+    "hypotheses_to_test": [
+      "H1",
+      "H2",
+      "H3",
+      "H4",
+      "H5"
+    ],
+    "priority_order": "H2, H1, H3, H4, H5",
+    "notes": "The primary story is the disentanglement of the reseller churn event from the underlying Enterprise churn. H2 is the highest priority as it quantifies the largest single driver. H1 and H3 then address the core of the competing stakeholder hypotheses. H4 is to formally close the loop on mix-shift. H5 is an emergent finding that should be tested but is lower priority than the core mission questions."
+  }
+}
