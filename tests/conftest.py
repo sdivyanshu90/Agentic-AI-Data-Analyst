@@ -61,6 +61,24 @@ def valid_phase8_output() -> dict:
 
 
 @pytest.fixture
+def valid_phase0_output() -> dict:
+    sample_path = REPO_ROOT / "examples" / "sample_run" / "dry_run_phase0_output.json"
+    return json.loads(sample_path.read_text(encoding="utf-8"))
+
+
+@pytest.fixture
+def valid_phase65_output() -> dict:
+    sample_path = REPO_ROOT / "examples" / "sample_run" / "dry_run_phase65_output.json"
+    return json.loads(sample_path.read_text(encoding="utf-8"))
+
+
+@pytest.fixture
+def valid_phase9_output() -> dict:
+    sample_path = REPO_ROOT / "examples" / "sample_run" / "dry_run_phase9_output.json"
+    return json.loads(sample_path.read_text(encoding="utf-8"))
+
+
+@pytest.fixture
 def phase2_context(sample_mission_brief, valid_phase1_output) -> dict:
     """Context-packet-shaped fixture that the Phase 2 gate consumes."""
     return {
