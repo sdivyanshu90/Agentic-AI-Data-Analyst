@@ -17,17 +17,24 @@ def build_context_packet(
     *,
     retry_context: dict | None = None,
     user_clarifications: list | None = None,
+    knowledge_base: list | None = None,
 ) -> dict:
     """Assemble the packet passed to every phase agent.
 
     `prior_outputs` maps phase number (int or "phase_N" string) to that
     phase's full JSON output. Pass it forward verbatim — no truncation.
+
+    `knowledge_base` carries entries persisted by Phase 9 in previous runs —
+    institutional memory recalled for every agent (Phase 0 uses it for
+    triage; later phases for known gotchas on related questions).
     """
     packet: dict[str, Any] = {
         "mission_brief": mission_brief,
         "prior_outputs": prior_outputs,
         "pipeline_state": pipeline_state,
     }
+    if knowledge_base:
+        packet["knowledge_base_recall"] = knowledge_base
     if user_clarifications:
         packet["user_clarifications"] = user_clarifications
     if retry_context is not None:
