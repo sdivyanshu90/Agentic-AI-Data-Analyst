@@ -1,0 +1,155 @@
+{
+  "pipeline_state": {
+    "mission_brief": {
+      "objective": "Our VP of Growth thinks we have a churn problem specifically in the Enterprise tier this quarter. Our CFO thinks it's actually a pricing problem across all tiers and Enterprise just looks worse because of mix shift. Figure out what's actually going on with Q2 and tell us what to do. Also, if you get a chance, check whether support ticket volume is driving any of this \u2014 I think support's been slower this quarter. We need this by Friday.",
+      "business_domain": "SaaS",
+      "stakeholder_type": "VP of Growth and CFO (executive leadership)",
+      "data_source_description": "Data's in the warehouse: users, events, subscriptions, and a billing table that our old system also wrote to before we migrated in April. No support ticket table available. We rolled out a 15% Enterprise price increase on April 1st. Also FYI, our biggest Enterprise reseller partner ended their contract March 28th.",
+      "constraints": {
+        "time": "Needed by Friday",
+        "tools": "SQL + Python",
+        "privacy": ""
+      },
+      "success_looks_like": "",
+      "assumptions": []
+    },
+    "current_phase": 8,
+    "overall_status": "COMPLETE",
+    "phases": [
+      {
+        "phase_number": 1,
+        "phase_name": "Stakeholder Requirement Gathering",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Classified analysis as: Descriptive, Diagnostic",
+          "Identified 3 P1 sub-question(s) (of 5 total)",
+          "Raised 3 scope flag(s): DESCOPE, PROCEED_WITH_CAVEAT, PROCEED_WITH_CAVEAT"
+        ],
+        "reasoning_summary": "The objective contains multiple hypotheses and a vague 'what to do' clause. My role is to translate this into a testable, diagnostic question that directly compares the two executive theories using the contextual information provided (price increase, reseller loss).",
+        "output_summary": "5 sub-questions produced. Success definition: This analysis is successful when the VP of Growth and CFO can agree on the primary driver(s) of Q2 Enterprise churn and use the findings to \u2026",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-07-06T11:13:55.775739+00:00"
+      },
+      {
+        "phase_number": 2,
+        "phase_name": "Data Identification & Extraction",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Mapped 3 sub-question/source pair(s); 3 CONFIRMED",
+          "Reconnoitred 3 schema(s); 3 INFERRED",
+          "Raised 3 governance flag(s) (3 PII)",
+          "KPI coverage: 4 assessed, 0 partial, 0 not coverable"
+        ],
+        "reasoning_summary": "The attached extraction query provides a denormalized dataset ready for churn analysis. Phase 3's primary task is to process this data to generate monthly snapshots of active vs. churned customers for each tier. Key challenges for Phase 3: 1) Formalize the definition of a 'churn event' using the status and end_date columns. 2) Pay close attention to data around the April 2024 migration period, as the `mrr` and subscription states could be unreliable without reconciling against the `billing` tables, which has been deferred. 3) The `customer_segment` column should be used to isolate the reseller cohort for SQ2 and to filter them out for SQ3.",
+        "output_summary": "3 source(s) mapped, 1 extraction step(s), 10 column(s) in data dictionary.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-07-06T11:14:48.589488+00:00"
+      },
+      {
+        "phase_number": 3,
+        "phase_name": "Data Quality & Cleaning",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Catalogued 6 anomaly(ies): 4 CRITICAL, 2 WARNING",
+          "Cleaning actions: 3\u00d7DROP_ROWS, 2\u00d7STANDARDISE",
+          "Validation row-loss: 2.0% (200000 \u2192 195900)",
+          "Engineered 4 derived feature(s)"
+        ],
+        "reasoning_summary": "The data is now clean, validated, and enriched with features necessary for the analysis. The dataset is ready for Phase 4 EDA. Key considerations for the next phase: 1) The analysis of MRR churn must carry the caveat from the bias audit. 2) The engineered features `is_churned_q2_2024`, `price_increase_cohort`, and `customer_segment` are the primary levers for segmenting the data to answer the core sub-questions.",
+        "output_summary": "5 cleaning decision(s), 4 change log entry(ies), clean schema of 14 column(s). Validation: null=PASSED, range=PASSED, row-loss=2.0%.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-07-06T11:15:49.201474+00:00"
+      },
+      {
+        "phase_number": 4,
+        "phase_name": "Exploratory Data Analysis",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Profiled 6 variable(s) univariate, 4 pair(s) bivariate",
+          "2 STRONG bivariate relationship(s) found",
+          "Catalogued 2 surprise(s); 0 flagged for Phase 6",
+          "Formed 3 hypothesis(es) (1 EMERGENT from EDA)"
+        ],
+        "reasoning_summary": "The EDA strongly suggests a 'two-problem' narrative. H1 will quantify the primary cause of the churn spike (reseller loss). H2 will quantify the secondary cause (price increase impact). H3 provides crucial context on *who* was affected by the price increase. Testing these in order will build the narrative logically for the stakeholders.",
+        "output_summary": "6 univariate, 4 bivariate, 3 hypothesis(es), 4 viz spec(s) ready for Phase 7.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-07-06T11:16:38.924099+00:00"
+      },
+      {
+        "phase_number": 5,
+        "phase_name": "Hypothesis Testing & Validation",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Ran 3 test(s): 3 SUPPORTED, 0 REJECTED, 0 INCONCLUSIVE",
+          "3 finding(s) rated HIGH practical significance"
+        ],
+        "reasoning_summary": "The data strongly supports a two-part explanation for the Q2 Enterprise churn anomaly: a primary, massive churn event caused by a reseller partner's contract termination (H1), and a secondary, but still highly significant, churn event among direct customers driven by the April 1st price increase (H2).",
+        "output_summary": "3 test(s) executed, 3 finding(s) summarised, 3 caveat(s) for Phase 8, 2 priority insight(s) for Phase 6.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-07-06T11:17:26.771062+00:00"
+      },
+      {
+        "phase_number": 6,
+        "phase_name": "Advanced Analysis & Root Cause",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Ran 3 analysis(es): COHORT ANALYSIS, PARETO ANALYSIS, TREND DECOMPOSITION",
+          "Traced 2 root cause chain(s): 1 CONFIRMED, 1 HYPOTHESISED",
+          "2 segment deep-dive(s); 0 Simpson's paradox finding(s)",
+          "Ranked 3 insight(s); 2 HIGH-impact",
+          "2 sub-question(s) left unanswered"
+        ],
+        "reasoning_summary": "Insight 1: The Q2 Enterprise churn spike was primarily caused by a one-off reseller contract termination (75% of churned customers), which masked a secondary, more strategic issue of price sensitivity among newer customers.",
+        "output_summary": "3 analysis(es), 2 root cause chain(s), 3 insight(s) ranked, 2 unanswered.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-07-06T11:18:19.381898+00:00"
+      },
+      {
+        "phase_number": 7,
+        "phase_name": "Visualisation & Dashboard Design",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Specced 2 chart(s)",
+          "Dashboard type: EXECUTIVE (4 sections)",
+          "Caught and corrected 2 anti-pattern(s)",
+          "Accessibility: colourblind=\u2713 WCAG=\u2713 alt-text=\u2713"
+        ],
+        "reasoning_summary": "The visual story starts with a big, alarming number to hook the audience. It then immediately explains away the largest, non-actionable part of the problem (the reseller), calming fears of systemic failure. Finally, it pivots to the smaller but more important strategic issue (price sensitivity of new customers), providing a clear, actionable insight for leadership to focus on.",
+        "output_summary": "2 chart spec(s), 2 insight\u2192chart mapping(s), 2 anti-pattern correction(s), 2 insight headline(s) handed to Phase 8.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-07-06T11:19:07.792019+00:00"
+      },
+      {
+        "phase_number": 8,
+        "phase_name": "Storytelling, Reporting & Handoff",
+        "status": "COMPLETE",
+        "attempt_count": 1,
+        "key_decisions": [
+          "Addressed 3 sub-question(s) in Key Findings; 2 left open for follow-up",
+          "Produced 2 SMART recommendation(s)",
+          "Confidence mix: 3 high / 0 medium / 0 low",
+          "9-point self-check: 9 passed / 0 failed"
+        ],
+        "reasoning_summary": "Final stakeholder report delivered. Lead insight: The Q2 Enterprise churn spike was primarily caused by a one-off reseller contract termination (75% of churned customers), which masked a secondary, more strategic issue of price sensitivity among newer customers.",
+        "output_summary": "Final Markdown report (1551 words) + JSON summary. 2 recommendation(s), 3 top insight(s), 3 sub-question(s) answered.",
+        "quality_gate_passed": true,
+        "failure_reason": "",
+        "timestamp": "2026-07-06T11:19:45.803906+00:00"
+      }
+    ]
+  }
+}
