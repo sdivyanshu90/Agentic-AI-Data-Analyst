@@ -13,16 +13,25 @@
     "impact_quantification",
     "insight_ranking",
     "unanswered_subquestions",
-    "phase_7_top_insights_for_visualisation"
+    "phase_7_top_insights_for_visualisation",
+    "confound_sweep",
+    "sensitivity_analysis"
   ],
   "properties": {
-    "phase": { "const": 6 },
-    "phase_name": { "type": "string" },
+    "phase": {
+      "const": 6
+    },
+    "phase_name": {
+      "type": "string"
+    },
     "status": {
       "type": "string",
-      "enum": ["COMPLETE", "NEEDS_RETRY", "PARTIAL"]
+      "enum": [
+        "COMPLETE",
+        "NEEDS_RETRY",
+        "PARTIAL"
+      ]
     },
-
     "analyses": {
       "type": "array",
       "minItems": 1,
@@ -36,28 +45,51 @@
           "results"
         ],
         "properties": {
-          "subquestion_id": { "type": "string", "pattern": "^SQ\\d+$" },
-          "method_selected": { "type": "string", "minLength": 1 },
-          "method_reasoning": { "type": "string", "minLength": 1 },
+          "subquestion_id": {
+            "type": "string",
+            "pattern": "^SQ\\d+$"
+          },
+          "method_selected": {
+            "type": "string",
+            "minLength": 1
+          },
+          "method_reasoning": {
+            "type": "string",
+            "minLength": 1
+          },
           "execution_steps": {
             "type": "array",
-            "items": { "type": "string", "minLength": 1 },
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
             "minItems": 1
           },
           "results": {
             "type": "object",
-            "required": ["key_metric", "value", "business_interpretation"],
+            "required": [
+              "key_metric",
+              "value",
+              "business_interpretation"
+            ],
             "properties": {
-              "key_metric": { "type": "string", "minLength": 1 },
+              "key_metric": {
+                "type": "string",
+                "minLength": 1
+              },
               "value": {},
-              "baseline_comparison": { "type": "string" },
-              "business_interpretation": { "type": "string", "minLength": 1 }
+              "baseline_comparison": {
+                "type": "string"
+              },
+              "business_interpretation": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         }
       }
     },
-
     "root_cause_chains": {
       "type": "array",
       "minItems": 1,
@@ -70,111 +102,402 @@
           "root_cause"
         ],
         "properties": {
-          "finding_ref": { "type": "string", "minLength": 1 },
-          "symptom": { "type": "string", "minLength": 1 },
+          "finding_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "symptom": {
+            "type": "string",
+            "minLength": 1
+          },
           "proximate_cause": {
             "type": "object",
-            "required": ["description", "evidence"],
+            "required": [
+              "description",
+              "evidence"
+            ],
             "properties": {
-              "description": { "type": "string", "minLength": 1 },
-              "evidence": { "type": "string", "minLength": 1 }
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           },
           "contributing_factor": {
             "type": "object",
             "properties": {
-              "description": { "type": "string" },
-              "evidence": { "type": "string" }
+              "description": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "string"
+              }
             }
           },
           "root_cause": {
             "type": "object",
-            "required": ["description", "evidence", "status"],
+            "required": [
+              "description",
+              "evidence",
+              "status"
+            ],
             "properties": {
-              "description": { "type": "string", "minLength": 1 },
-              "evidence": { "type": "string", "minLength": 1 },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1
+              },
               "status": {
                 "type": "string",
-                "enum": ["CONFIRMED", "HYPOTHESISED"]
+                "enum": [
+                  "CONFIRMED",
+                  "HYPOTHESISED"
+                ]
               },
-              "data_needed_to_confirm": { "type": "string" }
+              "data_needed_to_confirm": {
+                "type": "string"
+              }
             }
           }
         }
       }
     },
-
     "segment_deep_dives": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["finding_ref", "segments_analysed", "simpsons_paradox_detected"],
+        "required": [
+          "finding_ref",
+          "segments_analysed",
+          "simpsons_paradox_detected"
+        ],
         "properties": {
-          "finding_ref": { "type": "string", "minLength": 1 },
+          "finding_ref": {
+            "type": "string",
+            "minLength": 1
+          },
           "segments_analysed": {
             "type": "array",
-            "items": { "type": "string" }
+            "items": {
+              "type": "string"
+            }
           },
-          "finding_holds_across_segments": { "type": "boolean" },
-          "highest_impact_segment": { "type": "string" },
-          "magnitude_in_segment": { "type": "string" },
-          "simpsons_paradox_detected": { "type": "boolean" },
-          "simpsons_paradox_description": { "type": "string" }
+          "finding_holds_across_segments": {
+            "type": "boolean"
+          },
+          "highest_impact_segment": {
+            "type": "string"
+          },
+          "magnitude_in_segment": {
+            "type": "string"
+          },
+          "simpsons_paradox_detected": {
+            "type": "boolean"
+          },
+          "simpsons_paradox_description": {
+            "type": "string"
+          }
         }
       }
     },
-
     "impact_quantification": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["finding", "current_state", "confidence"],
+        "required": [
+          "finding",
+          "current_state",
+          "confidence"
+        ],
         "properties": {
-          "finding": { "type": "string", "minLength": 1 },
-          "current_state": { "type": "string", "minLength": 1 },
-          "opportunity_estimate": { "type": "string" },
-          "confidence": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
-          "key_assumption": { "type": "string" }
+          "finding": {
+            "type": "string",
+            "minLength": 1
+          },
+          "current_state": {
+            "type": "string",
+            "minLength": 1
+          },
+          "opportunity_estimate": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          },
+          "key_assumption": {
+            "type": "string"
+          }
         }
       }
     },
-
     "insight_ranking": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["rank", "insight", "impact", "actionability", "confidence"],
+        "required": [
+          "rank",
+          "insight",
+          "impact",
+          "actionability",
+          "confidence"
+        ],
         "properties": {
-          "rank": { "type": "integer", "minimum": 1 },
-          "insight": { "type": "string", "minLength": 1 },
-          "impact": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
-          "actionability": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
-          "confidence": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] }
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "insight": {
+            "type": "string",
+            "minLength": 1
+          },
+          "impact": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          },
+          "actionability": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          }
         }
       }
     },
-
     "unanswered_subquestions": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["subquestion_id", "reason", "status"],
+        "required": [
+          "subquestion_id",
+          "reason",
+          "status"
+        ],
         "properties": {
-          "subquestion_id": { "type": "string", "pattern": "^SQ\\d+$" },
-          "reason": { "type": "string", "minLength": 1 },
+          "subquestion_id": {
+            "type": "string",
+            "pattern": "^SQ\\d+$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
           "status": {
             "type": "string",
-            "enum": ["DEFERRED", "REQUIRES_NEW_DATA", "DESCOPED"]
+            "enum": [
+              "DEFERRED",
+              "REQUIRES_NEW_DATA",
+              "DESCOPED"
+            ]
           },
-          "path_to_answer": { "type": "string" }
+          "path_to_answer": {
+            "type": "string"
+          }
         }
       }
     },
-
     "phase_7_top_insights_for_visualisation": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 }
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "confound_sweep": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "finding_ref",
+          "post_sweep_verdict",
+          "reasoning"
+        ],
+        "properties": {
+          "finding_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dimensions_swept": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "dimension",
+                "outcome"
+              ],
+              "properties": {
+                "dimension": {
+                  "type": "string"
+                },
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "HOLDS",
+                    "ATTENUATES",
+                    "DISAPPEARS",
+                    "REVERSES"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "dimensions_not_sweepable": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "dimension",
+                "reason"
+              ],
+              "properties": {
+                "dimension": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "known_event_check": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "confound_candidate",
+                "explains_finding"
+              ],
+              "properties": {
+                "confound_candidate": {
+                  "type": "string"
+                },
+                "explains_finding": {
+                  "type": "string",
+                  "enum": [
+                    "FULLY",
+                    "PARTIALLY",
+                    "NO"
+                  ]
+                },
+                "evidence": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "post_sweep_verdict": {
+            "type": "string",
+            "enum": [
+              "ORGANIC",
+              "EVENT_DRIVEN",
+              "MIX_SHIFT",
+              "UNRESOLVED"
+            ]
+          },
+          "reasoning": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "sensitivity_analysis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "finding_ref",
+          "cleaning_decision_varied",
+          "alternate_choice",
+          "robustness"
+        ],
+        "properties": {
+          "finding_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "cleaning_decision_varied": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alternate_choice": {
+            "type": "string",
+            "minLength": 1
+          },
+          "finding_survives": {
+            "type": "boolean"
+          },
+          "robustness": {
+            "type": "string",
+            "enum": [
+              "ROBUST",
+              "FRAGILE"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "external_benchmarks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "finding_ref",
+          "benchmark_metric",
+          "benchmark_value"
+        ],
+        "properties": {
+          "finding_ref": {
+            "type": "string"
+          },
+          "benchmark_metric": {
+            "type": "string"
+          },
+          "benchmark_value": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "comparison": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "additionalProperties": true
