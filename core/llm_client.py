@@ -70,6 +70,25 @@ def _get_client():
 _TRANSIENT_STATUSES = {429, 500, 502, 503, 504}
 
 
+def _is_transient(exc: Exception) -> bool:
+    """True for failures worth retrying: 429/5xx API errors and transport-level
+    drops (server disconnected, reset connections) that surface from httpx
+    beneath the google-genai SDK rather than as genai error types."""
+    from google.genai import errors as genai_errors
+
+    if isinstance(exc, (genai_errors.ServerError, genai_errors.ClientError)):
+        status = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+        return status in _TRANSIENT_STATUSES
+    try:
+        import httpx
+
+        if isinstance(exc, httpx.HTTPError):
+            return True
+    except ImportError:  # pragma: no cover
+        pass
+    return isinstance(exc, (ConnectionError, TimeoutError))
+
+
 def call_llm(
     system_prompt: str,
     user_message: str,
@@ -117,23 +136,20 @@ def _generate_with_retry(client, model, contents, config, max_attempts, *, label
     built-in retry doesn't always cover that. Shared by `call_llm` and
     `call_llm_with_code`.
     """
-    from google.genai import errors as genai_errors
-
     last_exc: Exception | None = None
     for attempt in range(1, max_attempts + 1):
         try:
             return client.models.generate_content(
                 model=model, contents=contents, config=config
             )
-        except (genai_errors.ServerError, genai_errors.ClientError) as exc:
-            status = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+        except Exception as exc:
             last_exc = exc
-            if status not in _TRANSIENT_STATUSES or attempt >= max_attempts:
+            if not _is_transient(exc) or attempt >= max_attempts:
                 raise
             delay = min(60, 2 ** attempt) + (attempt * 0.5)
             print(
                 f"  [llm_client] {label} attempt {attempt}/{max_attempts} got "
-                f"{status}; retrying in {delay:.1f}s",
+                f"{type(exc).__name__}: {exc}; retrying in {delay:.1f}s",
                 flush=True,
             )
             time.sleep(delay)
@@ -210,17 +226,14 @@ def call_llm_with_code(
             )
             break
         except Exception as exc:  # transient — _generate_with_retry re-raises
-            from google.genai import errors as genai_errors
-            if not isinstance(exc, (genai_errors.ServerError, genai_errors.ClientError)):
-                raise
-            status = getattr(exc, "code", None) or getattr(exc, "status_code", None)
             last_exc = exc
-            if status not in _TRANSIENT_STATUSES or attempt >= max_attempts:
+            if not _is_transient(exc) or attempt >= max_attempts:
                 raise
             delay = min(60, 2 ** attempt) + (attempt * 0.5)
             print(
                 f"  [llm_client] call_llm_with_code attempt {attempt}/"
-                f"{max_attempts} got {status}; retrying in {delay:.1f}s",
+                f"{max_attempts} got {type(exc).__name__}: {exc}; retrying in "
+                f"{delay:.1f}s",
                 flush=True,
             )
             time.sleep(delay)
