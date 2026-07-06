@@ -1,0 +1,358 @@
+{
+  "phase": 2,
+  "phase_name": "Data Identification, Collection & Extraction",
+  "status": "COMPLETE",
+  "blocker": null,
+  "data_source_map": [
+    {
+      "sub_question_id": "SQ1",
+      "sources_needed": [
+        "users",
+        "subscriptions"
+      ],
+      "availability": "CONFIRMED",
+      "join_logic": "subscriptions.user_id can be joined to users.user_id to link subscription events to user attributes like their creation date and reseller status.",
+      "reasoning": "The user prompt states that 'users' and 'subscriptions' tables are available in the data warehouse. These tables are essential for tracking customer status, subscription tier, and timing, which are the core components required to calculate customer and revenue churn rates."
+    },
+    {
+      "sub_question_id": "SQ2",
+      "sources_needed": [
+        "users",
+        "subscriptions"
+      ],
+      "availability": "CONFIRMED",
+      "join_logic": "Join users to subscriptions on user_id. A filter will then be applied to an assumed column in the users table (e.g., reseller_partner_id) to isolate the churn from the specific partner.",
+      "reasoning": "The core tables are confirmed. However, the ability to identify customers from the specific reseller partner is assumed per Assumption A3. The data source is available, but a specific attribute within it is assumed to exist."
+    },
+    {
+      "sub_question_id": "SQ3",
+      "sources_needed": [
+        "users",
+        "subscriptions"
+      ],
+      "availability": "CONFIRMED",
+      "join_logic": "Join users to subscriptions on user_id. This allows filtering for 'Enterprise' tier from the subscriptions table and filtering out reseller customers based on the users table before cohorting by renewal date.",
+      "reasoning": "The necessary tables are confirmed to be in the warehouse. The logic requires combining subscription details (tier, renewal date) with user attributes (reseller status) to create the correct cohorts for comparison."
+    }
+  ],
+  "schema_reconnaissance": [
+    {
+      "source_name": "users",
+      "source_type": "SQL_TABLE",
+      "schema_status": "INFERRED",
+      "columns": [
+        {
+          "name": "user_id",
+          "data_type": "VARCHAR",
+          "example_values": [
+            "usr_1a2b3c4d",
+            "usr_5e6f7g8h"
+          ],
+          "is_pii": true,
+          "notes": "Primary Key. Pseudonymous identifier, but considered PII as it can be traced to an individual."
+        },
+        {
+          "name": "email",
+          "data_type": "VARCHAR",
+          "example_values": [
+            "test@example.com"
+          ],
+          "is_pii": true,
+          "notes": "Directly identifiable PII. Should be excluded from analysis extracts."
+        },
+        {
+          "name": "created_at",
+          "data_type": "TIMESTAMP",
+          "example_values": [
+            "2023-01-15T09:30:00Z"
+          ],
+          "is_pii": false,
+          "notes": "Timestamp of user account creation."
+        },
+        {
+          "name": "reseller_partner_id",
+          "data_type": "VARCHAR",
+          "example_values": [
+            "XYZ123",
+            "ABC987",
+            null
+          ],
+          "is_pii": false,
+          "notes": "Identifier for the reseller partner who acquired the user. Key field for SQ2. Null if direct customer. Assumed to exist per Assumption A3."
+        }
+      ],
+      "estimated_rows": "100,000 - 500,000",
+      "date_range": "N/A (contains current state and historical user creation dates)",
+      "primary_key": "user_id",
+      "foreign_keys": []
+    },
+    {
+      "source_name": "subscriptions",
+      "source_type": "SQL_TABLE",
+      "schema_status": "INFERRED",
+      "columns": [
+        {
+          "name": "subscription_id",
+          "data_type": "VARCHAR",
+          "example_values": [
+            "sub_a1b2c3d4"
+          ],
+          "is_pii": true,
+          "notes": "Primary Key. Pseudonymous identifier for a specific subscription instance."
+        },
+        {
+          "name": "user_id",
+          "data_type": "VARCHAR",
+          "example_values": [
+            "usr_1a2b3c4d"
+          ],
+          "is_pii": true,
+          "notes": "Foreign Key to the users table."
+        },
+        {
+          "name": "plan_tier",
+          "data_type": "VARCHAR",
+          "example_values": [
+            "Free",
+            "Pro",
+            "Enterprise"
+          ],
+          "is_pii": false,
+          "notes": "The subscription tier/plan name."
+        },
+        {
+          "name": "status",
+          "data_type": "VARCHAR",
+          "example_values": [
+            "active",
+            "cancelled",
+            "past_due"
+          ],
+          "is_pii": false,
+          "notes": "Current status of the subscription. A 'cancelled' status on a given date indicates a churn event."
+        },
+        {
+          "name": "mrr",
+          "data_type": "DECIMAL(10, 2)",
+          "example_values": [
+            "99.00",
+            "999.00"
+          ],
+          "is_pii": false,
+          "notes": "Monthly Recurring Revenue for this subscription."
+        },
+        {
+          "name": "start_date",
+          "data_type": "DATE",
+          "example_values": [
+            "2023-05-01"
+          ],
+          "is_pii": false,
+          "notes": "Date the subscription period began."
+        },
+        {
+          "name": "end_date",
+          "data_type": "DATE",
+          "example_values": [
+            "2024-04-30"
+          ],
+          "is_pii": false,
+          "notes": "Date the subscription period ends or ended. For active subscriptions, this might be the end of the current billing cycle. This is the key date for identifying churn events."
+        },
+        {
+          "name": "renewal_date",
+          "data_type": "DATE",
+          "example_values": [
+            "2024-05-01"
+          ],
+          "is_pii": false,
+          "notes": "The date the subscription is set to renew. Crucial for SQ3 to cohort pre/post price increase."
+        }
+      ],
+      "estimated_rows": "200,000 - 1,000,000",
+      "date_range": "Contains historical and current subscriptions",
+      "primary_key": "subscription_id",
+      "foreign_keys": [
+        "user_id"
+      ]
+    },
+    {
+      "source_name": "billing",
+      "source_type": "SQL_TABLE",
+      "schema_status": "INFERRED",
+      "columns": [
+        {
+          "name": "billing_id",
+          "data_type": "VARCHAR",
+          "example_values": [
+            "bill_z9y8x7w6"
+          ],
+          "is_pii": false,
+          "notes": "Primary key for a billing event."
+        },
+        {
+          "name": "subscription_id",
+          "data_type": "VARCHAR",
+          "example_values": [
+            "sub_a1b2c3d4"
+          ],
+          "is_pii": true,
+          "notes": "Foreign key to the subscriptions table."
+        },
+        {
+          "name": "amount_paid",
+          "data_type": "DECIMAL(10, 2)",
+          "example_values": [
+            "999.00"
+          ],
+          "is_pii": false,
+          "notes": "Actual amount paid."
+        },
+        {
+          "name": "transaction_date",
+          "data_type": "TIMESTAMP",
+          "example_values": [
+            "2024-04-01T10:00:00Z"
+          ],
+          "is_pii": false,
+          "notes": "Timestamp of the payment transaction."
+        }
+      ],
+      "estimated_rows": "1,000,000+",
+      "date_range": "Contains all historical transactions.",
+      "primary_key": "billing_id",
+      "foreign_keys": [
+        "subscription_id"
+      ]
+    }
+  ],
+  "extraction_plan": [
+    {
+      "sub_question_id": "SQ1, SQ2, SQ3",
+      "extraction_type": "SQL",
+      "query_or_steps": "/*\n-- This single extraction provides the necessary data to answer all P1 sub-questions.\n-- It creates a unified view of subscription lifecycles joined with user attributes.\n-- Key Assumptions:\n-- 1. `users.reseller_partner_id` exists and identifies reseller customers.\n-- 2. The specific reseller partner who left has an ID of 'XYZ123'.\n-- 3. `subscriptions.renewal_date` accurately reflects the date a renewal decision is made.\n-- 4. The data from the April billing migration has been consolidated or is not needed for this initial analysis of subscription state changes. A deeper billing analysis is deferred.\n*/\nSELECT\n    s.subscription_id,\n    s.user_id,\n    u.created_at AS user_created_at,\n    s.plan_tier,\n    s.status,\n    s.mrr,\n    s.start_date,\n    s.end_date,\n    s.renewal_date,\n    CASE\n        WHEN u.reseller_partner_id = 'XYZ123' THEN 'churned_reseller_partner'\n        WHEN u.reseller_partner_id IS NOT NULL THEN 'other_reseller_partner'\n        ELSE 'direct_customer'\n    END AS customer_segment\nFROM\n    subscriptions s\nJOIN\n    users u ON s.user_id = u.user_id\nWHERE\n    (s.start_date >= '2023-01-01' OR s.end_date >= '2023-01-01' OR s.renewal_date >= '2023-01-01');",
+      "volume_estimate": "~200,000 rows x 10 columns",
+      "reasoning": "A single, comprehensive query is more efficient than multiple extractions. It pulls all necessary fields\u2014tier, MRR, status, dates, and a derived reseller segment\u2014to address the core requirements of all P1 sub-questions. The date filter is inclusive of all analysis and comparison periods (Q2 2023, Q1 2024, Q2 2024). This denormalized table will be the input for Phase 3's detailed churn calculations."
+    }
+  ],
+  "governance_flags": [
+    {
+      "column": "users.email",
+      "flag_type": "PII",
+      "mitigation": "EXCLUDE from extraction. The query in the extraction plan does not select this column, as it is not required for the analysis."
+    },
+    {
+      "column": "users.user_id",
+      "flag_type": "PII",
+      "mitigation": "RETAIN for analysis. This pseudonymized ID is essential for joining tables and tracking individual user journeys. It will be handled with care and not exposed in the final reporting."
+    },
+    {
+      "column": "subscriptions.subscription_id",
+      "flag_type": "PII",
+      "mitigation": "RETAIN for analysis. This pseudonymized ID is the primary key for subscription events and is necessary for accurate analysis. It will not be exposed in final reporting."
+    }
+  ],
+  "completeness_assessment": [
+    {
+      "kpi": "Monthly Customer Churn Rate",
+      "coverage": "FULLY_COVERABLE",
+      "proxy_metric": null,
+      "impact_if_missing": null,
+      "reasoning": "The inferred `subscriptions` table contains all necessary columns: a customer identifier (`user_id`), subscription status (`status`), plan tier (`plan_tier`), and effective dates (`start_date`, `end_date`). This is sufficient to calculate the rate of customers transitioning to a churned state each month."
+    },
+    {
+      "kpi": "Monthly Revenue (MRR) Churn Rate",
+      "coverage": "FULLY_COVERABLE",
+      "proxy_metric": null,
+      "impact_if_missing": null,
+      "reasoning": "The inferred `subscriptions` table includes an `mrr` column. By tracking the MRR of subscriptions that churn each month, this KPI can be calculated directly."
+    },
+    {
+      "kpi": "Reseller-Driven Churn Contribution",
+      "coverage": "FULLY_COVERABLE",
+      "proxy_metric": null,
+      "impact_if_missing": null,
+      "reasoning": "This is fully coverable under the key assumption (A3) that a `reseller_partner_id` column exists in the `users` table. The extraction plan explicitly creates a segment for this, allowing for direct calculation of their churn contribution."
+    },
+    {
+      "kpi": "Post-Price-Increase Renewal Rate",
+      "coverage": "FULLY_COVERABLE",
+      "proxy_metric": null,
+      "impact_if_missing": null,
+      "reasoning": "The inferred `subscriptions` table contains a `renewal_date`. This allows for the creation of two cohorts: Enterprise customers with renewals before April 1st and those with renewals on or after April 1st. Comparing the renewal outcomes of these two groups directly measures the KPI."
+    }
+  ],
+  "data_dictionary": [
+    {
+      "column_name": "subscription_id",
+      "business_definition": "The unique identifier for a specific instance of a customer's subscription to a plan.",
+      "data_type": "VARCHAR",
+      "value_range_or_enum": "Unique string, e.g., 'sub_a1b2c3d4'",
+      "known_quality_issues": "None known, but must be checked for duplicates."
+    },
+    {
+      "column_name": "user_id",
+      "business_definition": "The unique identifier for a customer account.",
+      "data_type": "VARCHAR",
+      "value_range_or_enum": "Unique string, e.g., 'usr_1a2b3c4d'",
+      "known_quality_issues": "None known."
+    },
+    {
+      "column_name": "user_created_at",
+      "business_definition": "The timestamp when the user first created their account.",
+      "data_type": "TIMESTAMP",
+      "value_range_or_enum": "Timestamp values",
+      "known_quality_issues": "None known."
+    },
+    {
+      "column_name": "plan_tier",
+      "business_definition": "The service tier of the subscription.",
+      "data_type": "VARCHAR",
+      "value_range_or_enum": "['Free', 'Pro', 'Enterprise']",
+      "known_quality_issues": "Possible inconsistencies in naming (e.g., 'enterprise' vs 'Enterprise'). Will require cleanup."
+    },
+    {
+      "column_name": "status",
+      "business_definition": "The current state of the subscription.",
+      "data_type": "VARCHAR",
+      "value_range_or_enum": "['active', 'cancelled', 'past_due', etc.]",
+      "known_quality_issues": "The definition of 'cancelled' needs to be precise for churn calculations (e.g., does it include involuntary churn from payment failure?)."
+    },
+    {
+      "column_name": "mrr",
+      "business_definition": "The Monthly Recurring Revenue value of the subscription, in USD.",
+      "data_type": "DECIMAL(10, 2)",
+      "value_range_or_enum": "Positive numeric values.",
+      "known_quality_issues": "Could be affected by the April billing system migration. Values around this date must be scrutinized."
+    },
+    {
+      "column_name": "start_date",
+      "business_definition": "The date on which the subscription period commenced.",
+      "data_type": "DATE",
+      "value_range_or_enum": "Date values",
+      "known_quality_issues": "None known."
+    },
+    {
+      "column_name": "end_date",
+      "business_definition": "The date on which the subscription period concluded or is scheduled to conclude. A past date for a non-renewed subscription signifies a churn event.",
+      "data_type": "DATE",
+      "value_range_or_enum": "Date values",
+      "known_quality_issues": "None known."
+    },
+    {
+      "column_name": "renewal_date",
+      "business_definition": "The date a subscription is scheduled for renewal. This is the key date for cohorting customers relative to the price change.",
+      "data_type": "DATE",
+      "value_range_or_enum": "Date values",
+      "known_quality_issues": "None known."
+    },
+    {
+      "column_name": "customer_segment",
+      "business_definition": "A derived category classifying a customer as either a direct customer, a customer from the specific churned reseller partner, or a customer from another reseller.",
+      "data_type": "VARCHAR",
+      "value_range_or_enum": "['churned_reseller_partner', 'other_reseller_partner', 'direct_customer']",
+      "known_quality_issues": "The accuracy of this segment depends entirely on the quality and existence of the `users.reseller_partner_id` field."
+    }
+  ],
+  "phase_3_handoff_notes": "The attached extraction query provides a denormalized dataset ready for churn analysis. Phase 3's primary task is to process this data to generate monthly snapshots of active vs. churned customers for each tier. Key challenges for Phase 3: 1) Formalize the definition of a 'churn event' using the status and end_date columns. 2) Pay close attention to data around the April 2024 migration period, as the `mrr` and subscription states could be unreliable without reconciling against the `billing` tables, which has been deferred. 3) The `customer_segment` column should be used to isolate the reseller cohort for SQ2 and to filter them out for SQ3."
+}
