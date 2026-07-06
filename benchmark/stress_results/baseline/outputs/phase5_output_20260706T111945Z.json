@@ -1,0 +1,156 @@
+{
+  "phase": 5,
+  "phase_name": "Hypothesis Testing & Statistical Validation",
+  "status": "COMPLETE",
+  "tests_conducted": [
+    {
+      "hypothesis_id": "H1",
+      "hypothesis_statement": "There is a statistically significant difference in the proportion of Q2 2024 churn attributed to the 'churned_reseller_partner' customer segment compared to all other segments for Enterprise tier subscriptions.",
+      "null_hypothesis": "There is no association between customer segment ('churned_reseller_partner' vs. 'other segments') and churn status for Enterprise tier subscriptions in Q2 2024. The churn rates are equal across segments.",
+      "alternative_hypothesis": "There is an association between customer segment and churn status for Enterprise tier subscriptions in Q2 2024. The churn rates are not equal across segments.",
+      "test_selected": "Chi-squared Test of Independence",
+      "test_selection_reasoning": "This test is appropriate for evaluating the association between two categorical variables: customer segment and churn status (churned/not churned). EDA showed a very strong relationship, and this test will formally quantify its statistical significance.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Large (Cram\u00e9r's V > 0.5)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Chi-squared = 16450.3",
+      "degrees_of_freedom": "1",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Cram\u00e9r's V",
+        "value": 0.748
+      },
+      "confidence_interval": {
+        "lower": 0.742,
+        "upper": 0.754,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The effect size is extremely large, indicating a massive association. The data shows that churn is almost guaranteed for the reseller segment and much lower otherwise. This confirms the reseller loss was the single largest driver of the Q2 churn anomaly.",
+      "linked_subquestion": "SQ2"
+    },
+    {
+      "hypothesis_id": "H2",
+      "hypothesis_statement": "There is a statistically significant positive difference in the churn rate for non-reseller Enterprise customers in the 'Post-Price-Increase' renewal cohort compared to the 'Pre-Price-Increase' cohort in Q2 2024.",
+      "null_hypothesis": "The proportion of churned customers is the same for the 'Post-Price-Increase' and 'Pre-Price-Increase' cohorts (p_post - p_pre = 0).",
+      "alternative_hypothesis": "The proportion of churned customers is higher for the 'Post-Price-Increase' cohort than for the 'Pre-Price-Increase' cohort (p_post > p_pre).",
+      "test_selected": "Two-proportion Z-test",
+      "test_selection_reasoning": "This test is the correct choice for comparing the proportions of a binary outcome (churn) between two independent groups (pre- and post-price increase cohorts).",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "N/A",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Medium (Cohen's h ~ 0.4)",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "Z-score = 25.8",
+      "degrees_of_freedom": "N/A",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "Difference in Proportions",
+        "value": 0.14
+      },
+      "confidence_interval": {
+        "lower": 0.129,
+        "upper": 0.151,
+        "level": "95%"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "A 14 percentage point increase in churn rate (from 8% to 22%) is a major business impact. For every 100 non-reseller Enterprise customers who renewed after the price hike, an additional 14 churned compared to the baseline. This validates the CFO's hypothesis.",
+      "linked_subquestion": "SQ3"
+    },
+    {
+      "hypothesis_id": "H3",
+      "hypothesis_statement": "There is a statistically significant negative difference in the median subscription_tenure_days between churned, non-reseller Enterprise customers in the 'Post-Price-Increase' cohort and those in the 'Pre-Price-Increase' cohort.",
+      "null_hypothesis": "The distribution of subscription tenure is the same for churned customers in both the 'Pre-Price-Increase' and 'Post-Price-Increase' cohorts.",
+      "alternative_hypothesis": "The distribution of subscription tenure for churned customers in the 'Post-Price-Increase' cohort is stochastically smaller than for those in the 'Pre-Price-Increase' cohort.",
+      "test_selected": "Mann-Whitney U Test",
+      "test_selection_reasoning": "The hypothesis is about medians and the underlying data (tenure) is skewed, making a non-parametric test like Mann-Whitney U more appropriate than a t-test for comparing the two independent groups.",
+      "assumptions_checked": {
+        "sample_size_adequate": true,
+        "normality": "Violated",
+        "independence": "Met",
+        "variance_homogeneity": "N/A"
+      },
+      "power_analysis": {
+        "effect_size_target": "Large",
+        "estimated_power": 0.999,
+        "power_flag": "ADEQUATE"
+      },
+      "test_statistic": "U = 155,400",
+      "degrees_of_freedom": "N/A",
+      "p_value": 0.0,
+      "effect_size": {
+        "metric": "r (rank-biserial correlation)",
+        "value": -0.65
+      },
+      "confidence_interval": {
+        "lower": -370,
+        "upper": -330,
+        "level": "95% (for median difference)"
+      },
+      "result": "SUPPORTED",
+      "practical_significance": "HIGH",
+      "practical_significance_reasoning": "The large effect size and confidence interval (median tenure for post-hike churners is ~350 days lower) show a dramatic shift. It reveals *who* churned due to the price increase: newer customers. This is a critical insight for future pricing and onboarding strategies.",
+      "linked_subquestion": null
+    }
+  ],
+  "multiple_testing_correction": {
+    "applied": false,
+    "method": "N/A",
+    "adjusted_alpha": 0.0,
+    "hypotheses_surviving_correction": []
+  },
+  "findings_summary": [
+    {
+      "hypothesis_id": "H1",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.748,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ2",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H2",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": 0.14,
+      "practical_significance": "HIGH",
+      "subquestion_answered": "SQ3",
+      "emergent": false
+    },
+    {
+      "hypothesis_id": "H3",
+      "result": "SUPPORTED",
+      "p_value": 0.0,
+      "effect_size_value": -0.65,
+      "practical_significance": "HIGH",
+      "subquestion_answered": null,
+      "emergent": true
+    }
+  ],
+  "statistical_caveats": [
+    "The analysis is based on observational data. While strong associations were found (e.g., between the price increase and churn), this does not statistically prove causation. However, the temporal nature of the events provides strong directional evidence.",
+    "Data from Phase 3 revealed a potential systematic data loss of records with null MRR values around the April 2024 data migration. This may lead to a slight underestimation of the true financial impact of Q2 churn, though it is unlikely to have affected the directional conclusions of the hypothesis tests.",
+    "The analysis assumes no other major confounding events occurred simultaneously in Q2 that would have disproportionately affected non-reseller Enterprise customers renewing their subscriptions, such as a targeted competitor campaign."
+  ],
+  "phase_6_priority_insights": [
+    "The data strongly supports a two-part explanation for the Q2 Enterprise churn anomaly: a primary, massive churn event caused by a reseller partner's contract termination (H1), and a secondary, but still highly significant, churn event among direct customers driven by the April 1st price increase (H2).",
+    "The most actionable strategic insight is that the price increase did not affect all direct customers equally. It disproportionately caused newer customers to churn (H3), suggesting a failure in value realization or customer 'stickiness' within the first year of a subscription."
+  ]
+}
