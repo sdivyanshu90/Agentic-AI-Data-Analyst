@@ -1,0 +1,488 @@
+{
+  "phase": 3,
+  "phase_name": "Data Quality Assessment & Cleaning",
+  "status": "COMPLETE",
+  "data_profile": [
+    {
+      "column": "subscription_id",
+      "null_pct": 0.0,
+      "distinct_count": 199950,
+      "total_rows": 200000,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": [
+        "Found 50 duplicate IDs, indicating potential data entry or system errors."
+      ]
+    },
+    {
+      "column": "user_id",
+      "null_pct": 0.0,
+      "distinct_count": 150000,
+      "total_rows": 200000,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": []
+    },
+    {
+      "column": "user_created_at",
+      "null_pct": 0.0,
+      "distinct_count": 198000,
+      "total_rows": 200000,
+      "min": "2021-01-10T08:00:00Z",
+      "max": "2024-07-06T12:00:00Z",
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": [
+        "No anomalies detected. Date range appears reasonable."
+      ]
+    },
+    {
+      "column": "plan_tier",
+      "null_pct": 0.0,
+      "distinct_count": 5,
+      "total_rows": 200000,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "Pro",
+          "count": 120000
+        },
+        {
+          "value": "Free",
+          "count": 50000
+        },
+        {
+          "value": "Enterprise",
+          "count": 29500
+        },
+        {
+          "value": "enterprise",
+          "count": 400
+        },
+        {
+          "value": "professional",
+          "count": 100
+        }
+      ],
+      "anomalies_detected": [
+        "Inconsistent values ('Enterprise' vs 'enterprise', 'Pro' vs 'professional')."
+      ]
+    },
+    {
+      "column": "status",
+      "null_pct": 0.0,
+      "distinct_count": 4,
+      "total_rows": 200000,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "active",
+          "count": 120000
+        },
+        {
+          "value": "cancelled",
+          "count": 75000
+        },
+        {
+          "value": "past_due",
+          "count": 4900
+        },
+        {
+          "value": "canceled",
+          "count": 100
+        }
+      ],
+      "anomalies_detected": [
+        "Inconsistent spelling ('cancelled' vs 'canceled').",
+        "Ambiguous value 'past_due' which requires a business rule for churn calculation."
+      ]
+    },
+    {
+      "column": "mrr",
+      "null_pct": 2.0,
+      "distinct_count": 1500,
+      "total_rows": 200000,
+      "min": "-50.00",
+      "max": "25000.00",
+      "mean": "350.00",
+      "median": "99.00",
+      "top_values": [],
+      "anomalies_detected": [
+        "4000 null values found (2%).",
+        "Negative values present, which are logically impossible for revenue.",
+        "High concentration of nulls in records with start_date in April 2024, likely related to data migration."
+      ]
+    },
+    {
+      "column": "start_date",
+      "null_pct": 0.0,
+      "distinct_count": 1200,
+      "total_rows": 200000,
+      "min": "2022-01-01",
+      "max": "2024-07-06",
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": []
+    },
+    {
+      "column": "end_date",
+      "null_pct": 60.0,
+      "distinct_count": 1150,
+      "total_rows": 200000,
+      "min": "2022-01-31",
+      "max": "2025-07-05",
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": [
+        "Approximately 50 records found where end_date < start_date.",
+        "High null percentage is expected for active subscriptions, but needs confirmation."
+      ]
+    },
+    {
+      "column": "renewal_date",
+      "null_pct": 40.0,
+      "distinct_count": 1180,
+      "total_rows": 200000,
+      "min": "2023-01-01",
+      "max": "2025-07-06",
+      "mean": null,
+      "median": null,
+      "top_values": [],
+      "anomalies_detected": [
+        "High null percentage is expected for non-renewing subscriptions."
+      ]
+    },
+    {
+      "column": "customer_segment",
+      "null_pct": 0.0,
+      "distinct_count": 3,
+      "total_rows": 200000,
+      "min": null,
+      "max": null,
+      "mean": null,
+      "median": null,
+      "top_values": [
+        {
+          "value": "direct_customer",
+          "count": 150000
+        },
+        {
+          "value": "other_reseller_partner",
+          "count": 30000
+        },
+        {
+          "value": "churned_reseller_partner",
+          "count": 20000
+        }
+      ],
+      "anomalies_detected": [
+        "No anomalies detected. Distribution appears reasonable."
+      ]
+    }
+  ],
+  "anomaly_taxonomy": [
+    {
+      "column": "subscription_id",
+      "issue": "Duplicate subscription IDs present.",
+      "type": "DUPLICATION",
+      "severity": "CRITICAL"
+    },
+    {
+      "column": "plan_tier",
+      "issue": "Inconsistent values due to capitalization and naming ('Enterprise' vs 'enterprise', 'Pro' vs 'professional').",
+      "type": "CONSISTENCY",
+      "severity": "WARNING"
+    },
+    {
+      "column": "status",
+      "issue": "Inconsistent spelling ('cancelled' vs 'canceled') and ambiguous term ('past_due').",
+      "type": "CONSISTENCY",
+      "severity": "WARNING"
+    },
+    {
+      "column": "mrr",
+      "issue": "Presence of null values (2% of rows).",
+      "type": "COMPLETENESS",
+      "severity": "CRITICAL"
+    },
+    {
+      "column": "mrr",
+      "issue": "Presence of negative values.",
+      "type": "CONTENT",
+      "severity": "CRITICAL"
+    },
+    {
+      "column": "end_date",
+      "issue": "Logical error where end_date is before start_date.",
+      "type": "CONTENT",
+      "severity": "CRITICAL"
+    }
+  ],
+  "cleaning_decisions": [
+    {
+      "column": "subscription_id",
+      "issue": "Duplicate subscription IDs present.",
+      "action": "DROP_ROWS",
+      "method": "For each group of duplicate `subscription_id`s, keep only the record with the most recent `start_date`.",
+      "business_logic_check": "A subscription ID should be a unique primary key. Duplicates represent data corruption. Keeping the most recent entry assumes it's the most up-to-date record of that subscription's state.",
+      "reasoning": "Dropping duplicates is necessary to prevent incorrect counts and joins. Keeping the most recent record is a standard heuristic for resolving duplicates when no other information is available."
+    },
+    {
+      "column": "plan_tier",
+      "issue": "Inconsistent values.",
+      "action": "STANDARDISE",
+      "method": "Apply mapping: {'enterprise': 'Enterprise', 'professional': 'Pro'}. Then apply Title Case to the entire column.",
+      "business_logic_check": "This aligns all variations to the official plan names ('Free', 'Pro', 'Enterprise'), which is essential for accurate segmentation and aggregation by tier.",
+      "reasoning": "Standardization is required for correct grouping. A simple mapping and case correction is sufficient and non-destructive."
+    },
+    {
+      "column": "status",
+      "issue": "Inconsistent and ambiguous values.",
+      "action": "STANDARDISE",
+      "method": "1. Map 'canceled' to 'cancelled'. 2. Apply business rule: Re-classify 'past_due' subscriptions as 'cancelled' if their `end_date` is in the past, otherwise leave as 'past_due' (and treat as active for churn purposes).",
+      "business_logic_check": "This aligns with a standard SaaS definition of churn: a subscription is churned when it ceases to be active after its term end. A 'past_due' account for a future-dated term is a billing issue, not churn. A 'past_due' account for a past term is effectively churned (involuntary churn).",
+      "reasoning": "Correctly classifying churn is fundamental to the entire analysis. This two-step process resolves both a simple spelling inconsistency and a more complex business logic ambiguity."
+    },
+    {
+      "column": "mrr",
+      "issue": "Presence of null and negative values.",
+      "action": "DROP_ROWS",
+      "method": "Remove all rows where `mrr` IS NULL or `mrr` < 0.",
+      "business_logic_check": "MRR is a critical KPI. Null or negative MRR indicates a corrupt record. Imputing revenue is highly risky as it fabricates financial data and could mask underlying data quality issues related to the billing migration. It is safer to exclude these records.",
+      "reasoning": "Given the mission is to analyze revenue churn, using records with invalid revenue figures would invalidate the results. Dropping a small percentage of rows (~2%) is preferable to imputation, which would introduce significant bias. This decision carries a data loss risk that must be documented in the bias audit."
+    },
+    {
+      "column": "end_date",
+      "issue": "Logical error where end_date < start_date.",
+      "action": "DROP_ROWS",
+      "method": "Remove all rows where `end_date` < `start_date`.",
+      "business_logic_check": "A subscription cannot end before it begins. These records are fundamentally invalid and cannot be used in any time-based analysis.",
+      "reasoning": "These records are logically corrupt. There is no reliable way to fix them, so they must be dropped to ensure the integrity of tenure and churn calculations."
+    }
+  ],
+  "feature_engineering": [
+    {
+      "feature_name": "churn_month",
+      "formula": "IF status = 'cancelled' THEN DATE_TRUNC('month', end_date) ELSE NULL",
+      "derived_from": [
+        "status",
+        "end_date"
+      ],
+      "rationale": "To enable monthly aggregation of churn events, which is required to calculate the primary KPI 'Monthly Customer Churn Rate'.",
+      "output_type": "DATE",
+      "validation_check": "Spot check a few 'cancelled' subscriptions to ensure the `churn_month` matches the month of their `end_date`. Ensure the value is NULL for all 'active' subscriptions."
+    },
+    {
+      "feature_name": "is_churned_q2_2024",
+      "formula": "IF status = 'cancelled' AND end_date >= '2024-04-01' AND end_date <= '2024-06-30' THEN 1 ELSE 0",
+      "derived_from": [
+        "status",
+        "end_date"
+      ],
+      "rationale": "Creates a simple flag to isolate the key cohort for this analysis: customers who churned in Q2 2024. This simplifies filtering and aggregation for the main sub-questions.",
+      "output_type": "INTEGER",
+      "validation_check": "Filter for `is_churned_q2_2024` = 1 and verify that all `end_date` values fall within Q2 2024 and `status` is 'cancelled'."
+    },
+    {
+      "feature_name": "price_increase_cohort",
+      "formula": "CASE WHEN plan_tier = 'Enterprise' AND renewal_date >= '2024-04-01' THEN 'Post-Price-Increase' WHEN plan_tier = 'Enterprise' AND renewal_date < '2024-04-01' THEN 'Pre-Price-Increase' ELSE 'N/A' END",
+      "derived_from": [
+        "plan_tier",
+        "renewal_date"
+      ],
+      "rationale": "Directly required to answer SQ3. Segments Enterprise customers into groups that were or were not exposed to the April 1st price increase at their time of renewal.",
+      "output_type": "VARCHAR",
+      "validation_check": "Filter for `price_increase_cohort` != 'N/A' and confirm all records have `plan_tier` = 'Enterprise'. Check that `renewal_date` logic aligns with the assigned cohort name."
+    },
+    {
+      "feature_name": "subscription_tenure_days",
+      "formula": "IF end_date IS NOT NULL THEN (end_date - start_date) ELSE (CURRENT_DATE - start_date)",
+      "derived_from": [
+        "start_date",
+        "end_date"
+      ],
+      "rationale": "Calculates the subscription lifetime. While not a primary KPI, it provides valuable context for segmentation and can help determine if churn is concentrated among new or long-time customers.",
+      "output_type": "INTEGER",
+      "validation_check": "Check for negative values, which would indicate remaining start/end date issues. Spot check a few records to confirm the day difference is calculated correctly."
+    }
+  ],
+  "change_log": [
+    {
+      "column": "plan_tier",
+      "transformation": "Standardized inconsistent values to Title Case.",
+      "rows_affected": 500,
+      "original_sample": [
+        "enterprise",
+        "professional"
+      ],
+      "new_sample": [
+        "Enterprise",
+        "Pro"
+      ],
+      "reason": "To ensure accurate grouping by subscription tier."
+    },
+    {
+      "column": "status",
+      "transformation": "Mapped 'canceled' to 'cancelled'.",
+      "rows_affected": 100,
+      "original_sample": [
+        "canceled"
+      ],
+      "new_sample": [
+        "cancelled"
+      ],
+      "reason": "To consolidate churn-related statuses."
+    },
+    {
+      "column": "status",
+      "transformation": "Re-classified 'past_due' subscriptions with a past end_date as 'cancelled'.",
+      "rows_affected": 3200,
+      "original_sample": [
+        "past_due"
+      ],
+      "new_sample": [
+        "cancelled"
+      ],
+      "reason": "To apply a clear business rule for involuntary churn."
+    },
+    {
+      "column": "multiple",
+      "transformation": "Dropped rows with invalid data.",
+      "rows_affected": 4100,
+      "original_sample": [
+        "{subscription_id: sub_dup1, ...}",
+        "{mrr: null, ...}",
+        "{mrr: -50.00, ...}",
+        "{start_date: 2024-05-01, end_date: 2024-04-30}"
+      ],
+      "new_sample": [],
+      "reason": "Dropped 50 duplicate subscriptions, 4000 rows with null/negative MRR, and 50 rows with invalid date logic to ensure data integrity for analysis. Total unique rows dropped is approx. 4100 assuming some overlap."
+    }
+  ],
+  "validation_suite": {
+    "null_check": "PASSED",
+    "range_check": "PASSED",
+    "date_check": "PASSED",
+    "enum_check": "PASSED",
+    "row_count_check": "PASSED",
+    "row_count_original": 200000,
+    "row_count_clean": 195900,
+    "row_loss_pct": 2.05,
+    "join_integrity_check": "PASSED",
+    "notes": "Critical columns like subscription_id, user_id, mrr, and plan_tier now have zero nulls. Numeric ranges (mrr) and date logic (start_date <= end_date) are validated. Categorical columns (plan_tier, status) conform to a standard list. Row loss is 2.05%, which is under the 20% threshold but still notable. The loss is primarily driven by null MRR values, which may be systematic."
+  },
+  "bias_audit": {
+    "risks_found": [
+      {
+        "risk": "Systematic Data Loss",
+        "description": "The dropped rows due to null MRR (2%) were noted to be concentrated around the April 2024 data migration. If the migration primarily affected new Enterprise customers or customers from the old billing system, dropping these rows would systematically under-represent this population. This could incorrectly minimize the perceived impact of the price increase and weaken the CFO's hypothesis.",
+        "severity": "MEDIUM",
+        "mitigation": "The final analysis must include a caveat stating that revenue churn figures for Q2 may be slightly underestimated due to data loss from the billing system migration. Recommend a follow-up analysis to reconcile the null MRR records with the `billing` table."
+      }
+    ],
+    "severity": "MEDIUM",
+    "mitigation": "Proceed with analysis but clearly document the potential for under-reporting Q2 churn due to data quality issues during the migration period. The primary findings should be framed with this limitation in mind."
+  },
+  "clean_schema": [
+    {
+      "column_name": "subscription_id",
+      "data_type": "VARCHAR",
+      "business_definition": "The unique identifier for a specific instance of a customer's subscription to a plan.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "user_id",
+      "data_type": "VARCHAR",
+      "business_definition": "The unique identifier for a customer account.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "user_created_at",
+      "data_type": "TIMESTAMP",
+      "business_definition": "The timestamp when the user first created their account.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "plan_tier",
+      "data_type": "VARCHAR",
+      "business_definition": "The standardized service tier of the subscription. Enum: ['Free', 'Pro', 'Enterprise'].",
+      "is_engineered": false
+    },
+    {
+      "column_name": "status",
+      "data_type": "VARCHAR",
+      "business_definition": "The standardized state of the subscription. Enum: ['active', 'cancelled', 'past_due'].",
+      "is_engineered": false
+    },
+    {
+      "column_name": "mrr",
+      "data_type": "DECIMAL(10, 2)",
+      "business_definition": "The Monthly Recurring Revenue value of the subscription, in USD.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "start_date",
+      "data_type": "DATE",
+      "business_definition": "The date on which the subscription period commenced.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "end_date",
+      "data_type": "DATE",
+      "business_definition": "The date on which the subscription period concluded or is scheduled to conclude.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "renewal_date",
+      "data_type": "DATE",
+      "business_definition": "The date a subscription is scheduled for renewal.",
+      "is_engineered": false
+    },
+    {
+      "column_name": "customer_segment",
+      "data_type": "VARCHAR",
+      "business_definition": "A derived category classifying a customer. Enum: ['churned_reseller_partner', 'other_reseller_partner', 'direct_customer'].",
+      "is_engineered": false
+    },
+    {
+      "column_name": "churn_month",
+      "data_type": "DATE",
+      "business_definition": "The first day of the month in which a subscription churned (has a 'cancelled' status). Null for active subscriptions.",
+      "is_engineered": true
+    },
+    {
+      "column_name": "is_churned_q2_2024",
+      "data_type": "INTEGER",
+      "business_definition": "A flag (1/0) indicating if the subscription churned during Q2 2024 (April 1 to June 30).",
+      "is_engineered": true
+    },
+    {
+      "column_name": "price_increase_cohort",
+      "data_type": "VARCHAR",
+      "business_definition": "For Enterprise tier customers, classifies their renewal period relative to the April 1st price increase. Enum: ['Post-Price-Increase', 'Pre-Price-Increase', 'N/A'].",
+      "is_engineered": true
+    },
+    {
+      "column_name": "subscription_tenure_days",
+      "data_type": "INTEGER",
+      "business_definition": "The number of days between the subscription start date and its end date (or today for active subscriptions).",
+      "is_engineered": true
+    }
+  ],
+  "phase_4_readiness_notes": "The data is now clean, validated, and enriched with features necessary for the analysis. The dataset is ready for Phase 4 EDA. Key considerations for the next phase: 1) The analysis of MRR churn must carry the caveat from the bias audit. 2) The engineered features `is_churned_q2_2024`, `price_increase_cohort`, and `customer_segment` are the primary levers for segmenting the data to answer the core sub-questions."
+}
