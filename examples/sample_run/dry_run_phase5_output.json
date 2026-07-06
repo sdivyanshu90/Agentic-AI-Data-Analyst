@@ -2,7 +2,6 @@
   "phase": 5,
   "phase_name": "Hypothesis Testing & Statistical Validation",
   "status": "COMPLETE",
-
   "tests_conducted": [
     {
       "hypothesis_id": "H1",
@@ -24,13 +23,24 @@
       },
       "test_statistic": "z = 27.4",
       "degrees_of_freedom": null,
-      "p_value": 0.000001,
-      "effect_size": { "metric": "Cramér's V", "value": 0.182 },
-      "confidence_interval": { "lower": 0.158, "upper": 0.195, "level": "95%" },
+      "p_value": 1e-06,
+      "effect_size": {
+        "metric": "Cramér's V",
+        "value": 0.182
+      },
+      "confidence_interval": {
+        "lower": 0.158,
+        "upper": 0.195,
+        "level": "95%"
+      },
       "result": "SUPPORTED",
       "practical_significance": "HIGH",
       "practical_significance_reasoning": "A 17-percentage-point absolute gap in voluntary churn between paid_search (31%) and organic (14%) is well above any plausible measurement noise and large enough to justify a channel-specific retention intervention.",
-      "linked_subquestion": "SQ1"
+      "linked_subquestion": "SQ1",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "holdout_validation": "NONE",
+      "evidence_grade_reasoning": "Pre-registered from a Phase 1 sub-question stated before EDA, so the test is a genuine confirmation."
     },
     {
       "hypothesis_id": "H2",
@@ -52,13 +62,24 @@
       },
       "test_statistic": "β = -0.42 (logistic); Mann-Whitney U = 8.2e9",
       "degrees_of_freedom": 28412,
-      "p_value": 0.0000005,
-      "effect_size": { "metric": "Odds ratio per +1 log(events)", "value": 0.66 },
-      "confidence_interval": { "lower": 0.62, "upper": 0.70, "level": "95%" },
+      "p_value": 5e-07,
+      "effect_size": {
+        "metric": "Odds ratio per +1 log(events)",
+        "value": 0.66
+      },
+      "confidence_interval": {
+        "lower": 0.62,
+        "upper": 0.7,
+        "level": "95%"
+      },
       "result": "SUPPORTED",
       "practical_significance": "HIGH",
       "practical_significance_reasoning": "Each ~2.7× increase in first-30-day event count cuts the odds of voluntary churn by 34%. That is a directly actionable lever — even a modest onboarding lift to median engagement would reduce voluntary churn meaningfully.",
-      "linked_subquestion": "SQ2"
+      "linked_subquestion": "SQ2",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "holdout_validation": "NONE",
+      "evidence_grade_reasoning": "Pre-registered from a Phase 1 sub-question stated before EDA, so the test is a genuine confirmation."
     },
     {
       "hypothesis_id": "H3",
@@ -81,12 +102,23 @@
       "test_statistic": "Level-shift coefficient = +212 churners/week (SE 58)",
       "degrees_of_freedom": 22,
       "p_value": 0.0007,
-      "effect_size": { "metric": "Relative weekly-churn increase", "value": 0.44 },
-      "confidence_interval": { "lower": 0.18, "upper": 0.68, "level": "95%" },
+      "effect_size": {
+        "metric": "Relative weekly-churn increase",
+        "value": 0.44
+      },
+      "confidence_interval": {
+        "lower": 0.18,
+        "upper": 0.68,
+        "level": "95%"
+      },
       "result": "SUPPORTED",
       "practical_significance": "MEDIUM",
       "practical_significance_reasoning": "A ~44% relative bump in weekly voluntary churn is meaningful but the underpowered series (only 12 weekly post-points) means the magnitude estimate is uncertain. Practical significance is real but the size is calibrated MEDIUM not HIGH until a longer post-window is available.",
-      "linked_subquestion": "SQ3"
+      "linked_subquestion": "SQ3",
+      "hypothesis_provenance": "PRE_REGISTERED",
+      "evidence_grade": "CONFIRMATORY",
+      "holdout_validation": "NONE",
+      "evidence_grade_reasoning": "Pre-registered from a Phase 1 sub-question stated before EDA, so the test is a genuine confirmation."
     },
     {
       "hypothesis_id": "H4",
@@ -109,40 +141,56 @@
       "test_statistic": "Interaction β = -0.21 (SE 0.05)",
       "degrees_of_freedom": 28410,
       "p_value": 0.0001,
-      "effect_size": { "metric": "Slope difference (paid_search − referral)", "value": -0.21 },
-      "confidence_interval": { "lower": -0.31, "upper": -0.11, "level": "95%" },
+      "effect_size": {
+        "metric": "Slope difference (paid_search − referral)",
+        "value": -0.21
+      },
+      "confidence_interval": {
+        "lower": -0.31,
+        "upper": -0.11,
+        "level": "95%"
+      },
       "result": "SUPPORTED",
       "practical_significance": "MEDIUM",
       "practical_significance_reasoning": "Channel-targeted onboarding lift would help paid_search more than referral, but the absolute slope-difference is modest. Worth a targeted experiment, not yet a full programme.",
-      "linked_subquestion": null
+      "linked_subquestion": null,
+      "hypothesis_provenance": "DATA_DERIVED",
+      "evidence_grade": "EXPLORATORY",
+      "holdout_validation": "NONE",
+      "evidence_grade_reasoning": "Hypothesis was formed after seeing this data and no held-out split was available — graded exploratory; needs confirmation on new data before it can be treated as confirmatory."
     }
   ],
-
   "multiple_testing_correction": {
     "applied": true,
     "method": "Holm-Bonferroni",
     "adjusted_alpha": 0.0125,
-    "hypotheses_surviving_correction": ["H1", "H2", "H3", "H4"]
+    "hypotheses_surviving_correction": [
+      "H1",
+      "H2",
+      "H3",
+      "H4"
+    ]
   },
-
   "findings_summary": [
     {
       "hypothesis_id": "H1",
       "result": "SUPPORTED",
-      "p_value": 0.000001,
+      "p_value": 1e-06,
       "effect_size_value": 0.182,
       "practical_significance": "HIGH",
       "subquestion_answered": "SQ1",
-      "emergent": false
+      "emergent": false,
+      "evidence_grade": "CONFIRMATORY"
     },
     {
       "hypothesis_id": "H2",
       "result": "SUPPORTED",
-      "p_value": 0.0000005,
+      "p_value": 5e-07,
       "effect_size_value": 0.66,
       "practical_significance": "HIGH",
       "subquestion_answered": "SQ2",
-      "emergent": false
+      "emergent": false,
+      "evidence_grade": "CONFIRMATORY"
     },
     {
       "hypothesis_id": "H3",
@@ -151,7 +199,8 @@
       "effect_size_value": 0.44,
       "practical_significance": "MEDIUM",
       "subquestion_answered": "SQ3",
-      "emergent": false
+      "emergent": false,
+      "evidence_grade": "CONFIRMATORY"
     },
     {
       "hypothesis_id": "H4",
@@ -160,17 +209,16 @@
       "effect_size_value": -0.21,
       "practical_significance": "MEDIUM",
       "subquestion_answered": null,
-      "emergent": true
+      "emergent": true,
+      "evidence_grade": "EXPLORATORY"
     }
   ],
-
   "statistical_caveats": [
     "All findings are observational, not experimental — channel-level differences may reflect confounding with user intent rather than channel causation.",
     "H3 (pricing-change effect) is supported but UNDERPOWERED on the post-window (12 weeks); magnitude estimate is provisional and should be re-tested at the 6-month mark.",
     "Holm–Bonferroni correction at family-wise α=0.05 across 4 hypotheses; all survive — no Type I inflation concern.",
     "Phase 3 bias_audit flagged regex-standardisation of cancel_reason; voluntary-churn rates may be slightly inflated. Direction of bias is conservative for H1 (so result holds a fortiori)."
   ],
-
   "phase_6_priority_insights": [
     "H1 + H2 are independently HIGH-significance and combine into the single most actionable finding: low-engagement paid_search users are the dominant churn driver.",
     "H3's pricing-change effect needs a root-cause look at whether it shows up uniformly across plan tiers or concentrates on starter (which would link it to the 'first-bill cliff' Phase 4 anomaly).",
