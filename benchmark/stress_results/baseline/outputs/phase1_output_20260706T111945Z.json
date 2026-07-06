@@ -1,0 +1,136 @@
+{
+  "phase": 1,
+  "phase_name": "Stakeholder Requirement Gathering",
+  "status": "COMPLETE",
+  "clarification_needed": null,
+  "stakeholder_decoding": {
+    "stated_problem": "Determine the cause of a perceived churn problem in the Enterprise tier in Q2, resolve conflicting hypotheses from the VP of Growth (tier-specific issue) and CFO (pricing/mix-shift issue), and advise on what to do. Also, investigate the impact of support ticket volume.",
+    "implied_business_problem": "Executive leadership has conflicting views on a potential high-value customer retention issue, which is preventing a clear, data-driven response to protect revenue. They need a definitive analysis to align on the problem's root cause and decide on a mitigation strategy.",
+    "root_question": "What are the primary quantitative drivers of the change in Enterprise customer and revenue churn in Q2? Specifically, what was the isolated impact of the April 1st price increase versus the March 28th termination of a major reseller partner?",
+    "gap_analysis": "The stated problem asks for a broad investigation and a prescriptive solution ('tell us what to do'). The root question narrows the focus to a diagnostic analysis that is actually feasible. It prioritizes quantifying the impact of known events (pricing, reseller loss) over speculative ones (support tickets). The prescriptive part will be addressed via recommendations based on the diagnostic findings, not a definitive strategic plan.",
+    "reasoning": "The objective contains multiple hypotheses and a vague 'what to do' clause. My role is to translate this into a testable, diagnostic question that directly compares the two executive theories using the contextual information provided (price increase, reseller loss)."
+  },
+  "analysis_classification": {
+    "types": [
+      "Descriptive",
+      "Diagnostic"
+    ],
+    "reasoning": "The analysis must first be Descriptive to quantify the churn rates and establish if a problem truly exists ('What happened?'). The core of the request is Diagnostic, aiming to understand the root cause by evaluating competing hypotheses ('Why did it happen?'). While a prescriptive outcome is requested, the analysis itself will not be prescriptive; it will provide the foundation for a prescriptive decision."
+  },
+  "sub_questions": [
+    {
+      "id": "SQ1",
+      "question": "What were the monthly customer and revenue churn rates for each subscription tier in Q1 and Q2 2024, and how do they compare to Q2 2023?",
+      "priority": "P1",
+      "reasoning": "This is the foundational question. It validates whether an abnormal churn event occurred in Q2, quantifies its magnitude, and provides a baseline comparison against the previous quarter and year-over-year."
+    },
+    {
+      "id": "SQ2",
+      "question": "How much of the Q2 Enterprise churn (by customer count and revenue) is directly attributable to customers associated with the reseller partner whose contract ended on March 28th?",
+      "priority": "P1",
+      "reasoning": "This directly tests a major known event mentioned in the brief. Isolating this impact is critical to understanding the 'true' underlying churn rate, separate from this one-off event."
+    },
+    {
+      "id": "SQ3",
+      "question": "For non-reseller Enterprise customers, what was the churn rate for those whose renewal date fell after the April 1st price increase versus those who renewed before?",
+      "priority": "P1",
+      "reasoning": "This question directly tests the CFO's pricing hypothesis by isolating the variable of the price increase and comparing the behavior of the affected cohort to a control group."
+    },
+    {
+      "id": "SQ4",
+      "question": "How did the mix of subscription tiers (by customer count and total MRR) change from the start of Q1 to the end of Q2?",
+      "priority": "P2",
+      "reasoning": "This addresses the CFO's specific 'mix shift' theory. It will determine if the Enterprise tier's proportion of the total portfolio grew, which could make its churn numbers appear worse in absolute terms."
+    },
+    {
+      "id": "SQ5",
+      "question": "Across all tiers, is there a correlation between the Q2 price increase (for Enterprise) and churn rates in other tiers?",
+      "priority": "P3",
+      "reasoning": "This is a secondary check on the CFO's hypothesis that it's a pricing problem 'across all tiers', even if the price change was only for Enterprise. It explores potential halo effects or broader market sensitivity."
+    }
+  ],
+  "kpis": [
+    {
+      "sub_question_id": "SQ1",
+      "metric_name": "Monthly Customer Churn Rate",
+      "calculation_logic": "(Number of customers who cancelled/did not renew in a month) / (Total number of customers at the start of the month)",
+      "time_window": "Monthly, aggregated to Quarterly (Q1 2024, Q2 2024, Q2 2023)",
+      "comparison_baseline": "Previous quarter (Q1 2024) and same quarter, prior year (Q2 2023)"
+    },
+    {
+      "sub_question_id": "SQ1",
+      "metric_name": "Monthly Revenue (MRR) Churn Rate",
+      "calculation_logic": "(MRR from customers who cancelled/did not renew in a month) / (Total MRR at the start of the month)",
+      "time_window": "Monthly, aggregated to Quarterly (Q1 2024, Q2 2024, Q2 2023)",
+      "comparison_baseline": "Previous quarter (Q1 2024) and same quarter, prior year (Q2 2023)"
+    },
+    {
+      "sub_question_id": "SQ2",
+      "metric_name": "Reseller-Driven Churn Contribution",
+      "calculation_logic": "(Number of churned Enterprise customers attributed to the specific reseller) / (Total number of churned Enterprise customers in Q2)",
+      "time_window": "Q2 2024",
+      "comparison_baseline": "Compared against the overall Enterprise churn rate to understand its proportional impact."
+    },
+    {
+      "sub_question_id": "SQ3",
+      "metric_name": "Post-Price-Increase Renewal Rate",
+      "calculation_logic": "(Number of customers who renewed after April 1st) / (Total number of customers with renewal dates after April 1st)",
+      "time_window": "Q2 2024, cohortized by renewal date (pre/post April 1st)",
+      "comparison_baseline": "The renewal rate of customers whose renewal dates fell in Q1 2024 (before the price increase)."
+    }
+  ],
+  "stakeholder_profile": {
+    "primary_audience": "Executive Leadership (VP of Growth, CFO)",
+    "technical_tolerance": "Medium",
+    "output_format": "Slide Deck",
+    "decision_to_be_made": "Whether to attribute the churn to a one-off event (reseller loss), a strategic error (pricing), or a general trend, and then decide whether to adjust pricing, invest in new channel partners, or take other retention-focused actions."
+  },
+  "scope_flags": [
+    {
+      "flag": "Analysis of support ticket volume impact on churn.",
+      "type": "MISSING_DATA",
+      "decision": "DESCOPE",
+      "reasoning": "The mission brief explicitly states 'No support ticket table available.' Therefore, this part of the request is impossible to fulfill."
+    },
+    {
+      "flag": "Request to 'tell us what to do'.",
+      "type": "OUT_OF_SCOPE",
+      "decision": "PROCEED_WITH_CAVEAT",
+      "reasoning": "A data analyst's role is to provide data-driven insights and recommendations, not to make final strategic business decisions. The output will recommend actions based on findings, but the decision rests with the stakeholders."
+    },
+    {
+      "flag": "Data quality and consistency due to April data migration.",
+      "type": "MISSING_DATA",
+      "decision": "PROCEED_WITH_CAVEAT",
+      "reasoning": "The brief mentions a migration and an old billing table. This poses a significant risk to the accuracy of churn calculations, as customer subscription histories may be fragmented. The analysis will proceed with the assumption that a coherent timeline can be constructed, but this must be stated as a potential limitation."
+    }
+  ],
+  "success_definition": "This analysis is successful when the VP of Growth and CFO can agree on the primary driver(s) of Q2 Enterprise churn and use the findings to make a single, aligned decision on how to respond.",
+  "assumptions_log": [
+    {
+      "id": "A1",
+      "assumption": "We can reliably join data from the old and new billing systems to create a complete and accurate subscription history for each customer across the analysis period."
+    },
+    {
+      "id": "A2",
+      "assumption": "A 'churned' customer is defined as one whose subscription becomes inactive and is not renewed within the same period. This definition will be applied consistently across all tiers and timeframes."
+    },
+    {
+      "id": "A3",
+      "assumption": "There is a reliable key or attribute in the user/subscription data to identify all customers that were managed by the specific reseller partner whose contract was terminated."
+    },
+    {
+      "id": "A4",
+      "assumption": "The '15% Enterprise price increase' applies to customers renewing or purchasing new on or after April 1st, 2024, and does not apply retroactively to existing contracts."
+    }
+  ],
+  "downstream_phase_goals": {
+    "phase_2_goal": "Extract subscription, billing, and user data for all tiers from Jan 2023 to present, ensuring reseller-affiliated accounts are flagged.",
+    "phase_3_goal": "Reconcile old and new billing data to create a unified subscription event log for each customer, defining clear 'active' and 'churned' states.",
+    "phase_4_goal": "Generate time-series plots of monthly churn rates (customer and revenue) by tier to visually confirm the Q2 Enterprise anomaly.",
+    "phase_5_goal": "Quantify the churn impact in Q2 by segmenting the Enterprise tier into three distinct, mutually exclusive groups: reseller-related churn, non-reseller churn post-price hike, and baseline churn.",
+    "phase_6_goal": "Synthesize the findings into a clear narrative that weighs the impact of the reseller loss against the price increase to resolve the executive debate.",
+    "phase_7_goal": "Validate the final churn figures and segmentation logic with a peer to ensure accuracy, especially concerning the data migration period.",
+    "phase_8_goal": "Create a concise executive slide deck with a summary finding, key supporting charts, and 2-3 data-driven recommendations."
+  }
+}
