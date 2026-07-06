@@ -1,0 +1,63 @@
+{
+  "phase": 0,
+  "phase_name": "Intake Triage & Context Calendar Check",
+  "status": "COMPLETE",
+  "complexity": "STANDARD_ANALYSIS",
+  "complexity_reasoning": "The request to identify 'top drivers' of churn and recommend 'interventions' goes beyond a simple data lookup. It requires exploratory data analysis, statistical modeling (e.g., logistic regression) to quantify the relative importance of different customer attributes, and interpretation to form intervention hypotheses. This constitutes a standard, multi-phase analytical project.",
+  "confound_candidates": [
+    {
+      "event": "Unspecified changes in pricing or plan structure",
+      "window": "The period covered by this static dataset.",
+      "source": "TO_ASK_USER",
+      "expected_signature": "A high churn rate concentrated among customers whose service features (e.g., InternetService='Fiber optic', Contract='Month-to-month') were subject to a price increase or negative plan change.",
+      "reasoning": "A price hike is a common, non-statistical driver of churn. If a specific plan like 'Fiber optic' saw a price increase right before this data snapshot was taken, it could appear as a primary 'driver' of churn, when the true driver was the price change event."
+    },
+    {
+      "event": "Localized or service-specific outages/quality issues",
+      "window": "The period covered by this static dataset.",
+      "source": "TO_ASK_USER",
+      "expected_signature": "Elevated churn among customers with a specific service (e.g., InternetService='Fiber optic', PhoneService='Yes') that may have experienced reliability problems.",
+      "reasoning": "Poor service quality is a direct cause of churn. Without this context, we might incorrectly attribute churn to the service itself rather than a temporary, fixable operational issue."
+    },
+    {
+      "event": "Marketing campaigns for acquisition or upgrades",
+      "window": "The period covered by this static dataset.",
+      "source": "TO_ASK_USER",
+      "expected_signature": "Atypical distribution of 'tenure' among churned customers, or high churn among customers with specific add-on services that were part of a recent, perhaps unsuccessful, promotional campaign.",
+      "reasoning": "Promotions can attract low-intent customers who churn quickly after the promotional period ends. This could artificially inflate the importance of short tenure or certain service features as churn drivers."
+    }
+  ],
+  "calendar_questions_for_user": [
+    "What specific time period (e.g., Q3 2025) does this data snapshot represent?",
+    "Were there any changes to pricing, especially for different contract types or internet services, during or immediately preceding this period?",
+    "Were there any major marketing campaigns running that might affect the composition or tenure of the customer base in this dataset?",
+    "Are there any known service quality issues or major outages that occurred during this period which affected specific customer segments (e.g., those with Fiber Optic service)?"
+  ],
+  "detected_stakeholder_conflicts": [],
+  "scope_and_feasibility": {
+    "deadline_stated": "one analysis cycle",
+    "deadline_feasibility": "FEASIBLE_WITH_DESCOPING",
+    "feasibility_reasoning": "Identifying the top statistical predictors of churn is feasible within a standard analysis cycle. However, definitively recommending the 'highest-leverage, cost-effective interventions' requires causal inference and cost data, which are not available in this dataset. The scope must be clarified to distinguish between statistical correlation and causal impact.",
+    "descope_proposal": [
+      "DELIVERABLE WITHIN DEADLINE: A ranked list of the strongest statistical predictors of churn. Based on these findings, we will propose 2-3 specific, data-informed intervention *hypotheses* for the business to consider.",
+      "DEFERRED / OUT OF SCOPE: Quantifying the causal impact (the actual reduction in churn from an intervention) or the cost-effectiveness/ROI of these interventions. This would require a separate project involving A/B testing or more advanced causal modeling with additional data."
+    ],
+    "checks_never_skipped": [
+      "known-event confound calendar",
+      "stakeholder conflict surfacing"
+    ]
+  },
+  "specialist_referrals": [
+    {
+      "implied_ask": "Determine the causal impact and ROI of potential retention interventions.",
+      "why_beyond_analyst_scope": "Moving from correlation ('what features are associated with churn') to causation ('what intervention will reduce churn') requires specialized techniques like causal inference modeling or experimental design (A/B testing). Estimating ROI requires financial data not present in the dataset.",
+      "referral": "NEEDS_DATA_SCIENTIST",
+      "analyst_level_partial_answer": "This analysis can identify the strongest *correlates* of churn, providing a strong, evidence-based list of hypotheses for interventions. For example, we can quantify *how much more likely* customers on month-to-month contracts are to churn, which strongly suggests an intervention, but we cannot prove the exact churn reduction from changing contract types without an experiment."
+    }
+  ],
+  "knowledge_base_hits": [],
+  "effort_estimate": "Standard analysis effort requiring all pipeline phases. Phase 2 (Data Prep) will be non-trivial due to type coercion on 'TotalCharges'. Phase 4 (Modeling) will be key to rank drivers. Phase 5 (Synthesis) is crucial to translate statistical findings into business-relevant intervention hypotheses.",
+  "route": "FULL_PIPELINE",
+  "route_reasoning": "The request asks for 'drivers' and 'recommendations,' which is a complex task requiring data preparation, exploratory analysis, statistical modeling, and interpretation. It cannot be answered with a single query, thus a full pipeline is necessary.",
+  "quick_answer_draft": ""
+}
