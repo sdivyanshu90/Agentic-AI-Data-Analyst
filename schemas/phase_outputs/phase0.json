@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_outputs/phase0.json",
+  "title": "Phase 0 Output — Intake Triage & Context Calendar Check",
+  "type": "object",
+  "required": [
+    "phase",
+    "phase_name",
+    "status",
+    "complexity",
+    "complexity_reasoning",
+    "confound_candidates",
+    "detected_stakeholder_conflicts",
+    "scope_and_feasibility",
+    "route",
+    "route_reasoning"
+  ],
+  "properties": {
+    "phase": { "const": 0 },
+    "phase_name": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["COMPLETE", "NEEDS_RETRY", "CLARIFICATION_NEEDED"]
+    },
+    "complexity": {
+      "type": "string",
+      "enum": ["QUICK_LOOKUP", "STANDARD_ANALYSIS", "DEEP_INVESTIGATION"]
+    },
+    "complexity_reasoning": { "type": "string", "minLength": 1 },
+    "confound_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["event", "source", "reasoning"],
+        "properties": {
+          "event": { "type": "string", "minLength": 1 },
+          "window": { "type": "string" },
+          "source": {
+            "type": "string",
+            "enum": ["STATED_BY_USER", "KNOWLEDGE_BASE", "TO_ASK_USER"]
+          },
+          "expected_signature": { "type": "string" },
+          "reasoning": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "calendar_questions_for_user": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "detected_stakeholder_conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stakeholder_a_view", "stakeholder_b_view"],
+        "properties": {
+          "stakeholder_a_view": { "type": "string", "minLength": 1 },
+          "stakeholder_b_view": { "type": "string", "minLength": 1 },
+          "conflict_description": { "type": "string" },
+          "add_as_subquestion": { "type": "boolean" },
+          "resolution_data_needed": { "type": "string" }
+        }
+      }
+    },
+    "scope_and_feasibility": {
+      "type": "object",
+      "required": ["deadline_feasibility", "feasibility_reasoning"],
+      "properties": {
+        "deadline_stated": { "type": "string" },
+        "deadline_feasibility": {
+          "type": "string",
+          "enum": ["FEASIBLE", "FEASIBLE_WITH_DESCOPING", "INFEASIBLE"]
+        },
+        "feasibility_reasoning": { "type": "string", "minLength": 1 },
+        "descope_proposal": { "type": "array", "items": { "type": "string" } },
+        "checks_never_skipped": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "specialist_referrals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["referral"],
+        "properties": {
+          "implied_ask": { "type": "string" },
+          "why_beyond_analyst_scope": { "type": "string" },
+          "referral": {
+            "type": "string",
+            "enum": ["NEEDS_DATA_SCIENTIST", "NEEDS_DATA_ENGINEER", "NONE"]
+          },
+          "analyst_level_partial_answer": { "type": "string" }
+        }
+      }
+    },
+    "knowledge_base_hits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entry_question": { "type": "string" },
+          "relevance": { "type": "string" }
+        }
+      }
+    },
+    "effort_estimate": { "type": "string" },
+    "route": {
+      "type": "string",
+      "enum": ["SKIP_TO_QUICK_ANSWER", "FULL_PIPELINE"]
+    },
+    "route_reasoning": { "type": "string", "minLength": 1 },
+    "quick_answer_draft": { "type": "string" }
+  }
+}
